@@ -1,0 +1,177 @@
+/* AnimeTalk - Soft Anime Theme */
+
+/* CSS Variables - Soft/Chill Color Palette */
+:root {
+    --primary-purple: #A8B3E8;
+    --primary-pink: #F4A8C0;
+    --primary-blue: #A8D5E8;
+    --secondary-lavender: #D8C8F8;
+    --secondary-peach: #F8D8C8;
+    --secondary-mint: #C8F8E8;
+    
+    --bg-primary: #FAFBFF;
+    --bg-secondary: #F0F3FF;
+    --bg-card: #FFFFFF;
+    --bg-hover: #E8ECFF;
+    
+    --text-primary: #2D3456;
+    --text-secondary: #6B7280;
+    --text-light: #9CA3AF;
+    
+    --border-color: #E5E7EB;
+    --border-radius: 16px;
+    --border-radius-sm: 12px;
+    --border-radius-lg: 24px;
+    
+    --shadow-sm: 0 2px 8px rgba(168, 179, 232, 0.08);
+    --shadow-md: 0 4px 16px rgba(168, 179, 232, 0.12);
+    --shadow-lg: 0 8px 32px rgba(168, 179, 232, 0.16);
+    
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #FAFBFF 0%, #F0F3FF 100%);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Navigation */
+.navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow-sm);
+}
+
+.navbar .container {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.nav-brand a {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex: 1;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: var(--transition);
+    padding: 8px 16px;
+    border-radius: var(--border-radius-sm);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--primary-purple);
+    background: var(--bg-hover);
+}
+
+.nav-search {
+    flex: 0 0 300px;
+}
+
+.nav-search form {
+    position: relative;
+}
+
+.nav-search input {
+    width: 100%;
+    padding: 12px 48px 12px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background: var(--bg-secondary);
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.nav-search input:focus {
+    outline: none;
+    border-color: var(--primary-purple);
+    background: white;
+}
+
+.nav-search button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.nav-search button:hover {
+    color: var(--primary-purple);
+    background: var(--bg-hover);
+}
+
+/* Buttons - See full CSS file for complete styling */
+.btn-primary,
+.btn-outline,
+.btn-create,
+.btn-primary-large {
+    padding: 12px 24px;
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-pink) 100%);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* For full styles, see the complete CSS file above */
