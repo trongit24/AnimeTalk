@@ -3,306 +3,874 @@
 @section('title', $post->title)
 
 @section('content')
-<div class="post-detail-page">
-    <div class="container">
-        <div class="post-detail">
-            <!-- Breadcrumb -->
-            <div class="breadcrumb">
-                <a href="{{ route('home') }}">Home</a>
-                <span>/</span>
-                <span>{{ Str::limit($post->title, 50) }}</span>
-            </div>
-
-            <!-- Post Header -->
-            <div class="post-detail-header">
-                <div class="post-tags">
-                    @foreach($post->tags as $tag)
-                        <span class="tag-badge" style="background-color: {{ $tag->color }}20; color: {{ $tag->color }}">
-                            {{ $tag->name }}
-                        </span>
-                    @endforeach
+<div class="fb-post-detail-page">
+    <div class="fb-post-container">
+        <!-- Left Side - Media -->
+        <div class="fb-media-section">
+            @if($post->image)
+                <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="fb-main-image">
+            @elseif($post->video)
+                <video controls class="fb-main-video">
+                    <source src="{{ asset('storage/' . $post->video) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            @else
+                <div class="fb-no-media">
+                    <i class="bi bi-image" style="font-size: 4rem; color: #ccc;"></i>
+                    <p>No media attached</p>
                 </div>
-                <h1>{{ $post->title }}</h1>
-                <div class="post-detail-meta">
-                    <div class="author-info">
-                        @if($post->user->profile_photo)
-                        <img src="{{ asset('storage/' . $post->user->profile_photo) }}" alt="{{ $post->user->name }}" class="author-avatar-large" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
-                        @else
-                        <div class="author-avatar-large">{{ substr($post->user->name, 0, 1) }}</div>
-                        @endif
-                        <div>
-                            <div class="author-name">{{ $post->user->name }}</div>
-                            <div class="post-date">{{ $post->created_at->format('M d, Y') }} • {{ $post->created_at->diffForHumans() }}</div>
-                        </div>
-                    </div>
-                    <div class="post-stats-large">
-                        <span>💬 {{ $post->comments->count() }} replies</span>
-                        <span>❤️ <span id="likes-count">{{ $post->likes()->count() }}</span> likes</span>
+            @endif
+        </div>
+
+        <!-- Right Side - Info & Comments -->
+        <div class="fb-info-section">
+            <!-- Post Header -->
+            <div class="fb-post-header">
+                <div class="fb-author-info">
+                    @if($post->user->profile_photo)
+                        <img src="{{ asset('storage/' . $post->user->profile_photo) }}" alt="{{ $post->user->name }}" class="fb-author-avatar">
+                    @else
+                        <div class="fb-author-avatar-circle">{{ substr($post->user->name, 0, 1) }}</div>
+                    @endif
+                    <div class="fb-author-details">
+                        <div class="fb-author-name">{{ $post->user->name }}</div>
+                        <div class="fb-post-time">{{ $post->created_at->diffForHumans() }}</div>
                     </div>
                 </div>
                 
                 @auth
-                    <div class="post-actions-bar">
-                        <button id="like-btn" class="action-btn {{ $post->likedBy(auth()->user()) ? 'liked' : '' }}" data-post-id="{{ $post->id }}">
-                            <i class="bi bi-heart-fill"></i> 
-                            <span id="like-text">{{ $post->likedBy(auth()->user()) ? 'Liked' : 'Like' }}</span>
+                @if($post->isOwnedBy(auth()->user()))
+                <div class="fb-post-menu">
+                    <div class="dropdown">
+                        <button class="fb-menu-btn" onclick="toggleDropdown(event)">
+                            <i class="bi bi-three-dots"></i>
                         </button>
-                        
-                        @if($post->isOwnedBy(auth()->user()))
-                            <a href="{{ route('posts.edit', $post) }}" class="action-btn edit-btn">
+                        <div class="dropdown-content">
+                            <a href="{{ route('posts.edit', $post) }}">
                                 <i class="bi bi-pencil"></i> Edit Post
                             </a>
-                            <form action="{{ route('posts.destroy', $post) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                            <form action="{{ route('posts.destroy', $post) }}" method="POST" onsubmit="return confirm('Delete this post?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="action-btn delete-btn">
+                                <button type="submit">
                                     <i class="bi bi-trash"></i> Delete Post
                                 </button>
                             </form>
-                        @endif
+                        </div>
                     </div>
+                </div>
+                @endif
                 @endauth
             </div>
 
-            <!-- Post Content -->
-            <div class="post-detail-content">
-                @if($post->image)
-                    <div class="post-content-image">
-                        <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}">
-                    </div>
+            <!-- Post Title & Content -->
+            <div class="fb-post-content">
+                <h1 class="fb-post-title">{{ $post->title }}</h1>
+                
+                @if($post->tags->count() > 0)
+                <div class="fb-post-tags">
+                    @foreach($post->tags as $tag)
+                        <span class="fb-tag" style="background: {{ $tag->color }}20; color: {{ $tag->color }}">
+                            {{ $tag->name }}
+                        </span>
+                    @endforeach
+                </div>
                 @endif
-                @if($post->video)
-                    <div class="post-content-video" style="margin-bottom: 1.5rem;">
-                        <video controls style="width: 100%; max-height: 600px; border-radius: 8px;">
-                            <source src="{{ asset('storage/' . $post->video) }}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
-                @endif
-                <div class="post-text">
+                
+                <div class="fb-post-text">
                     {!! nl2br(e($post->content)) !!}
                 </div>
             </div>
 
-            <!-- Comments Section -->
-            <div class="comments-section">
-                <h3>Replies ({{ $post->comments->count() }})</h3>
+            <!-- Post Stats & Actions -->
+            <div class="fb-post-stats">
+                <div class="fb-stats-left">
+                    <span class="fb-stat-item">
+                        <i class="bi bi-heart-fill" style="color: #FF6B9D;"></i>
+                        <span id="likes-count">{{ $post->likes()->count() }}</span>
+                    </span>
+                </div>
+                <div class="fb-stats-right">
+                    <span class="fb-stat-item">{{ $post->comments->count() }} bình luận</span>
+                </div>
+            </div>
 
+            <div class="fb-post-actions">
                 @auth
-                    <div class="comment-form">
-                        <form action="{{ route('comments.store', $post->id) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="post_id" value="{{ $post->id }}">
-                            <div class="form-group">
-                                <textarea name="content" rows="4" placeholder="Share your thoughts..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn-primary">Post Reply</button>
-                        </form>
-                    </div>
+                <button id="like-btn" class="fb-action-btn {{ $post->likedBy(auth()->user()) ? 'active' : '' }}" data-post-id="{{ $post->id }}">
+                    <i class="bi {{ $post->likedBy(auth()->user()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                    <span>Thích</span>
+                </button>
                 @else
-                    <div class="login-prompt">
-                        <p>Please <a href="/login">log in</a> to reply to this post.</p>
-                    </div>
+                <a href="{{ route('login') }}" class="fb-action-btn">
+                    <i class="bi bi-heart"></i>
+                    <span>Thích</span>
+                </a>
                 @endauth
+                
+                <button class="fb-action-btn" onclick="focusCommentInput()">
+                    <i class="bi bi-chat"></i>
+                    <span>Bình luận</span>
+                </button>
+            </div>
 
-                <div class="comments-list">
+            <!-- Comments Section -->
+            <div class="fb-comments-section">
+                <div class="fb-comments-list" id="comments-list">
                     @forelse($post->comments as $comment)
-                        <div class="comment-item" id="comment-{{ $comment->id }}">
-                            @if($comment->user->profile_photo)
-                            <img src="{{ asset('storage/' . $comment->user->profile_photo) }}" alt="{{ $comment->user->name }}" class="comment-author-avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                            @else
-                            <div class="comment-author-avatar">{{ substr($comment->user->name, 0, 1) }}</div>
-                            @endif
-                            <div class="comment-content">
-                                <div class="comment-header">
-                                    <span class="comment-author">{{ $comment->user->name }}</span>
-                                    <span class="comment-date">{{ $comment->created_at->diffForHumans() }}</span>
-                                </div>
-                                <p class="comment-text" id="comment-text-{{ $comment->id }}">{{ $comment->content }}</p>
-                                
-                                <!-- Edit form (hidden by default) -->
-                                <form action="{{ route('comments.update', $comment) }}" method="POST" class="comment-edit-form" id="edit-form-{{ $comment->id }}" style="display: none;">
-                                    @csrf
-                                    @method('PUT')
-                                    <textarea name="content" rows="3" required>{{ $comment->content }}</textarea>
-                                    <div class="edit-actions">
-                                        <button type="submit" class="btn-sm btn-primary">Save</button>
-                                        <button type="button" class="btn-sm btn-outline" onclick="cancelEdit({{ $comment->id }})">Cancel</button>
-                                    </div>
-                                </form>
-                                
-                                @auth
-                                    <div class="comment-actions">
-                                        @if($comment->isOwnedBy(auth()->user()))
-                                            <button class="comment-action-btn" onclick="editComment({{ $comment->id }})">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </button>
-                                        @endif
+                        <div class="fb-comment-item" id="comment-{{ $comment->id }}">
+                            <div class="fb-comment-avatar">
+                                @if($comment->user->profile_photo)
+                                    <img src="{{ asset('storage/' . $comment->user->profile_photo) }}" alt="{{ $comment->user->name }}">
+                                @else
+                                    <div class="fb-avatar-circle">{{ substr($comment->user->name, 0, 1) }}</div>
+                                @endif
+                            </div>
+                            <div class="fb-comment-content">
+                                <div class="fb-comment-bubble">
+                                    <div class="fb-comment-author">{{ $comment->user->name }}</div>
+                                    <div class="fb-comment-text" id="comment-text-{{ $comment->id }}">
+                                        @php
+                                            $content = $comment->content;
+                                            $isImageUrl = preg_match('/^https?:\/\/.*(giphy\.com|\.gif|\.jpg|\.jpeg|\.png|\.webp)/i', $content);
+                                        @endphp
                                         
+                                        @if($isImageUrl)
+                                            <img src="{{ $content }}" class="fb-comment-gif" alt="GIF">
+                                        @else
+                                            {{ $content }}
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Edit form (hidden by default) -->
+                                    <form action="{{ route('comments.update', $comment) }}" method="POST" class="fb-comment-edit-form" id="edit-form-{{ $comment->id }}" style="display: none;">
+                                        @csrf
+                                        @method('PUT')
+                                        <textarea name="content" rows="2" required>{{ $comment->content }}</textarea>
+                                        <div class="fb-edit-actions">
+                                            <button type="submit" class="fb-btn-save">Lưu</button>
+                                            <button type="button" class="fb-btn-cancel" onclick="cancelEdit({{ $comment->id }})">Hủy</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <div class="fb-comment-meta">
+                                    <span class="fb-comment-time">{{ $comment->created_at->diffForHumans() }}</span>
+                                    @auth
+                                        @if($comment->isOwnedBy(auth()->user()))
+                                            <button class="fb-comment-meta-btn" onclick="editComment({{ $comment->id }})">Sửa</button>
+                                        @endif
                                         @if($comment->isOwnedBy(auth()->user()) || $post->isOwnedBy(auth()->user()))
-                                            <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this comment?');">
+                                            <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa bình luận này?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="comment-action-btn delete">
-                                                    <i class="bi bi-trash"></i> Delete
-                                                </button>
+                                                <button type="submit" class="fb-comment-meta-btn">Xóa</button>
                                             </form>
                                         @endif
-                                    </div>
-                                @endauth
+                                    @endauth
+                                </div>
                             </div>
                         </div>
                     @empty
-                        <p class="no-comments">No replies yet. Be the first to comment!</p>
+                        <p class="fb-no-comments">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
                     @endforelse
                 </div>
+
+                <!-- Comment Form -->
+                @auth
+                <div class="fb-comment-form">
+                    <div class="fb-comment-avatar">
+                        @if(auth()->user()->profile_photo)
+                            <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}">
+                        @else
+                            <div class="fb-avatar-circle">{{ substr(auth()->user()->name, 0, 1) }}</div>
+                        @endif
+                    </div>
+                    <div class="fb-comment-form-wrapper">
+                        <form action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" id="comment-form" class="fb-comment-input-form">
+                            @csrf
+                            <input type="hidden" name="post_id" value="{{ $post->id }}">
+                            <input type="file" id="comment-image-input" name="image" accept="image/*" style="display: none;">
+                            
+                            <div class="fb-comment-input-wrapper">
+                                <textarea name="content" id="comment-input" placeholder="Viết bình luận..." rows="1" autocomplete="off"></textarea>
+                                
+                                <!-- Image/GIF Preview -->
+                                <div class="fb-comment-preview" id="comment-preview" style="display: none;">
+                                    <img src="" alt="Preview" id="preview-img">
+                                    <button type="button" class="fb-remove-preview" onclick="removePreview()">&times;</button>
+                                </div>
+                            </div>
+                            
+                            <div class="fb-comment-actions">
+                                <div class="fb-comment-tools">
+                                    <button type="button" class="fb-tool-btn" onclick="document.getElementById('comment-image-input').click()" title="Thêm ảnh">
+                                        <i class="bi bi-image"></i>
+                                    </button>
+                                    <button type="button" class="fb-tool-btn" id="gif-btn" title="Thêm GIF">
+                                        <i class="bi bi-file-play"></i>
+                                    </button>
+                                    <button type="button" class="fb-tool-btn" id="emoji-btn" title="Emoji">
+                                        <i class="bi bi-emoji-smile"></i>
+                                    </button>
+                                </div>
+                                <button type="submit" class="fb-send-btn">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Emoji Picker -->
+                            <div class="fb-emoji-picker" id="emoji-picker" style="display: none;">
+                                <div class="emoji-grid">
+                                    <span>😀</span><span>😃</span><span>😄</span><span>😁</span><span>😆</span><span>😅</span><span>😂</span><span>🤣</span><span>😊</span><span>😇</span><span>🙂</span><span>🙃</span><span>😉</span><span>😌</span><span>😍</span><span>🥰</span><span>😘</span><span>😗</span><span>😙</span><span>😚</span><span>😋</span><span>😛</span><span>😝</span><span>😜</span><span>🤪</span><span>🤨</span><span>🧐</span><span>🤓</span><span>😎</span><span>🤩</span><span>🥳</span><span>😏</span><span>😒</span><span>😞</span><span>😔</span><span>😟</span><span>😕</span><span>🙁</span><span>☹️</span><span>😣</span><span>😖</span><span>😫</span><span>😩</span><span>🥺</span><span>😢</span><span>😭</span><span>😤</span><span>😠</span><span>😡</span><span>🤬</span><span>🤯</span><span>😳</span><span>🥵</span><span>🥶</span><span>😱</span><span>😨</span><span>😰</span><span>😥</span><span>😓</span><span>🤗</span><span>🤔</span><span>🤭</span><span>🤫</span><span>🤥</span><span>😶</span><span>😐</span><span>😑</span><span>😬</span><span>🙄</span><span>😯</span><span>😦</span><span>😧</span><span>😮</span><span>😲</span><span>🥱</span><span>😴</span><span>🤤</span><span>😪</span><span>😵</span><span>🤐</span><span>🥴</span><span>🤢</span><span>🤮</span><span>🤧</span><span>😷</span><span>🤒</span><span>🤕</span><span>🤑</span><span>🤠</span><span>👍</span><span>👎</span><span>👊</span><span>✊</span><span>🤛</span><span>🤜</span><span>🤞</span><span>✌️</span><span>🤟</span><span>🤘</span><span>👌</span><span>🤌</span><span>🤏</span><span>👈</span><span>👉</span><span>👆</span><span>👇</span><span>☝️</span><span>✋</span><span>🤚</span><span>🖐</span><span>🖖</span><span>👋</span><span>🤙</span><span>💪</span><span>🙏</span><span>❤️</span><span>🧡</span><span>💛</span><span>💚</span><span>💙</span><span>💜</span><span>🖤</span><span>🤍</span><span>🤎</span><span>💔</span><span>❣️</span><span>💕</span><span>💞</span><span>💓</span><span>💗</span><span>💖</span><span>💘</span><span>💝</span><span>✨</span><span>💫</span><span>⭐</span><span>🌟</span><span>✅</span><span>❌</span><span>🔥</span><span>💯</span><span>👏</span><span>🎉</span><span>🎊</span>
+                                </div>
+                            </div>
+                            
+                            <!-- GIF Picker -->
+                            <div class="fb-gif-picker" id="gif-picker" style="display: none;">
+                                <input type="text" class="gif-search" placeholder="Tìm GIF...">
+                                <div class="gif-grid">
+                                    <img src="https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif" class="gif-item" alt="GIF">
+                                    <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" class="gif-item" alt="GIF">
+                                    <img src="https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif" class="gif-item" alt="GIF">
+                                    <img src="https://media.giphy.com/media/ZBQhoZC0nqknSviPqT/giphy.gif" class="gif-item" alt="GIF">
+                                    <img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" class="gif-item" alt="GIF">
+                                    <img src="https://media.giphy.com/media/12NUbkX6p4xOO4/giphy.gif" class="gif-item" alt="GIF">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                    </form>
+                </div>
+                @else
+                <div class="fb-login-prompt">
+                    <p><a href="{{ route('login') }}">Đăng nhập</a> để bình luận</p>
+                </div>
+                @endauth
             </div>
+        </div>
+    </div>
+</div>
         </div>
     </div>
 </div>
 
 @push('styles')
 <style>
-.post-actions-bar {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 2px solid rgba(91, 163, 208, 0.1);
-    flex-wrap: wrap;
+/* Facebook-style Post Detail Layout */
+.fb-post-detail-page {
+    background: #f0f2f5;
+    min-height: 100vh;
+    padding: 20px 0;
 }
 
-.action-btn {
-    padding: 0.6rem 1.5rem;
-    border-radius: 25px;
-    border: 2px solid #5BA3D0;
-    background: white;
-    color: #5BA3D0;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-}
-
-.action-btn:hover {
-    background: #5BA3D0;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(91, 163, 208, 0.3);
-}
-
-.action-btn.liked {
-    background: #FF6B9D;
-    border-color: #FF6B9D;
-    color: white;
-}
-
-.action-btn.liked:hover {
-    background: #ff4582;
-    border-color: #ff4582;
-}
-
-.action-btn.edit-btn {
-    border-color: #9B7EDE;
-    color: #9B7EDE;
-}
-
-.action-btn.edit-btn:hover {
-    background: #9B7EDE;
-    color: white;
-}
-
-.action-btn.delete-btn {
-    border-color: #dc3545;
-    color: #dc3545;
-}
-
-.action-btn.delete-btn:hover {
-    background: #dc3545;
-    color: white;
-}
-
-.comment-actions {
-    margin-top: 0.5rem;
-    display: flex;
-    gap: 1rem;
-}
-
-.comment-action-btn {
-    background: none;
-    border: none;
-    color: #5BA3D0;
-    font-size: 0.9rem;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.comment-action-btn:hover {
-    color: #9B7EDE;
-}
-
-.comment-action-btn.delete {
-    color: #dc3545;
-}
-
-.comment-action-btn.delete:hover {
-    color: #bd2130;
-}
-
-.comment-edit-form {
-    margin-top: 0.75rem;
-}
-
-.comment-edit-form textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 2px solid #5BA3D0;
+.fb-post-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 500px;
+    gap: 0;
+    background: #000;
     border-radius: 8px;
-    font-family: inherit;
-    resize: vertical;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.edit-actions {
+/* Left Side - Media */
+.fb-media-section {
+    background: #000;
     display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    min-height: 600px;
+    max-height: 90vh;
 }
 
-.btn-sm {
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.3s ease;
+.fb-main-image,
+.fb-main-video {
+    max-width: 100%;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
 }
 
-.btn-sm.btn-primary {
+.fb-no-media {
+    text-align: center;
+    color: #fff;
+    padding: 4rem 2rem;
+}
+
+.fb-no-media p {
+    margin-top: 1rem;
+    color: #999;
+}
+
+/* Right Side - Info & Comments */
+.fb-info-section {
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+/* Post Header */
+.fb-post-header {
+    padding: 16px;
+    border-bottom: 1px solid #e4e6eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.fb-author-info {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex: 1;
+}
+
+.fb-author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.fb-author-avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     background: linear-gradient(135deg, #5BA3D0, #9B7EDE);
     color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
-.btn-sm.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(91, 163, 208, 0.3);
+.fb-author-details {
+    flex: 1;
 }
 
-.btn-sm.btn-outline {
+.fb-author-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #050505;
+}
+
+.fb-post-time {
+    font-size: 13px;
+    color: #65676b;
+}
+
+.fb-menu-btn {
+    background: none;
+    border: none;
+    color: #65676b;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.fb-menu-btn:hover {
+    background: #f0f2f5;
+}
+
+/* Dropdown */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
     background: white;
-    color: #666;
-    border: 2px solid #ddd;
+    min-width: 200px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    z-index: 1000;
+    padding: 8px 0;
 }
 
-.btn-sm.btn-outline:hover {
-    background: #f5f5f5;
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-content a,
+.dropdown-content button {
+    display: block;
+    padding: 10px 16px;
+    color: #050505;
+    text-decoration: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.dropdown-content a:hover,
+.dropdown-content button:hover {
+    background: #f0f2f5;
+}
+
+/* Post Content */
+.fb-post-content {
+    padding: 16px;
+    border-bottom: 1px solid #e4e6eb;
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.fb-post-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #050505;
+}
+
+.fb-post-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.fb-tag {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.fb-post-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #050505;
+    white-space: pre-wrap;
+}
+
+/* Post Stats */
+.fb-post-stats {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e4e6eb;
+    font-size: 15px;
+    color: #65676b;
+}
+
+.fb-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Post Actions */
+.fb-post-actions {
+    padding: 4px 16px;
+    display: flex;
+    border-bottom: 1px solid #e4e6eb;
+}
+
+.fb-action-btn {
+    flex: 1;
+    padding: 8px;
+    background: none;
+    border: none;
+    color: #65676b;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+
+.fb-action-btn:hover {
+    background: #f0f2f5;
+}
+
+.fb-action-btn.active {
+    color: #FF6B9D;
+}
+
+.fb-action-btn.active i {
+    color: #FF6B9D;
+}
+
+/* Comments Section */
+.fb-comments-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fb-comments-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.fb-comment-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.fb-comment-avatar img,
+.fb-avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.fb-avatar-circle {
+    background: linear-gradient(135deg, #5BA3D0, #9B7EDE);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.fb-comment-content {
+    flex: 1;
+}
+
+.fb-comment-bubble {
+    background: #f0f2f5;
+    padding: 8px 12px;
+    border-radius: 18px;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.fb-comment-author {
+    font-weight: 600;
+    font-size: 13px;
+    color: #050505;
+    margin-bottom: 2px;
+}
+
+.fb-comment-text {
+    font-size: 15px;
+    color: #050505;
+    word-wrap: break-word;
+}
+
+.fb-comment-gif {
+    max-width: 250px;
+    border-radius: 8px;
+    margin-top: 4px;
+    display: block;
+}
+
+.fb-comment-meta {
+    padding: 0 12px;
+    margin-top: 4px;
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #65676b;
+}
+
+.fb-comment-time {
+    font-weight: 600;
+}
+
+.fb-comment-meta-btn {
+    background: none;
+    border: none;
+    color: #65676b;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.fb-comment-meta-btn:hover {
+    text-decoration: underline;
+}
+
+/* Comment Edit Form */
+.fb-comment-edit-form {
+    margin-top: 8px;
+}
+
+.fb-comment-edit-form textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 18px;
+    font-family: inherit;
+    font-size: 15px;
+    resize: none;
+}
+
+.fb-edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.fb-btn-save,
+.fb-btn-cancel {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.fb-btn-save {
+    background: #1877f2;
+    color: white;
+}
+
+.fb-btn-save:hover {
+    background: #165ec4;
+}
+
+.fb-btn-cancel {
+    background: #e4e6eb;
+    color: #050505;
+}
+
+.fb-btn-cancel:hover {
+    background: #d8dadf;
+}
+
+.fb-no-comments {
+    text-align: center;
+    color: #65676b;
+    padding: 32px 16px;
+    font-size: 15px;
+}
+
+/* Comment Form */
+.fb-comment-form {
+    padding: 12px 16px;
+    border-top: 1px solid #e4e6eb;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    background: #fff;
+}
+
+.fb-comment-form-wrapper {
+    flex: 1;
+}
+
+.fb-comment-input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fb-comment-input-wrapper {
+    background: #f0f2f5;
+    border-radius: 18px;
+    padding: 8px 12px;
+}
+
+.fb-comment-input-form textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    min-height: 20px;
+    max-height: 100px;
+}
+
+.fb-comment-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+}
+
+.fb-comment-tools {
+    display: flex;
+    gap: 4px;
+}
+
+.fb-tool-btn {
+    background: none;
+    border: none;
+    color: #65676b;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.fb-tool-btn:hover {
+    background: #f0f2f5;
+}
+
+.fb-comment-preview {
+    margin-top: 8px;
+    position: relative;
+    display: inline-block;
+}
+
+.fb-comment-preview img {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 8px;
+    display: block;
+}
+
+.fb-remove-preview {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Emoji Picker */
+.fb-emoji-picker,
+.fb-gif-picker {
+    margin-top: 8px;
+    background: white;
+    border: 1px solid #e4e6eb;
+    border-radius: 8px;
+    padding: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+    gap: 8px;
+    font-size: 24px;
+    user-select: none;
+}
+
+.emoji-grid span {
+    cursor: pointer;
+    text-align: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.emoji-grid span:hover {
+    background: #f0f2f5;
+    transform: scale(1.2);
+}
+
+.gif-search {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e4e6eb;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+.gif-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.gif-item {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.gif-item:hover {
+    transform: scale(1.05);
+}
+
+.fb-send-btn {
+    background: none;
+    border: none;
+    color: #1877f2;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.fb-send-btn:hover {
+    color: #165ec4;
+}
+
+.fb-login-prompt {
+    padding: 16px;
+    text-align: center;
+    border-top: 1px solid #e4e6eb;
+}
+
+.fb-login-prompt a {
+    color: #1877f2;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.fb-login-prompt a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .fb-post-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .fb-media-section {
+        max-height: 400px;
+    }
+    
+    .fb-info-section {
+        max-height: none;
+    }
 }
 </style>
 @endpush
@@ -314,7 +882,7 @@ document.getElementById('like-btn')?.addEventListener('click', function() {
     const postId = this.dataset.postId;
     const btn = this;
     const likesCount = document.getElementById('likes-count');
-    const likeText = document.getElementById('like-text');
+    const icon = btn.querySelector('i');
     
     fetch(`/posts/${postId}/like`, {
         method: 'POST',
@@ -328,11 +896,13 @@ document.getElementById('like-btn')?.addEventListener('click', function() {
         likesCount.textContent = data.likes_count;
         
         if (data.liked) {
-            btn.classList.add('liked');
-            likeText.textContent = 'Liked';
+            btn.classList.add('active');
+            icon.classList.remove('bi-heart');
+            icon.classList.add('bi-heart-fill');
         } else {
-            btn.classList.remove('liked');
-            likeText.textContent = 'Like';
+            btn.classList.remove('active');
+            icon.classList.remove('bi-heart-fill');
+            icon.classList.add('bi-heart');
         }
     })
     .catch(error => console.error('Error:', error));
@@ -347,6 +917,179 @@ function editComment(commentId) {
 function cancelEdit(commentId) {
     document.getElementById('comment-text-' + commentId).style.display = 'block';
     document.getElementById('edit-form-' + commentId).style.display = 'none';
+}
+
+// Focus comment input
+function focusCommentInput() {
+    document.getElementById('comment-input')?.focus();
+}
+
+// Dropdown menu toggle
+function toggleDropdown(event) {
+    event.stopPropagation();
+    const dropdown = event.target.closest('.dropdown').querySelector('.dropdown-content');
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function() {
+    const dropdowns = document.querySelectorAll('.dropdown-content');
+    dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
+});
+
+// ===== Comment Form Functionality =====
+
+// Auto-resize textarea
+const commentTextarea = document.getElementById('comment-input');
+if (commentTextarea) {
+    commentTextarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+    });
+}
+
+// Image preview
+const imageInput = document.getElementById('comment-image-input');
+const commentPreview = document.getElementById('comment-preview');
+const previewImg = document.getElementById('preview-img');
+
+if (imageInput) {
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                commentPreview.style.display = 'block';
+                // Clear GIF URL if exists
+                if (commentPreview.dataset.gifUrl) {
+                    delete commentPreview.dataset.gifUrl;
+                }
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+}
+
+// Remove preview
+function removePreview() {
+    const imageInput = document.getElementById('comment-image-input');
+    const commentPreview = document.getElementById('comment-preview');
+    
+    imageInput.value = '';
+    commentPreview.style.display = 'none';
+    if (commentPreview.dataset.gifUrl) {
+        delete commentPreview.dataset.gifUrl;
+    }
+}
+
+// Emoji picker toggle
+const emojiBtn = document.getElementById('emoji-btn');
+const emojiPicker = document.getElementById('emoji-picker');
+const gifBtn = document.getElementById('gif-btn');
+const gifPicker = document.getElementById('gif-picker');
+
+if (emojiBtn && emojiPicker) {
+    emojiBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        if (gifPicker) gifPicker.style.display = 'none';
+    });
+
+    // Add emoji to textarea
+    emojiPicker.querySelectorAll('span').forEach(emojiSpan => {
+        emojiSpan.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const textarea = document.getElementById('comment-input');
+            const emoji = this.textContent;
+            const cursorPos = textarea.selectionStart || 0;
+            const textBefore = textarea.value.substring(0, cursorPos);
+            const textAfter = textarea.value.substring(cursorPos);
+            
+            textarea.value = textBefore + emoji + textAfter;
+            
+            // Set cursor position after emoji
+            const newPos = cursorPos + emoji.length;
+            textarea.focus();
+            textarea.setSelectionRange(newPos, newPos);
+            
+            // Trigger input event to resize textarea
+            textarea.dispatchEvent(new Event('input'));
+            
+            emojiPicker.style.display = 'none';
+        });
+    });
+}
+
+// GIF picker toggle
+if (gifBtn && gifPicker) {
+    gifBtn.addEventListener('click', function() {
+        gifPicker.style.display = gifPicker.style.display === 'none' ? 'block' : 'none';
+        emojiPicker.style.display = 'none';
+    });
+
+    // Select GIF
+    gifPicker.querySelectorAll('.gif-item').forEach(gif => {
+        gif.addEventListener('click', function() {
+            const commentPreview = document.getElementById('comment-preview');
+            const previewImg = document.getElementById('preview-img');
+            const imageInput = document.getElementById('comment-image-input');
+            
+            // Clear file input
+            imageInput.value = '';
+            
+            // Show GIF preview
+            previewImg.src = this.src;
+            commentPreview.style.display = 'block';
+            commentPreview.dataset.gifUrl = this.src;
+            
+            gifPicker.style.display = 'none';
+        });
+    });
+}
+
+// Close pickers when clicking outside
+document.addEventListener('click', function(e) {
+    if (emojiPicker && !emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+        emojiPicker.style.display = 'none';
+    }
+    if (gifPicker && !gifBtn.contains(e.target) && !gifPicker.contains(e.target)) {
+        gifPicker.style.display = 'none';
+    }
+});
+
+// Handle form submission
+const commentForm = document.getElementById('comment-form');
+if (commentForm) {
+    commentForm.addEventListener('submit', function(e) {
+        const commentPreview = document.getElementById('comment-preview');
+        const textarea = document.getElementById('comment-input');
+        
+        // If GIF is selected, replace content with GIF URL
+        if (commentPreview.dataset.gifUrl) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.set('content', commentPreview.dataset.gifUrl);
+            formData.delete('image'); // Remove image file if exists
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        } else if (!textarea.value.trim() && !document.getElementById('comment-image-input').files[0]) {
+            e.preventDefault();
+            alert('Vui lòng nhập nội dung bình luận!');
+        }
+    });
 }
 </script>
 @endpush

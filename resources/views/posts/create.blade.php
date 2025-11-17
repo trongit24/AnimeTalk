@@ -14,6 +14,27 @@
             <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
+                <!-- User Avatar Section -->
+                <div class="post-creator-header" style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 12px;">
+                    @if(Auth::user()->profile_photo)
+                        <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" 
+                             alt="{{ Auth::user()->name }}" 
+                             style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #007bff;">
+                    @elseif(Auth::user()->avatar)
+                        <img src="{{ Auth::user()->avatar }}" 
+                             alt="{{ Auth::user()->name }}" 
+                             style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #007bff;">
+                    @else
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px; border: 2px solid #007bff;">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #333;">{{ Auth::user()->name }}</h3>
+                        <p style="margin: 0; font-size: 14px; color: #666;">What's your favorite anime?</p>
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label for="title">Post Title</label>
                     <input type="text" id="title" name="title" value="{{ old('title') }}" required>

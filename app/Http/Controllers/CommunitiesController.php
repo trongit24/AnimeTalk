@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Community;
+use App\Models\CommunityActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -72,7 +73,15 @@ class CommunitiesController extends Controller
         }
 
         // Add creator as owner
-        $community->members()->attach(Auth::id(), ['role' => 'owner']);
+        $community->members()->attach(Auth::user()->uid, ['role' => 'owner']);
+
+        // Log activity
+        CommunityActivity::create([
+            'community_id' => $community->id,
+            'user_id' => Auth::user()->uid,
+            'type' => 'created',
+            'description' => Auth::user()->name . ' created the community',
+        ]);
 
         return redirect()->route('communities.show', $community->slug)
             ->with('success', 'Community created successfully!');
@@ -86,8 +95,13 @@ class CommunitiesController extends Controller
             ->firstOrFail();
 
         $members = $community->members()->paginate(20);
+        $activities = $community->activities()
+            ->with('user')
+            ->latest()
+            ->take(20)
+            ->get();
 
-        return view('communities.show', compact('community', 'members'));
+        return view('communities.show', compact('community', 'members', 'activities'));
     }
 
     public function join(Community $community)
@@ -96,8 +110,16 @@ class CommunitiesController extends Controller
             return back()->with('error', 'You are already a member!');
         }
 
-        $community->members()->attach(Auth::id(), ['role' => 'member']);
+        $community->members()->attach(Auth::user()->uid, ['role' => 'member']);
         $community->update(['members_count' => DB::raw('members_count + 1')]);
+
+        // Log activity
+        CommunityActivity::create([
+            'community_id' => $community->id,
+            'user_id' => Auth::user()->uid,
+            'type' => 'joined',
+            'description' => Auth::user()->name . ' joined the community',
+        ]);
 
         return back()->with('success', 'Joined community successfully!');
     }
@@ -108,7 +130,15 @@ class CommunitiesController extends Controller
             return back()->with('error', 'Owner cannot leave the community!');
         }
 
-        $community->members()->detach(Auth::id());
+        // Log activity before leaving
+        CommunityActivity::create([
+            'community_id' => $community->id,
+            'user_id' => Auth::user()->uid,
+            'type' => 'left',
+            'description' => Auth::user()->name . ' left the community',
+        ]);
+
+        $community->members()->detach(Auth::user()->uid);
         $community->update(['members_count' => DB::raw('members_count - 1')]);
 
         return back()->with('success', 'Left community successfully!');

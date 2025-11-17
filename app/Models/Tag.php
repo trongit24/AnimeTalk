@@ -20,9 +20,4 @@ class Tag extends Model
     {
         return $this->belongsToMany(Post::class);
     }
-
-    public function forums()
-    {
-        return $this->belongsToMany(Forum::class);
-    }
 }

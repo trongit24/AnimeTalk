@@ -13,7 +13,7 @@ class PostLikeController extends Controller
     {
         $user = Auth::user();
         
-        $existingLike = PostLike::where('user_id', $user->id)
+        $existingLike = PostLike::where('user_id', $user->uid)
             ->where('post_id', $post->id)
             ->first();
 
@@ -22,7 +22,7 @@ class PostLikeController extends Controller
             $liked = false;
         } else {
             PostLike::create([
-                'user_id' => $user->id,
+                'user_id' => $user->uid,
                 'post_id' => $post->id,
             ]);
             $liked = true;

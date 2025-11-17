@@ -13,11 +13,12 @@ class CommentController extends Controller
     // Get comments for a post (API)
     public function index(Post $post)
     {
+        $currentUser = Auth::user();
         $comments = $post->comments()
             ->with('user')
             ->latest()
             ->get()
-            ->map(function($comment) {
+            ->map(function($comment) use ($currentUser, $post) {
                 return [
                     'id' => $comment->id,
                     'content' => $comment->content,
@@ -27,6 +28,7 @@ class CommentController extends Controller
                         'profile_photo' => $comment->user->profile_photo,
                     ],
                     'created_at' => $comment->created_at->diffForHumans(),
+                    'can_delete' => $currentUser && ($comment->user_id === $currentUser->uid || $post->user_id === $currentUser->uid),
                 ];
             });
 
@@ -37,12 +39,12 @@ class CommentController extends Controller
     public function store(Request $request, Post $post)
     {
         $validated = $request->validate([
-            'content' => 'required|max:1000',
+            'content' => 'required|string|max:1000',
             'image' => 'nullable|image|max:5120', // 5MB max
         ]);
 
         $comment = new Comment();
-        $comment->user_id = Auth::id();
+        $comment->user_id = Auth::user()->uid;
         $comment->post_id = $post->id;
         $comment->content = $validated['content'];
 
@@ -67,7 +69,7 @@ class CommentController extends Controller
         ]);
 
         Comment::create([
-            'user_id' => Auth::id(),
+            'user_id' => Auth::user()->uid,
             'post_id' => $validated['post_id'],
             'content' => $validated['content'],
         ]);
@@ -79,14 +81,18 @@ class CommentController extends Controller
     {
         // Check if user owns the comment
         if (!$comment->isOwnedBy(Auth::user())) {
-            abort(403, 'Unauthorized action.');
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $validated = $request->validate([
-            'content' => 'required|max:1000',
+            'content' => 'required|string|max:1000',
         ]);
 
         $comment->update($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'message' => 'Comment updated successfully!']);
+        }
 
         return back()->with('success', 'Comment updated successfully!');
     }

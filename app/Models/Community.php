@@ -36,6 +36,11 @@ class Community extends Model
             ->withTimestamps();
     }
 
+    public function activities()
+    {
+        return $this->hasMany(CommunityActivity::class);
+    }
+
     public function isOwner($user): bool
     {
         if (!$user) return false;
@@ -51,7 +56,7 @@ class Community extends Model
     public function getMemberRole($user): ?string
     {
         if (!$user) return null;
-        $member = $this->members()->where('user_id', $user->id)->first();
+        $member = $this->members()->where('user_id', $user->uid)->first();
         return $member ? $member->pivot->role : null;
     }
 }

@@ -94,6 +94,50 @@
 
             <!-- Sidebar -->
             <div>
+                <!-- Recent Activities -->
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">
+                        <i class="bi bi-activity"></i> Recent Activities
+                    </h3>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        @forelse($activities as $activity)
+                        <div style="display: flex; align-items: start; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0;">
+                            @if($activity->user && $activity->user->profile_photo)
+                            <img src="{{ asset('storage/' . $activity->user->profile_photo) }}" alt="{{ $activity->user->name }}" 
+                                 style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                            @elseif($activity->user)
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">
+                                {{ strtoupper(substr($activity->user->name, 0, 1)) }}
+                            </div>
+                            @else
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #ccc; flex-shrink: 0;"></div>
+                            @endif
+                            
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.85rem; color: #333; line-height: 1.4;">
+                                    @if($activity->type === 'joined')
+                                        <strong>{{ $activity->user->name ?? 'User' }}</strong> <span style="color: #28a745;">joined</span> the community
+                                    @elseif($activity->type === 'left')
+                                        <strong>{{ $activity->user->name ?? 'User' }}</strong> <span style="color: #dc3545;">left</span> the community
+                                    @elseif($activity->type === 'created')
+                                        <strong>{{ $activity->user->name ?? 'User' }}</strong> <span style="color: #5BA3D0;">created</span> the community
+                                    @elseif($activity->type === 'posted')
+                                        <strong>{{ $activity->user->name ?? 'User' }}</strong> posted in the community
+                                    @else
+                                        {{ $activity->description }}
+                                    @endif
+                                </div>
+                                <div style="font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
+                                    {{ $activity->created_at->diffForHumans() }}
+                                </div>
+                            </div>
+                        </div>
+                        @empty
+                        <p style="color: #999; text-align: center; padding: 1rem;">No activities yet</p>
+                        @endforelse
+                    </div>
+                </div>
+
                 <!-- About -->
                 <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem;">
                     <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">About Community</h3>
@@ -138,8 +182,8 @@
                                 </div>
                             </div>
 
-                            @if(auth()->check() && $community->isOwner(auth()->user()) && $member->id !== auth()->id())
-                            <form action="{{ route('communities.removeMember', [$community, $member->id]) }}" method="POST" onsubmit="return confirm('Remove this member?')">
+                            @if(auth()->check() && $community->isOwner(auth()->user()) && $member->uid !== auth()->user()->uid)
+                            <form action="{{ route('communities.removeMember', [$community, $member->uid]) }}" method="POST" onsubmit="return confirm('Remove this member?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" style="background: none; border: none; color: #ff4444; cursor: pointer; padding: 0.25rem;">

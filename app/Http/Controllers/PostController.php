@@ -166,12 +166,14 @@ class PostController extends Controller
             Storage::disk('public')->delete($post->image);
         }
 
-        // Decrement forum post count
-        $post->forum->decrement('post_count');
+        // Decrement forum post count if post belongs to a forum
+        if ($post->forum) {
+            $post->forum->decrement('post_count');
+        }
 
         $post->delete();
 
-        return redirect()->route('community.show', $post->forum->slug)
+        return redirect()->route('home')
             ->with('success', 'Post deleted successfully!');
     }
 }

@@ -97,7 +97,13 @@
         <!-- Create Post Box -->
         @auth
         <div class="create-box">
-            <div class="user-avatar-circle">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+            @if(auth()->user()->profile_photo)
+                <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}" class="user-avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            @elseif(auth()->user()->avatar)
+                <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="user-avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            @else
+                <div class="user-avatar-circle">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+            @endif
             <a href="{{ route('posts.create') }}" class="create-input">
                 What's your favorite anime?
             </a>
@@ -920,6 +926,48 @@ body {
     display: block;
 }
 
+.comment-actions-btns {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.edit-comment-btn {
+    background: transparent;
+    border: none;
+    color: #5BA3D0;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.edit-comment-btn:hover {
+    background: #e3f2fd;
+}
+
+.delete-comment-btn {
+    background: transparent;
+    border: none;
+    color: #ff4444;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.delete-comment-btn:hover {
+    background: #fff0f0;
+}
+
 .comment-modal-footer {
     padding: 1.25rem 1.5rem;
     border-top: 1px solid #E5E5E5;
@@ -1040,11 +1088,23 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
     gap: 0.5rem;
     font-size: 1.5rem;
+    user-select: none;
+}
+
+.emoji-grid span {
     cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
 }
 
 .emoji-grid span:hover {
     transform: scale(1.3);
+    background: #f0f2f5;
 }
 
 .gif-search {
@@ -1114,12 +1174,18 @@ body {
 
 @push('scripts')
 <script>
+console.log('Script loaded');
+
 // Like button functionality on home page
-document.querySelectorAll('.post-like-btn').forEach(btn => {
+const likeButtons = document.querySelectorAll('.post-like-btn');
+console.log('Found like buttons:', likeButtons.length);
+
+likeButtons.forEach(btn => {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
+        console.log('Like button clicked');
         const postId = this.dataset.postId;
         const likeCountSpan = this.querySelector('.like-count');
         const icon = this.querySelector('i');
@@ -1150,9 +1216,14 @@ document.querySelectorAll('.post-like-btn').forEach(btn => {
 });
 
 // Comment Modal
-document.querySelectorAll('.comment-modal-btn').forEach(button => {
+const commentButtons = document.querySelectorAll('.comment-modal-btn');
+console.log('Found comment buttons:', commentButtons.length);
+
+commentButtons.forEach(button => {
     button.addEventListener('click', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        console.log('Comment button clicked');
         const postId = this.dataset.postId;
         const postTitle = this.dataset.postTitle;
         openCommentModal(postId, postTitle);
@@ -1200,7 +1271,7 @@ function openCommentModal(postId, postTitle) {
                     </div>
                     <div class="emoji-picker" style="display: none;">
                         <div class="emoji-grid">
-                            😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 🙃 😉 😌 😍 🥰 😘 😗 😙 😚 😋 😛 😝 😜 🤪 🤨 🧐 🤓 😎 🤩 🥳 😏 😒 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🤭 🤫 🤥 😶 😐 😑 😬 🙄 😯 😦 😧 😮 😲 🥱 😴 🤤 😪 😵 🤐 🥴 🤢 🤮 🤧 😷 🤒 🤕 🤑 🤠 👍 👎 👊 ✊ 🤛 🤜 🤞 ✌️ 🤟 🤘 👌 🤌 🤏 👈 👉 👆 👇 ☝️ ✋ 🤚 🖐 🖖 👋 🤙 💪 🦾 🙏 ✍️ 💅 🤳 💃 🕺 ❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 ❣️ 💕 💞 💓 💗 💖 💘 💝 💟 ☮️ ✝️ ☪️ 🕉 ☸️ ✡️ 🔯 🕎 ☯️ ☦️ 🛐 ⛎ ♈ ♉ ♊ ♋ ♌ ♍ ♎ ♏ ♐ ♑ ♒ ♓ 🆔 ⚛️ 🉑 ☢️ ☣️ 📴 📳 🈶 🈚 🈸 🈺 🈷️ ✴️ 🆚 💮 🉐 ㊙️ ㊗️ 🈴 🈵 🈹 🈲 🅰️ 🅱️ 🆎 🆑 🅾️ 🆘 ❌ ⭕ 🛑 ⛔ 📛 🚫 💯 💢 ♨️ 🚷 🚯 🚳 🚱 🔞 📵 🚭 ❗ ❕ ❓ ❔ ‼️ ⁉️ 🔅 🔆 〽️ ⚠️ 🚸 🔱 ⚜️ 🔰 ♻️ ✅ 🈯 💹 ❇️ ✳️ ❎ 🌐 💠 Ⓜ️ 🌀 💤 🏧 🚾 ♿ 🅿️ 🛗 🈳 🈂️ 🛂 🛃 🛄 🛅 🚹 🚺 🚼 ⚧ 🚻 🚮 🎦 📶 🈁 🔣 ℹ️ 🔤 🔡 🔠 🆖 🆗 🆙 🆒 🆕 🆓 0️⃣ 1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣ 7️⃣ 8️⃣ 9️⃣ 🔟
+                            <span>😀</span><span>😃</span><span>😄</span><span>😁</span><span>😆</span><span>😅</span><span>😂</span><span>🤣</span><span>😊</span><span>😇</span><span>🙂</span><span>🙃</span><span>😉</span><span>😌</span><span>😍</span><span>🥰</span><span>😘</span><span>😗</span><span>😙</span><span>😚</span><span>😋</span><span>😛</span><span>😝</span><span>😜</span><span>🤪</span><span>🤨</span><span>🧐</span><span>🤓</span><span>😎</span><span>🤩</span><span>🥳</span><span>😏</span><span>😒</span><span>😞</span><span>😔</span><span>😟</span><span>😕</span><span>🙁</span><span>☹️</span><span>😣</span><span>😖</span><span>😫</span><span>😩</span><span>🥺</span><span>😢</span><span>😭</span><span>😤</span><span>😠</span><span>😡</span><span>🤬</span><span>🤯</span><span>😳</span><span>🥵</span><span>🥶</span><span>😱</span><span>😨</span><span>😰</span><span>😥</span><span>😓</span><span>🤗</span><span>🤔</span><span>🤭</span><span>🤫</span><span>🤥</span><span>😶</span><span>😐</span><span>😑</span><span>😬</span><span>🙄</span><span>😯</span><span>😦</span><span>😧</span><span>😮</span><span>😲</span><span>🥱</span><span>😴</span><span>🤤</span><span>😪</span><span>😵</span><span>🤐</span><span>🥴</span><span>🤢</span><span>🤮</span><span>🤧</span><span>😷</span><span>🤒</span><span>🤕</span><span>🤑</span><span>🤠</span><span>👍</span><span>👎</span><span>👊</span><span>✊</span><span>🤛</span><span>🤜</span><span>🤞</span><span>✌️</span><span>🤟</span><span>🤘</span><span>👌</span><span>🤌</span><span>🤏</span><span>👈</span><span>👉</span><span>👆</span><span>👇</span><span>☝️</span><span>✋</span><span>🤚</span><span>🖐</span><span>🖖</span><span>👋</span><span>🤙</span><span>💪</span><span>🙏</span><span>❤️</span><span>🧡</span><span>💛</span><span>💚</span><span>💙</span><span>💜</span><span>🖤</span><span>🤍</span><span>🤎</span><span>💔</span><span>❣️</span><span>💕</span><span>💞</span><span>💓</span><span>💗</span><span>💖</span><span>💘</span><span>💝</span><span>✨</span><span>💫</span><span>⭐</span><span>🌟</span><span>✅</span><span>❌</span><span>🔥</span><span>💯</span><span>👏</span><span>🎉</span><span>🎊</span>
                         </div>
                     </div>
                     <div class="gif-picker" style="display: none;">
@@ -1251,17 +1322,31 @@ function openCommentModal(postId, postTitle) {
     // Emoji picker
     const emojiBtn = modal.querySelector('.emoji-btn');
     const emojiPicker = modal.querySelector('.emoji-picker');
-    emojiBtn.addEventListener('click', () => {
+    emojiBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
         modal.querySelector('.gif-picker').style.display = 'none';
     });
 
-    emojiPicker.addEventListener('click', (e) => {
-        if (e.target.textContent.match(/[\u{1F300}-\u{1F9FF}]/u)) {
+    // Add emoji click handlers for each span
+    emojiPicker.querySelectorAll('span').forEach(emojiSpan => {
+        emojiSpan.addEventListener('click', (e) => {
+            e.stopPropagation();
             const textarea = modal.querySelector('.comment-textarea');
-            textarea.value += e.target.textContent;
+            const emoji = emojiSpan.textContent;
+            const cursorPos = textarea.selectionStart || 0;
+            const textBefore = textarea.value.substring(0, cursorPos);
+            const textAfter = textarea.value.substring(cursorPos);
+            
+            textarea.value = textBefore + emoji + textAfter;
+            
+            // Set cursor position after emoji
+            const newPos = cursorPos + emoji.length;
+            textarea.focus();
+            textarea.setSelectionRange(newPos, newPos);
+            
             emojiPicker.style.display = 'none';
-        }
+        });
     });
 
     // GIF picker
@@ -1275,7 +1360,11 @@ function openCommentModal(postId, postTitle) {
     gifPicker.querySelectorAll('.gif-item').forEach(gif => {
         gif.addEventListener('click', () => {
             const textarea = modal.querySelector('.comment-textarea');
-            textarea.value = gif.src;
+            // Thay vì gán link vào textarea, ta gán vào một trường ẩn và hiển thị preview
+            const imagePreview = document.getElementById(`image-preview-${postId}`);
+            imagePreview.querySelector('img').src = gif.src;
+            imagePreview.style.display = 'block';
+            imagePreview.dataset.gifUrl = gif.src;
             gifPicker.style.display = 'none';
         });
     });
@@ -1296,7 +1385,7 @@ function loadComments(postId) {
                 commentsList.innerHTML = '<div class="no-comments">Chưa có bình luận nào</div>';
             } else {
                 commentsList.innerHTML = data.comments.map(comment => `
-                    <div class="comment-item">
+                    <div class="comment-item" data-comment-id="${comment.id}">
                         <div class="comment-avatar">
                             ${comment.user.profile_photo ? 
                                 `<img src="/storage/${comment.user.profile_photo}" alt="${comment.user.name}">` :
@@ -1308,23 +1397,71 @@ function loadComments(postId) {
                                 <strong>${comment.user.name}</strong>
                                 <span class="comment-time">${comment.created_at}</span>
                             </div>
-                            <div class="comment-body">
+                            <div class="comment-body" data-comment-id="${comment.id}">
+                                ${isImageUrl(comment.content) ? `<img src="${comment.content}" class="comment-image">` : comment.content}
                                 ${comment.image ? `<img src="${comment.image}" class="comment-image">` : ''}
-                                ${comment.content}
                             </div>
+                            ${comment.can_delete ? `
+                            <div class="comment-actions-btns">
+                                <button class="edit-comment-btn" data-comment-id="${comment.id}" data-comment-content="${escapeHtml(comment.content)}">
+                                    <i class="bi bi-pencil"></i> Sửa
+                                </button>
+                                <button class="delete-comment-btn" data-comment-id="${comment.id}">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </button>
+                            </div>
+                            ` : ''}
                         </div>
                     </div>
                 `).join('');
+                
+                // Add delete event listeners
+                commentsList.querySelectorAll('.delete-comment-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        deleteComment(this.dataset.commentId, postId);
+                    });
+                });
+                
+                // Add edit event listeners
+                commentsList.querySelectorAll('.edit-comment-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        editComment(this.dataset.commentId, this.dataset.commentContent, postId);
+                    });
+                });
             }
         });
+}
+
+// Helper function to check if string is image URL
+function isImageUrl(str) {
+    return str && (str.startsWith('http://') || str.startsWith('https://')) && 
+           (str.includes('giphy.com') || str.match(/\.(gif|jpg|jpeg|png|webp)(\?.*)?$/i));
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function submitComment(form, postId) {
     const formData = new FormData();
     const textarea = form.querySelector('.comment-textarea');
     const imageInput = document.getElementById(`comment-image-${postId}`);
+    const imagePreview = document.getElementById(`image-preview-${postId}`);
     
-    formData.append('content', textarea.value);
+    // Nếu có GIF được chọn
+    if (imagePreview.dataset.gifUrl) {
+        formData.append('content', imagePreview.dataset.gifUrl);
+    } else if (textarea.value.trim()) {
+        formData.append('content', textarea.value);
+    } else {
+        // Nếu không có GIF và không có text, yêu cầu nhập nội dung
+        alert('Vui lòng nhập nội dung bình luận!');
+        return;
+    }
+    
     if (imageInput.files[0]) {
         formData.append('image', imageInput.files[0]);
     }
@@ -1341,7 +1478,11 @@ function submitComment(form, postId) {
         if (data.success) {
             textarea.value = '';
             imageInput.value = '';
-            document.getElementById(`image-preview-${postId}`).style.display = 'none';
+            const imagePreview = document.getElementById(`image-preview-${postId}`);
+            imagePreview.style.display = 'none';
+            if (imagePreview.dataset.gifUrl) {
+                delete imagePreview.dataset.gifUrl;
+            }
             loadComments(postId);
             
             // Update comment count in the button
@@ -1364,6 +1505,88 @@ function updateCommentCount(postId) {
                 `;
             });
     }
+}
+
+function editComment(commentId, currentContent, postId) {
+    const commentBody = document.querySelector(`.comment-body[data-comment-id="${commentId}"]`);
+    if (!commentBody) return;
+    
+    // Tạo textarea để edit
+    const isImage = isImageUrl(currentContent);
+    const textarea = document.createElement('textarea');
+    textarea.className = 'comment-textarea';
+    textarea.value = currentContent;
+    textarea.rows = 3;
+    
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'submit-comment-btn';
+    saveBtn.textContent = 'Lưu';
+    saveBtn.style.marginTop = '0.5rem';
+    saveBtn.style.marginRight = '0.5rem';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'tool-btn';
+    cancelBtn.textContent = 'Hủy';
+    cancelBtn.style.marginTop = '0.5rem';
+    
+    const originalHTML = commentBody.innerHTML;
+    commentBody.innerHTML = '';
+    commentBody.appendChild(textarea);
+    commentBody.appendChild(saveBtn);
+    commentBody.appendChild(cancelBtn);
+    
+    cancelBtn.addEventListener('click', () => {
+        commentBody.innerHTML = originalHTML;
+    });
+    
+    saveBtn.addEventListener('click', () => {
+        const newContent = textarea.value.trim();
+        if (!newContent) {
+            alert('Nội dung không được để trống!');
+            return;
+        }
+        
+        fetch(`/comments/${commentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ content: newContent })
+        })
+        .then(response => {
+            if (response.ok) {
+                loadComments(postId);
+            } else {
+                alert('Có lỗi xảy ra khi cập nhật bình luận!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra!');
+        });
+    });
+}
+
+function deleteComment(commentId, postId) {
+    if (!confirm('Bạn có chắc muốn xóa bình luận này?')) {
+        return;
+    }
+    
+    fetch(`/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            loadComments(postId);
+            updateCommentCount(postId);
+        }
+    })
+    .catch(error => console.error('Error:', error));
 }
 </script>
 
