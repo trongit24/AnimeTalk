@@ -20,10 +20,6 @@
                         <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" 
                              alt="{{ Auth::user()->name }}" 
                              style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #007bff;">
-                    @elseif(Auth::user()->avatar)
-                        <img src="{{ Auth::user()->avatar }}" 
-                             alt="{{ Auth::user()->name }}" 
-                             style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #007bff;">
                     @else
                         <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 20px; border: 2px solid #007bff;">
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}

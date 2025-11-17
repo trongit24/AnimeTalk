@@ -26,10 +26,6 @@
                                     <img src="{{ asset('storage/' . $friendItem->profile_photo) }}" 
                                          alt="{{ $friendItem->name }}" 
                                          style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;">
-                                @elseif($friendItem->avatar)
-                                    <img src="{{ $friendItem->avatar }}" 
-                                         alt="{{ $friendItem->name }}" 
-                                         style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;">
                                 @else
                                     <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;">
                                         {{ strtoupper(substr($friendItem->name, 0, 1)) }}
@@ -74,10 +70,6 @@
                     <img src="{{ asset('storage/' . $friend->profile_photo) }}" 
                          alt="{{ $friend->name }}" 
                          style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                @elseif($friend->avatar)
-                    <img src="{{ $friend->avatar }}" 
-                         alt="{{ $friend->name }}" 
-                         style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                 @else
                     <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                         {{ strtoupper(substr($friend->name, 0, 1)) }}
@@ -102,10 +94,6 @@
                         @if(!$isOwnMessage)
                             @if($friend->profile_photo)
                                 <img src="{{ asset('storage/' . $friend->profile_photo) }}" 
-                                     alt="{{ $friend->name }}" 
-                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
-                            @elseif($friend->avatar)
-                                <img src="{{ $friend->avatar }}" 
                                      alt="{{ $friend->name }}" 
                                      style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                             @else
@@ -211,9 +199,6 @@ if (searchInput) {
         @if($friend->profile_photo)
         type: 'profile_photo',
         url: '{{ asset('storage/' . $friend->profile_photo) }}'
-        @elseif($friend->avatar)
-        type: 'avatar',
-        url: '{{ $friend->avatar }}'
         @else
         type: 'initial',
         initial: '{{ strtoupper(substr($friend->name, 0, 1)) }}'

@@ -114,8 +114,6 @@
         <div class="create-box">
             @if(auth()->user()->profile_photo)
                 <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}" class="user-avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-            @elseif(auth()->user()->avatar)
-                <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="user-avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             @else
                 <div class="user-avatar-circle">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
             @endif

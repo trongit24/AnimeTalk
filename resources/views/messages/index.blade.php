@@ -26,10 +26,6 @@
                                     <img src="{{ asset('storage/' . $friend->profile_photo) }}" 
                                          alt="{{ $friend->name }}" 
                                          style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;">
-                                @elseif($friend->avatar)
-                                    <img src="{{ $friend->avatar }}" 
-                                         alt="{{ $friend->name }}" 
-                                         style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;">
                                 @else
                                     <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;">
                                         {{ strtoupper(substr($friend->name, 0, 1)) }}
