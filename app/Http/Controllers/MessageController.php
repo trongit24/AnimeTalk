@@ -128,7 +128,8 @@ class MessageController extends Controller
     {
         $request->validate([
             'receiver_id' => 'required',
-            'message' => 'required|string|max:1000',
+            'message' => 'nullable|string|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // max 5MB
         ]);
 
         $userId = Auth::user()->uid;
@@ -145,11 +146,21 @@ class MessageController extends Controller
             return response()->json(['error' => 'You can only message friends'], 403);
         }
 
-        $message = Message::create([
+        $messageData = [
             'sender_id' => $userId,
             'receiver_id' => $receiverId,
             'message' => $request->message,
-        ]);
+            'message_type' => 'text',
+        ];
+
+        // Xử lý upload ảnh/gif
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('messages', 'public');
+            $messageData['image'] = $path;
+            $messageData['message_type'] = 'image';
+        }
+
+        $message = Message::create($messageData);
 
         return response()->json([
             'success' => true,

@@ -45,7 +45,11 @@
                                         @if($lastMsg->sender_id === auth()->user()->uid)
                                             Bạn: 
                                         @endif
-                                        {{ $lastMsg->message }}
+                                        @if($lastMsg->message_type === 'image')
+                                            <i class="bi bi-image"></i> Đã gửi một ảnh
+                                        @else
+                                            {{ $lastMsg->message }}
+                                        @endif
                                     </small>
                                 @else
                                     <small class="text-muted">Bắt đầu trò chuyện</small>

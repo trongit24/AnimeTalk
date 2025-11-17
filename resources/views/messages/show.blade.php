@@ -42,7 +42,11 @@
                                         @if($lastMsg->sender_id === auth()->user()->uid)
                                             Bạn: 
                                         @endif
-                                        {{ $lastMsg->message }}
+                                        @if($lastMsg->message_type === 'image')
+                                            <i class="bi bi-image"></i> Đã gửi một ảnh
+                                        @else
+                                            {{ $lastMsg->message }}
+                                        @endif
                                     </small>
                                 @else
                                     <small class="text-muted">Bắt đầu trò chuyện</small>
@@ -104,9 +108,21 @@
                         @endif
 
                         <div>
-                            <div class="rounded-pill px-3 py-2" style="background: {{ $isOwnMessage ? '#0084ff' : '#e4e6eb' }}; color: {{ $isOwnMessage ? 'white' : '#050505' }};">
-                                <p class="mb-0" style="font-size: 15px;">{{ $message->message }}</p>
-                            </div>
+                            @if($message->message_type === 'image')
+                                <div style="max-width: 300px;">
+                                    <img src="{{ asset('storage/' . $message->image) }}" 
+                                         alt="Image" 
+                                         style="max-width: 100%; border-radius: 18px; cursor: pointer;"
+                                         onclick="window.open(this.src, '_blank')">
+                                    @if($message->message)
+                                        <p class="mb-0 mt-2" style="font-size: 15px;">{{ $message->message }}</p>
+                                    @endif
+                                </div>
+                            @else
+                                <div class="rounded-pill px-3 py-2" style="background: {{ $isOwnMessage ? '#0084ff' : '#e4e6eb' }}; color: {{ $isOwnMessage ? 'white' : '#050505' }};">
+                                    <p class="mb-0" style="font-size: 15px;">{{ $message->message }}</p>
+                                </div>
+                            @endif
                             <small class="text-muted d-block {{ $isOwnMessage ? 'text-end' : '' }}" style="font-size: 11px; margin-top: 4px; padding: 0 12px;">
                                 {{ $message->created_at->format('g:i A') }}
                             </small>
@@ -126,16 +142,59 @@
 
             <!-- Message Input -->
             <div class="p-3 border-top" style="background: #f0f2f5;">
-                <form id="messageForm" class="d-flex gap-2">
+                <!-- Preview ảnh sẽ upload -->
+                <div id="imagePreview" class="mb-2" style="display: none;">
+                    <div class="position-relative d-inline-block">
+                        <img id="previewImage" src="" style="max-width: 200px; max-height: 200px; border-radius: 12px;">
+                        <button type="button" onclick="removeImage()" class="btn btn-sm btn-danger rounded-circle position-absolute" style="top: 5px; right: 5px; width: 24px; height: 24px; padding: 0;">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="messageForm" class="d-flex align-items-center gap-2">
                     @csrf
+                    <input type="file" id="imageInput" name="image" accept="image/*,image/gif" style="display: none;" onchange="previewMessageImage(this)">
+                    
+                    <!-- Nút upload ảnh -->
+                    <button type="button" onclick="document.getElementById('imageInput').click()" class="btn p-0" style="background: none; border: none; color: #0084ff; font-size: 24px;">
+                        <i class="bi bi-image"></i>
+                    </button>
+
+                    <!-- Emoji picker button -->
+                    <div class="position-relative">
+                        <button type="button" onclick="toggleEmojiPicker()" class="btn p-0" style="background: none; border: none; font-size: 24px;">
+                            😊
+                        </button>
+                        <div id="emojiPicker" class="position-absolute bg-white shadow rounded p-2" style="display: none; bottom: 45px; left: 0; width: 280px; max-height: 200px; overflow-y: auto; z-index: 1000; border: 1px solid #ddd;">
+                            <div class="d-flex flex-wrap gap-1">
+                                <button type="button" onclick="insertEmoji('😀')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😀</button>
+                                <button type="button" onclick="insertEmoji('😂')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😂</button>
+                                <button type="button" onclick="insertEmoji('😍')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😍</button>
+                                <button type="button" onclick="insertEmoji('😭')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😭</button>
+                                <button type="button" onclick="insertEmoji('😊')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😊</button>
+                                <button type="button" onclick="insertEmoji('😎')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😎</button>
+                                <button type="button" onclick="insertEmoji('🥰')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">🥰</button>
+                                <button type="button" onclick="insertEmoji('🤔')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">🤔</button>
+                                <button type="button" onclick="insertEmoji('😅')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😅</button>
+                                <button type="button" onclick="insertEmoji('😡')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">😡</button>
+                                <button type="button" onclick="insertEmoji('👍')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">👍</button>
+                                <button type="button" onclick="insertEmoji('👎')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">👎</button>
+                                <button type="button" onclick="insertEmoji('❤️')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">❤️</button>
+                                <button type="button" onclick="insertEmoji('🔥')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">🔥</button>
+                                <button type="button" onclick="insertEmoji('✨')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">✨</button>
+                                <button type="button" onclick="insertEmoji('💯')" class="btn btn-sm" style="font-size: 24px; padding: 4px;">💯</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <input type="text" 
                            id="messageInput"
                            name="message" 
                            placeholder="Aa" 
-                           class="form-control rounded-pill"
+                           class="form-control rounded-pill flex-fill"
                            style="background: white; border: none;"
-                           autocomplete="off"
-                           required>
+                           autocomplete="off">
                     <button type="submit" 
                             class="btn rounded-circle d-flex align-items-center justify-content-center"
                             style="width: 36px; height: 36px; background: #0084ff; border: none; color: white;">
@@ -223,19 +282,23 @@ if (searchInput) {
         e.preventDefault();
         
         const message = messageInput.value.trim();
-        if (!message) return;
+        const imageInput = document.getElementById('imageInput');
+        const hasImage = imageInput.files.length > 0;
+        
+        if (!message && !hasImage) return;
 
         try {
+            const formData = new FormData();
+            formData.append('receiver_id', friendUid);
+            if (message) formData.append('message', message);
+            if (hasImage) formData.append('image', imageInput.files[0]);
+
             const response = await fetch('{{ route("messages.store") }}', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                 },
-                body: JSON.stringify({
-                    receiver_id: friendUid,
-                    message: message
-                })
+                body: formData
             });
 
             const data = await response.json();
@@ -244,6 +307,8 @@ if (searchInput) {
                 // Add message to UI
                 appendMessage(data.message, true);
                 messageInput.value = '';
+                imageInput.value = '';
+                removeImage();
                 scrollToBottom();
                 lastMessageId = data.message.id;
             } else {
@@ -282,13 +347,27 @@ if (searchInput) {
         const textColor = isOwnMessage ? 'white' : '#050505';
         const alignText = isOwnMessage ? 'text-end' : '';
         
+        let messageContent = '';
+        if (message.message_type === 'image') {
+            messageContent = `
+                <div style="max-width: 300px;">
+                    <img src="/storage/${message.image}" alt="Image" style="max-width: 100%; border-radius: 18px; cursor: pointer;" onclick="window.open(this.src, '_blank')">
+                    ${message.message ? `<p class="mb-0 mt-2" style="font-size: 15px;">${escapeHtml(message.message)}</p>` : ''}
+                </div>
+            `;
+        } else {
+            messageContent = `
+                <div class="rounded-pill px-3 py-2" style="background: ${bgColor}; color: ${textColor};">
+                    <p class="mb-0" style="font-size: 15px;">${escapeHtml(message.message)}</p>
+                </div>
+            `;
+        }
+        
         messageDiv.innerHTML = `
             <div class="d-flex gap-2" style="max-width: 70%; ${isOwnMessage ? 'flex-direction: row-reverse;' : ''}">
                 ${avatarHtml}
                 <div>
-                    <div class="rounded-pill px-3 py-2" style="background: ${bgColor}; color: ${textColor};">
-                        <p class="mb-0" style="font-size: 15px;">${escapeHtml(message.message)}</p>
-                    </div>
+                    ${messageContent}
                     <small class="text-muted d-block ${alignText}" style="font-size: 11px; margin-top: 4px; padding: 0 12px;">
                         ${timeString}
                     </small>
@@ -334,5 +413,49 @@ if (searchInput) {
             }
         });
     }
+
+    // Preview ảnh trước khi gửi
+    function previewMessageImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('imagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Xóa ảnh preview
+    function removeImage() {
+        document.getElementById('imageInput').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('previewImage').src = '';
+    }
+
+    // Toggle emoji picker
+    function toggleEmojiPicker() {
+        const picker = document.getElementById('emojiPicker');
+        picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Insert emoji vào input
+    function insertEmoji(emoji) {
+        const input = document.getElementById('messageInput');
+        input.value += emoji;
+        input.focus();
+        toggleEmojiPicker();
+    }
+
+    // Đóng emoji picker khi click ngoài
+    document.addEventListener('click', function(e) {
+        const picker = document.getElementById('emojiPicker');
+        const emojiButton = e.target.closest('button[onclick="toggleEmojiPicker()"]');
+        const emojiItem = e.target.closest('button[onclick^="insertEmoji"]');
+        
+        if (!emojiButton && !emojiItem && picker.style.display === 'block') {
+            picker.style.display = 'none';
+        }
+    });
 </script>
 @endsection
