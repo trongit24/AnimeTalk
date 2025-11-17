@@ -17,7 +17,10 @@ class HomeController extends Controller
         // Filter by category if provided
         $category = $request->get('category');
         if ($category && $category !== 'all') {
-            $query->where('category', $category);
+            $query->where(function($q) use ($category) {
+                $q->where('category', 'LIKE', '%' . $category . '%')
+                  ->orWhere('category', $category);
+            });
         }
 
         // Filter by tag if provided

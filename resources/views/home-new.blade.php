@@ -66,31 +66,46 @@
     <!-- Main Feed -->
     <main class="main-feed">
         <!-- Category Tabs -->
-        <div class="category-tabs" style="background: white; border-radius: 8px; margin-bottom: 1rem; padding: 0.5rem; display: flex; gap: 0.5rem; border: 1px solid #e0e0e0;">
+        <div class="category-tabs" style="background: white; border-radius: 8px; margin-bottom: 1rem; padding: 0.5rem; display: flex; gap: 0.5rem; border: 1px solid #e0e0e0; overflow-x: auto;">
             <a href="{{ route('home', ['category' => 'all']) }}" 
                class="category-tab {{ (!isset($category) || $category == 'all') ? 'active' : '' }}"
-               style="flex: 1; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (!isset($category) || $category == 'all') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (!isset($category) || $category == 'all') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
                 <i class="bi bi-grid-3x3"></i> All
             </a>
             <a href="{{ route('home', ['category' => 'anime']) }}" 
                class="category-tab {{ (isset($category) && $category == 'anime') ? 'active' : '' }}"
-               style="flex: 1; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'anime') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'anime') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
                 <i class="bi bi-play-circle"></i> Anime
             </a>
             <a href="{{ route('home', ['category' => 'manga']) }}" 
                class="category-tab {{ (isset($category) && $category == 'manga') ? 'active' : '' }}"
-               style="flex: 1; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'manga') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'manga') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
                 <i class="bi bi-book"></i> Manga
             </a>
             <a href="{{ route('home', ['category' => 'cosplay']) }}" 
                class="category-tab {{ (isset($category) && $category == 'cosplay') ? 'active' : '' }}"
-               style="flex: 1; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'cosplay') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'cosplay') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
                 <i class="bi bi-mask"></i> Cosplay
             </a>
             <a href="{{ route('home', ['category' => 'discussion']) }}" 
                class="category-tab {{ (isset($category) && $category == 'discussion') ? 'active' : '' }}"
-               style="flex: 1; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'discussion') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'discussion') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
                 <i class="bi bi-chat-dots"></i> Discussion
+            </a>
+            <a href="{{ route('home', ['category' => 'fanart']) }}" 
+               class="category-tab {{ (isset($category) && $category == 'fanart') ? 'active' : '' }}"
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'fanart') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+                <i class="bi bi-palette"></i> Fan Art
+            </a>
+            <a href="{{ route('home', ['category' => 'news']) }}" 
+               class="category-tab {{ (isset($category) && $category == 'news') ? 'active' : '' }}"
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'news') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+                <i class="bi bi-newspaper"></i> News
+            </a>
+            <a href="{{ route('home', ['category' => 'review']) }}" 
+               class="category-tab {{ (isset($category) && $category == 'review') ? 'active' : '' }}"
+               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'review') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+                <i class="bi bi-star"></i> Review
             </a>
         </div>
 
