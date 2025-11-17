@@ -1,100 +1,95 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-sm flex flex-col" style="height: calc(100vh - 12rem);">
+<div class="container" style="max-width: 900px;">
+    <div class="bg-white rounded shadow-sm d-flex flex-column" style="height: calc(100vh - 12rem);">
         <!-- Chat Header -->
-        <div class="p-4 border-b border-gray-200 flex items-center gap-3">
-            <a href="{{ route('messages.index') }}" class="text-gray-600 hover:text-gray-900">
-                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
+        <div class="p-3 border-bottom d-flex align-items-center gap-3">
+            <a href="{{ route('messages.index') }}" class="text-secondary text-decoration-none">
+                <i class="bi bi-arrow-left fs-4"></i>
             </a>
             
             @if($friend->profile_photo)
                 <img src="{{ asset('storage/' . $friend->profile_photo) }}" 
                      alt="{{ $friend->name }}" 
-                     class="w-10 h-10 rounded-full object-cover">
+                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             @elseif($friend->avatar)
                 <img src="{{ $friend->avatar }}" 
                      alt="{{ $friend->name }}" 
-                     class="w-10 h-10 rounded-full object-cover">
+                     style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             @else
-                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: #9333ea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                     {{ strtoupper(substr($friend->name, 0, 1)) }}
                 </div>
             @endif
             
             <div>
-                <h2 class="font-semibold text-gray-900">{{ $friend->name }}</h2>
-                <p class="text-xs text-gray-500">Active now</p>
+                <h5 class="mb-0 fw-semibold">{{ $friend->name }}</h5>
+                <small class="text-muted">Active now</small>
             </div>
         </div>
 
         <!-- Messages Container -->
-        <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div id="messagesContainer" class="flex-fill overflow-auto p-3" style="background: #f8f9fa;">
             @forelse($messages as $message)
                 @php
                     $isOwnMessage = $message->sender_id === auth()->user()->uid;
                 @endphp
-                <div class="flex {{ $isOwnMessage ? 'justify-end' : 'justify-start' }}">
-                    <div class="flex gap-2 max-w-xs lg:max-w-md {{ $isOwnMessage ? 'flex-row-reverse' : '' }}">
+                <div class="mb-3 d-flex {{ $isOwnMessage ? 'justify-content-end' : 'justify-content-start' }}">
+                    <div class="d-flex gap-2" style="max-width: 70%; {{ $isOwnMessage ? 'flex-direction: row-reverse;' : '' }}">
                         <!-- Avatar for received messages -->
                         @if(!$isOwnMessage)
                             @if($friend->profile_photo)
                                 <img src="{{ asset('storage/' . $friend->profile_photo) }}" 
                                      alt="{{ $friend->name }}" 
-                                     class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                             @elseif($friend->avatar)
                                 <img src="{{ $friend->avatar }}" 
                                      alt="{{ $friend->name }}" 
-                                     class="w-8 h-8 rounded-full object-cover flex-shrink-0">
+                                     style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
                             @else
-                                <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: #6c757d; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0;">
                                     {{ strtoupper(substr($friend->name, 0, 1)) }}
                                 </div>
                             @endif
                         @endif
 
                         <div>
-                            <div class="rounded-lg px-4 py-2 {{ $isOwnMessage ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-900' }}">
-                                <p class="text-sm">{{ $message->message }}</p>
+                            <div class="rounded px-3 py-2" style="background: {{ $isOwnMessage ? '#9333ea' : '#e9ecef' }}; color: {{ $isOwnMessage ? 'white' : '#212529' }};">
+                                <p class="mb-0" style="font-size: 14px;">{{ $message->message }}</p>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1 {{ $isOwnMessage ? 'text-right' : '' }}">
+                            <small class="text-muted d-block {{ $isOwnMessage ? 'text-end' : '' }}" style="font-size: 11px; margin-top: 2px;">
                                 {{ $message->created_at->format('g:i A') }}
-                            </p>
+                            </small>
                         </div>
                     </div>
                 </div>
             @empty
-                <div class="flex items-center justify-center h-full">
+                <div class="d-flex align-items-center justify-content-center h-100">
                     <div class="text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">No messages yet</h3>
-                        <p class="mt-1 text-sm text-gray-500">Send a message to start the conversation!</p>
+                        <i class="bi bi-chat-dots text-muted" style="font-size: 48px;"></i>
+                        <h5 class="mt-3">No messages yet</h5>
+                        <p class="text-muted">Send a message to start the conversation!</p>
                     </div>
                 </div>
             @endforelse
         </div>
 
         <!-- Message Input -->
-        <div class="p-4 border-t border-gray-200">
-            <form id="messageForm" class="flex gap-2">
+        <div class="p-3 border-top bg-white">
+            <form id="messageForm" class="d-flex gap-2">
                 @csrf
                 <input type="text" 
                        id="messageInput"
                        name="message" 
                        placeholder="Type a message..." 
-                       class="flex-1 rounded-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                       class="form-control rounded-pill"
                        autocomplete="off"
                        required>
                 <button type="submit" 
-                        class="bg-purple-600 text-white rounded-full p-2 hover:bg-purple-700 transition-colors flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
+                        class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; background: #9333ea; border: none;">
+                    <i class="bi bi-send-fill"></i>
                 </button>
             </form>
         </div>
@@ -171,7 +166,7 @@
     // Append message to UI
     function appendMessage(message, isOwnMessage) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`;
+        messageDiv.className = `mb-3 d-flex ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'}`;
         
         const time = new Date(message.created_at);
         const timeString = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -179,22 +174,26 @@
         let avatarHtml = '';
         if (!isOwnMessage) {
             if (friendAvatar.type === 'profile_photo' || friendAvatar.type === 'avatar') {
-                avatarHtml = `<img src="${friendAvatar.url}" alt="${friendName}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">`;
+                avatarHtml = `<img src="${friendAvatar.url}" alt="${friendName}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">`;
             } else {
-                avatarHtml = `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">${friendAvatar.initial}</div>`;
+                avatarHtml = `<div style="width: 32px; height: 32px; border-radius: 50%; background: #6c757d; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0;">${friendAvatar.initial}</div>`;
             }
         }
         
+        const bgColor = isOwnMessage ? '#9333ea' : '#e9ecef';
+        const textColor = isOwnMessage ? 'white' : '#212529';
+        const alignText = isOwnMessage ? 'text-end' : '';
+        
         messageDiv.innerHTML = `
-            <div class="flex gap-2 max-w-xs lg:max-w-md ${isOwnMessage ? 'flex-row-reverse' : ''}">
+            <div class="d-flex gap-2" style="max-width: 70%; ${isOwnMessage ? 'flex-direction: row-reverse;' : ''}">
                 ${avatarHtml}
                 <div>
-                    <div class="rounded-lg px-4 py-2 ${isOwnMessage ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-900'}">
-                        <p class="text-sm">${escapeHtml(message.message)}</p>
+                    <div class="rounded px-3 py-2" style="background: ${bgColor}; color: ${textColor};">
+                        <p class="mb-0" style="font-size: 14px;">${escapeHtml(message.message)}</p>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1 ${isOwnMessage ? 'text-right' : ''}">
+                    <small class="text-muted d-block ${alignText}" style="font-size: 11px; margin-top: 2px;">
                         ${timeString}
-                    </p>
+                    </small>
                 </div>
             </div>
         `;
