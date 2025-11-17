@@ -39,7 +39,7 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->uid . ',uid',
             'bio' => 'nullable|string|max:500',
-            'avatar' => 'nullable|image|max:2048',
+            'profile_photo' => 'nullable|image|max:2048',
             'cover_photo' => 'nullable|image|max:5120',
         ]);
 
@@ -47,14 +47,14 @@ class ProfileController extends Controller
         $user->email = $validated['email'];
         $user->bio = $validated['bio'] ?? null;
 
-        // Handle avatar upload
-        if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
+        // Handle profile photo upload
+        if ($request->hasFile('profile_photo')) {
+            // Delete old profile photo if exists
             if ($user->profile_photo) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
 
-            $path = $request->file('avatar')->store('avatars', 'public');
+            $path = $request->file('profile_photo')->store('profile_photos', 'public');
             $user->profile_photo = $path;
         }
 

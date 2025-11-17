@@ -45,9 +45,9 @@
                 </div>
                 <label style="display: inline-block; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; padding: 0.5rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     <i class="bi bi-camera"></i> Change Avatar
-                    <input type="file" name="avatar" accept="image/*" style="display: none;" onchange="previewAvatar(this)">
+                    <input type="file" name="profile_photo" accept="image/*" style="display: none;" onchange="previewAvatar(this)">
                 </label>
-                @error('avatar')
+                @error('profile_photo')
                 <div style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">{{ $message }}</div>
                 @enderror
             </div>
