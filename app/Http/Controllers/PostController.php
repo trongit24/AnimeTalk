@@ -34,7 +34,8 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
-            'category' => 'nullable|in:anime,manga,cosplay,discussion',
+            'categories' => 'nullable|array',
+            'categories.*' => 'in:anime,manga,cosplay,discussion,fanart,news,review',
             'tags' => 'array',
             'tags.*' => 'exists:tags,id',
             'image' => 'nullable|image|max:2048',
@@ -47,7 +48,7 @@ class PostController extends Controller
             'user_id' => Auth::id(),
             'title' => $validated['title'],
             'slug' => $slug,
-            'category' => $validated['category'] ?? null,
+            'category' => isset($validated['categories']) ? implode(',', $validated['categories']) : null,
             'content' => $validated['content'],
         ]);
 
@@ -90,7 +91,8 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
-            'category' => 'nullable|in:anime,manga,cosplay,discussion',
+            'categories' => 'nullable|array',
+            'categories.*' => 'in:anime,manga,cosplay,discussion,fanart,news,review',
             'tags' => 'array',
             'tags.*' => 'exists:tags,id',
             'image' => 'nullable|image|max:2048',
@@ -143,7 +145,7 @@ class PostController extends Controller
         $post->update([
             'title' => $validated['title'],
             'content' => $validated['content'],
-            'category' => $validated['category'] ?? null,
+            'category' => isset($validated['categories']) ? implode(',', $validated['categories']) : null,
         ]);
 
         if (isset($validated['tags'])) {

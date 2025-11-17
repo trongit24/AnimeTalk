@@ -32,15 +32,62 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="category">Category (Optional)</label>
-                    <select id="category" name="category" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
-                        <option value="">-- Select Category --</option>
-                        <option value="anime" {{ old('category', $post->category) == 'anime' ? 'selected' : '' }}>Anime</option>
-                        <option value="manga" {{ old('category', $post->category) == 'manga' ? 'selected' : '' }}>Manga</option>
-                        <option value="cosplay" {{ old('category', $post->category) == 'cosplay' ? 'selected' : '' }}>Cosplay</option>
-                        <option value="discussion" {{ old('category', $post->category) == 'discussion' ? 'selected' : '' }}>Discussion</option>
-                    </select>
-                    @error('category')
+                    <label>Categories</label>
+                    <div class="tags-checkbox-group" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                        @php
+                            $currentCategories = old('categories', $post->category ? explode(',', $post->category) : []);
+                        @endphp
+                        <label class="tag-checkbox">
+                            <input type="checkbox" name="categories[]" value="anime" 
+                                {{ in_array('anime', $currentCategories) ? 'checked' : '' }}>
+                            <span style="background-color: #FF6B6B20; color: #FF6B6B; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
+                                🎌 Anime
+                            </span>
+                        </label>
+                        <label class="tag-checkbox">
+                            <input type="checkbox" name="categories[]" value="manga" 
+                                {{ in_array('manga', $currentCategories) ? 'checked' : '' }}>
+                            <span style="background-color: #4ECDC420; color: #4ECDC4; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
+                                📖 Manga
+                            </span>
+                        </label>
+                        <label class="tag-checkbox">
+                            <input type="checkbox" name="categories[]" value="cosplay" 
+                                {{ in_array('cosplay', $currentCategories) ? 'checked' : '' }}>
+                            <span style="background-color: #95E1D320; color: #95E1D3; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
+                                👗 Cosplay
+                            </span>
+                        </label>
+                        <label class="tag-checkbox">
+                            <input type="checkbox" name="categories[]" value="discussion" 
+                                {{ in_array('discussion', $currentCategories) ? 'checked' : '' }}>
+                            <span style="background-color: #F3A68320; color: #F3A683; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
+                                💬 Discussion
+                            </span>
+                        </label>
+                        <label class="tag-checkbox">
+                            <input type="checkbox" name="categories[]" value="fanart" 
+                                {{ in_array('fanart', $currentCategories) ? 'checked' : '' }}>
+                            <span style="background-color: #A8E6CF20; color: #A8E6CF; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
+                                🎨 Fan Art
+                            </span>
+                        </label>
+                        <label class="tag-checkbox">
+                            <input type="checkbox" name="categories[]" value="news" 
+                                {{ in_array('news', $currentCategories) ? 'checked' : '' }}>
+                            <span style="background-color: #FFD3B620; color: #FFD3B6; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
+                                📰 News
+                            </span>
+                        </label>
+                        <label class="tag-checkbox">
+                            <input type="checkbox" name="categories[]" value="review" 
+                                {{ in_array('review', $currentCategories) ? 'checked' : '' }}>
+                            <span style="background-color: #FFAAA520; color: #FFAAA5; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
+                                ⭐ Review
+                            </span>
+                        </label>
+                    </div>
+                    @error('categories')
                         <span class="error">{{ $message }}</span>
                     @enderror
                 </div>
