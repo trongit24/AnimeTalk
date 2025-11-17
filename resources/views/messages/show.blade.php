@@ -106,7 +106,23 @@
     const messageForm = document.getElementById('messageForm');
     const messageInput = document.getElementById('messageInput');
     const friendUid = '{{ $friend->uid }}';
-    let lastMessageId = {{ $messages->last() ? $messages->last()->id : 0 }};
+    const currentUserId = '{{ auth()->user()->uid }}';
+    let lastMessageId = {{ $messages->isNotEmpty() ? $messages->last()->id : 0 }};
+
+    // Friend info for avatar
+    const friendAvatar = {
+        @if($friend->profile_photo)
+        type: 'profile_photo',
+        url: '{{ asset('storage/' . $friend->profile_photo) }}'
+        @elseif($friend->avatar)
+        type: 'avatar',
+        url: '{{ $friend->avatar }}'
+        @else
+        type: 'initial',
+        initial: '{{ strtoupper(substr($friend->name, 0, 1)) }}'
+        @endif
+    };
+    const friendName = '{{ $friend->name }}';
 
     // Scroll to bottom on page load
     scrollToBottom();
@@ -160,26 +176,21 @@
         const time = new Date(message.created_at);
         const timeString = time.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
         
+        let avatarHtml = '';
+        if (!isOwnMessage) {
+            if (friendAvatar.type === 'profile_photo' || friendAvatar.type === 'avatar') {
+                avatarHtml = `<img src="${friendAvatar.url}" alt="${friendName}" class="w-8 h-8 rounded-full object-cover flex-shrink-0">`;
+            } else {
+                avatarHtml = `<div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">${friendAvatar.initial}</div>`;
+            }
+        }
+        
         messageDiv.innerHTML = `
             <div class="flex gap-2 max-w-xs lg:max-w-md ${isOwnMessage ? 'flex-row-reverse' : ''}">
-                ${!isOwnMessage ? `
-                    @if($friend->profile_photo)
-                        <img src="{{ asset('storage/' . $friend->profile_photo) }}" 
-                             alt="{{ $friend->name }}" 
-                             class="w-8 h-8 rounded-full object-cover flex-shrink-0">
-                    @elseif($friend->avatar)
-                        <img src="{{ $friend->avatar }}" 
-                             alt="{{ $friend->name }}" 
-                             class="w-8 h-8 rounded-full object-cover flex-shrink-0">
-                    @else
-                        <div class="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                            {{ strtoupper(substr($friend->name, 0, 1)) }}
-                        </div>
-                    @endif
-                ` : ''}
+                ${avatarHtml}
                 <div>
                     <div class="rounded-lg px-4 py-2 ${isOwnMessage ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-900'}">
-                        <p class="text-sm">${message.message}</p>
+                        <p class="text-sm">${escapeHtml(message.message)}</p>
                     </div>
                     <p class="text-xs text-gray-500 mt-1 ${isOwnMessage ? 'text-right' : ''}">
                         ${timeString}
@@ -191,6 +202,13 @@
         messagesContainer.appendChild(messageDiv);
     }
 
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     // Poll for new messages every 3 seconds
     setInterval(async () => {
         try {
@@ -199,7 +217,7 @@
 
             if (data.messages && data.messages.length > 0) {
                 data.messages.forEach(message => {
-                    appendMessage(message, message.sender_id === '{{ auth()->user()->uid }}');
+                    appendMessage(message, message.sender_id === currentUserId);
                     lastMessageId = message.id;
                 });
                 scrollToBottom();
