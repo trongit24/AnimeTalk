@@ -16,29 +16,41 @@ class MessageController extends Controller
     {
         $userId = Auth::user()->uid;
 
-        // Lấy danh sách người đã nhắn tin
-        $conversations = Message::where('sender_id', $userId)
-            ->orWhere('receiver_id', $userId)
-            ->with(['sender', 'receiver'])
-            ->latest()
-            ->get()
-            ->groupBy(function($message) use ($userId) {
-                return $message->sender_id === $userId ? $message->receiver_id : $message->sender_id;
-            })
-            ->map(function($messages) use ($userId) {
-                $lastMessage = $messages->first();
-                $otherUser = $lastMessage->sender_id === $userId ? $lastMessage->receiver : $lastMessage->sender;
-                $unreadCount = $messages->where('receiver_id', $userId)->where('is_read', false)->count();
-                
-                return [
-                    'user' => $otherUser,
-                    'last_message' => $lastMessage,
-                    'unread_count' => $unreadCount,
-                ];
-            })
-            ->sortByDesc('last_message.created_at');
+        // Lấy tất cả bạn bè (đã accepted)
+        $friendIds = Friendship::where(function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('friend_id', $userId);
+        })
+        ->where('status', 'accepted')
+        ->get()
+        ->map(function($friendship) use ($userId) {
+            return $friendship->user_id === $userId ? $friendship->friend_id : $friendship->user_id;
+        });
 
-        return view('messages.index', compact('conversations'));
+        $friends = User::whereIn('uid', $friendIds)->get();
+
+        // Lấy tin nhắn cuối cùng với mỗi bạn
+        $lastMessages = [];
+        $unreadCounts = [];
+        
+        foreach ($friends as $friend) {
+            $lastMessage = Message::where(function($q) use ($userId, $friend) {
+                $q->where('sender_id', $userId)->where('receiver_id', $friend->uid);
+            })->orWhere(function($q) use ($userId, $friend) {
+                $q->where('sender_id', $friend->uid)->where('receiver_id', $userId);
+            })
+            ->latest()
+            ->first();
+            
+            $lastMessages[$friend->uid] = $lastMessage;
+            
+            // Đếm tin nhắn chưa đọc
+            $unreadCounts[$friend->uid] = Message::where('sender_id', $friend->uid)
+                ->where('receiver_id', $userId)
+                ->where('is_read', false)
+                ->count();
+        }
+
+        return view('messages.index', compact('friends', 'lastMessages', 'unreadCounts'));
     }
 
     // Chi tiết cuộc trò chuyện
@@ -74,7 +86,41 @@ class MessageController extends Controller
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        return view('messages.show', compact('friend', 'messages'));
+        // Lấy tất cả bạn bè cho sidebar
+        $friendIds = Friendship::where(function($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('friend_id', $userId);
+        })
+        ->where('status', 'accepted')
+        ->get()
+        ->map(function($friendship) use ($userId) {
+            return $friendship->user_id === $userId ? $friendship->friend_id : $friendship->user_id;
+        });
+
+        $allFriends = User::whereIn('uid', $friendIds)->get();
+
+        // Lấy tin nhắn cuối cùng với mỗi bạn
+        $lastMessages = [];
+        $unreadCounts = [];
+        
+        foreach ($allFriends as $friendItem) {
+            $lastMessage = Message::where(function($q) use ($userId, $friendItem) {
+                $q->where('sender_id', $userId)->where('receiver_id', $friendItem->uid);
+            })->orWhere(function($q) use ($userId, $friendItem) {
+                $q->where('sender_id', $friendItem->uid)->where('receiver_id', $userId);
+            })
+            ->latest()
+            ->first();
+            
+            $lastMessages[$friendItem->uid] = $lastMessage;
+            
+            // Đếm tin nhắn chưa đọc
+            $unreadCounts[$friendItem->uid] = Message::where('sender_id', $friendItem->uid)
+                ->where('receiver_id', $userId)
+                ->where('is_read', false)
+                ->count();
+        }
+
+        return view('messages.show', compact('friend', 'messages', 'allFriends', 'lastMessages', 'unreadCounts'));
     }
 
     // Gửi tin nhắn
