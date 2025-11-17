@@ -8,6 +8,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PostLikeController;
 use App\Http\Controllers\TopController;
+use App\Http\Controllers\FriendshipController;
+use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -56,6 +58,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/communities/{community}/join', [CommunitiesController::class, 'join'])->name('communities.join');
     Route::post('/communities/{community}/leave', [CommunitiesController::class, 'leave'])->name('communities.leave');
     Route::delete('/communities/{community}/members/{userId}', [CommunitiesController::class, 'removeMember'])->name('communities.removeMember');
+    
+    // Friends routes
+    Route::get('/friends', [FriendshipController::class, 'index'])->name('friends.index');
+    Route::get('/friends/search', [FriendshipController::class, 'search'])->name('friends.search');
+    Route::post('/friends/request', [FriendshipController::class, 'sendRequest'])->name('friends.request');
+    Route::post('/friends/accept/{id}', [FriendshipController::class, 'acceptRequest'])->name('friends.accept');
+    Route::post('/friends/reject/{id}', [FriendshipController::class, 'rejectRequest'])->name('friends.reject');
+    Route::delete('/friends/unfriend/{friendId}', [FriendshipController::class, 'unfriend'])->name('friends.unfriend');
+    
+    // Messages routes
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{friendId}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+    Route::get('/messages/{friendId}/get', [MessageController::class, 'getMessages'])->name('messages.get');
 });
 
 require __DIR__.'/auth.php';
