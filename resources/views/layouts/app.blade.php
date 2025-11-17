@@ -46,6 +46,17 @@
                 <a href="{{ route('posts.create') }}" class="nav-icon-btn" title="Create Post">
                     <i class="bi bi-plus-circle"></i>
                 </a>
+                <a href="{{ route('friends.index') }}" class="nav-icon-btn" title="Friends">
+                    <i class="bi bi-people"></i>
+                </a>
+                <a href="{{ route('messages.index') }}" class="nav-icon-btn" title="Messages" style="position: relative;">
+                    <i class="bi bi-chat-dots"></i>
+                    @if($unreadMessagesCount > 0)
+                        <span style="position: absolute; top: -2px; right: -2px; background: #dc2626; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center;">
+                            {{ $unreadMessagesCount > 9 ? '9+' : $unreadMessagesCount }}
+                        </span>
+                    @endif
+                </a>
                 <a href="#" class="nav-icon-btn" title="Notifications">
                     <i class="bi bi-bell"></i>
                 </a>
