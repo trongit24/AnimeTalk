@@ -150,14 +150,19 @@ class MessageController extends Controller
             'sender_id' => $userId,
             'receiver_id' => $receiverId,
             'message' => $request->message,
-            'message_type' => 'text',
+            'message_type' => $request->input('message_type', 'text'),
         ];
 
-        // Xử lý upload ảnh/gif
+        // Xử lý upload ảnh/gif file
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('messages', 'public');
             $messageData['image'] = $path;
             $messageData['message_type'] = 'image';
+        }
+        
+        // Nếu là GIF URL (từ Giphy)
+        if ($request->input('message_type') === 'gif') {
+            $messageData['message_type'] = 'gif';
         }
 
         $message = Message::create($messageData);

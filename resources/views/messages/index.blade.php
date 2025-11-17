@@ -47,6 +47,8 @@
                                         @endif
                                         @if($lastMsg->message_type === 'image')
                                             <i class="bi bi-image"></i> Đã gửi một ảnh
+                                        @elseif($lastMsg->message_type === 'gif')
+                                            <i class="bi bi-file-play"></i> Đã gửi một GIF
                                         @else
                                             {{ $lastMsg->message }}
                                         @endif

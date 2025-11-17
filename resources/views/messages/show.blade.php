@@ -44,6 +44,8 @@
                                         @endif
                                         @if($lastMsg->message_type === 'image')
                                             <i class="bi bi-image"></i> Đã gửi một ảnh
+                                        @elseif($lastMsg->message_type === 'gif')
+                                            <i class="bi bi-file-play"></i> Đã gửi một GIF
                                         @else
                                             {{ $lastMsg->message }}
                                         @endif
@@ -118,6 +120,13 @@
                                         <p class="mb-0 mt-2" style="font-size: 15px;">{{ $message->message }}</p>
                                     @endif
                                 </div>
+                            @elseif($message->message_type === 'gif')
+                                <div style="max-width: 300px;">
+                                    <img src="{{ $message->message }}" 
+                                         alt="GIF" 
+                                         style="max-width: 100%; border-radius: 18px; cursor: pointer;"
+                                         onclick="window.open(this.src, '_blank')">
+                                </div>
                             @else
                                 <div class="rounded-pill px-3 py-2" style="background: {{ $isOwnMessage ? '#0084ff' : '#e4e6eb' }}; color: {{ $isOwnMessage ? 'white' : '#050505' }};">
                                     <p class="mb-0" style="font-size: 15px;">{{ $message->message }}</p>
@@ -160,6 +169,24 @@
                     <button type="button" onclick="document.getElementById('imageInput').click()" class="btn p-0" style="background: none; border: none; color: #0084ff; font-size: 24px;">
                         <i class="bi bi-image"></i>
                     </button>
+
+                    <!-- GIF picker button -->
+                    <div class="position-relative">
+                        <button type="button" onclick="toggleGifPicker()" class="btn p-0" style="background: none; border: none; color: #0084ff; font-size: 24px;">
+                            <i class="bi bi-file-play"></i>
+                        </button>
+                        <div id="gifPicker" class="position-absolute bg-white shadow rounded p-2" style="display: none; bottom: 45px; left: 0; width: 350px; height: 400px; z-index: 1000; border: 1px solid #ddd;">
+                            <input type="text" id="gifSearch" class="form-control form-control-sm mb-2" placeholder="Tìm GIF..." style="font-size: 13px;">
+                            <div id="gifGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 340px; overflow-y: auto;">
+                                <img src="https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif" class="gif-item" style="width: 100%; border-radius: 8px; cursor: pointer;" alt="GIF">
+                                <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" class="gif-item" style="width: 100%; border-radius: 8px; cursor: pointer;" alt="GIF">
+                                <img src="https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif" class="gif-item" style="width: 100%; border-radius: 8px; cursor: pointer;" alt="GIF">
+                                <img src="https://media.giphy.com/media/ZBQhoZC0nqknSviPqT/giphy.gif" class="gif-item" style="width: 100%; border-radius: 8px; cursor: pointer;" alt="GIF">
+                                <img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" class="gif-item" style="width: 100%; border-radius: 8px; cursor: pointer;" alt="GIF">
+                                <img src="https://media.giphy.com/media/12NUbkX6p4xOO4/giphy.gif" class="gif-item" style="width: 100%; border-radius: 8px; cursor: pointer;" alt="GIF">
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Emoji picker button -->
                     <div class="position-relative">
@@ -278,20 +305,30 @@ if (searchInput) {
     }
 
     // Send message
+    let selectedGifUrl = null;
+
     messageForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const message = messageInput.value.trim();
         const imageInput = document.getElementById('imageInput');
         const hasImage = imageInput.files.length > 0;
+        const hasGif = selectedGifUrl !== null;
         
-        if (!message && !hasImage) return;
+        if (!message && !hasImage && !hasGif) return;
 
         try {
             const formData = new FormData();
             formData.append('receiver_id', friendUid);
-            if (message) formData.append('message', message);
-            if (hasImage) formData.append('image', imageInput.files[0]);
+            
+            // Nếu có GIF URL, gửi làm message
+            if (hasGif) {
+                formData.append('message', selectedGifUrl);
+                formData.append('message_type', 'gif');
+            } else {
+                if (message) formData.append('message', message);
+                if (hasImage) formData.append('image', imageInput.files[0]);
+            }
 
             const response = await fetch('{{ route("messages.store") }}', {
                 method: 'POST',
@@ -308,6 +345,7 @@ if (searchInput) {
                 appendMessage(data.message, true);
                 messageInput.value = '';
                 imageInput.value = '';
+                selectedGifUrl = null;
                 removeImage();
                 scrollToBottom();
                 lastMessageId = data.message.id;
@@ -353,6 +391,12 @@ if (searchInput) {
                 <div style="max-width: 300px;">
                     <img src="/storage/${message.image}" alt="Image" style="max-width: 100%; border-radius: 18px; cursor: pointer;" onclick="window.open(this.src, '_blank')">
                     ${message.message ? `<p class="mb-0 mt-2" style="font-size: 15px;">${escapeHtml(message.message)}</p>` : ''}
+                </div>
+            `;
+        } else if (message.message_type === 'gif') {
+            messageContent = `
+                <div style="max-width: 300px;">
+                    <img src="${message.message}" alt="GIF" style="max-width: 100%; border-radius: 18px; cursor: pointer;" onclick="window.open(this.src, '_blank')">
                 </div>
             `;
         } else {
@@ -436,8 +480,40 @@ if (searchInput) {
     // Toggle emoji picker
     function toggleEmojiPicker() {
         const picker = document.getElementById('emojiPicker');
+        const gifPicker = document.getElementById('gifPicker');
         picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+        if (gifPicker) gifPicker.style.display = 'none';
     }
+
+    // Toggle GIF picker
+    function toggleGifPicker() {
+        const picker = document.getElementById('gifPicker');
+        const emojiPicker = document.getElementById('emojiPicker');
+        picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+        if (emojiPicker) emojiPicker.style.display = 'none';
+    }
+
+    // Handle GIF selection
+    document.querySelectorAll('.gif-item').forEach(gif => {
+        gif.addEventListener('click', function() {
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImage');
+            const imageInput = document.getElementById('imageInput');
+            
+            // Clear file input
+            imageInput.value = '';
+            
+            // Set selected GIF URL
+            selectedGifUrl = this.src;
+            
+            // Show GIF preview
+            previewImg.src = this.src;
+            imagePreview.style.display = 'block';
+            
+            // Close GIF picker
+            document.getElementById('gifPicker').style.display = 'none';
+        });
+    });
 
     // Insert emoji vào input
     function insertEmoji(emoji) {
@@ -449,12 +525,20 @@ if (searchInput) {
 
     // Đóng emoji picker khi click ngoài
     document.addEventListener('click', function(e) {
-        const picker = document.getElementById('emojiPicker');
+        const emojiPicker = document.getElementById('emojiPicker');
+        const gifPicker = document.getElementById('gifPicker');
         const emojiButton = e.target.closest('button[onclick="toggleEmojiPicker()"]');
+        const gifButton = e.target.closest('button[onclick="toggleGifPicker()"]');
         const emojiItem = e.target.closest('button[onclick^="insertEmoji"]');
+        const gifItem = e.target.closest('.gif-item');
+        const gifSearch = e.target.closest('#gifSearch');
         
-        if (!emojiButton && !emojiItem && picker.style.display === 'block') {
-            picker.style.display = 'none';
+        if (!emojiButton && !emojiItem && emojiPicker.style.display === 'block') {
+            emojiPicker.style.display = 'none';
+        }
+        
+        if (!gifButton && !gifItem && !gifSearch && gifPicker.style.display === 'block') {
+            gifPicker.style.display = 'none';
         }
     });
 </script>
