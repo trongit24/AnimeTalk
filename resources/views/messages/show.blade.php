@@ -193,6 +193,11 @@ if (searchInput) {
     const friendUid = '{{ $friend->uid }}';
     const currentUserId = '{{ auth()->user()->uid }}';
     let lastMessageId = {{ $messages->isNotEmpty() ? $messages->last()->id : 0 }};
+    const displayedMessageIds = new Set([
+        @foreach($messages as $message)
+            {{ $message->id }},
+        @endforeach
+    ]);
 
     // Friend info for avatar
     const friendAvatar = {
@@ -252,6 +257,12 @@ if (searchInput) {
 
     // Append message to UI
     function appendMessage(message, isOwnMessage) {
+        // Check if message already exists
+        if (displayedMessageIds.has(message.id)) {
+            return;
+        }
+        displayedMessageIds.add(message.id);
+        
         const messageDiv = document.createElement('div');
         messageDiv.className = `mb-3 d-flex ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'}`;
         
