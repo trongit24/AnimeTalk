@@ -69,9 +69,9 @@ Route::middleware('auth')->group(function () {
     
     // Messages routes
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
-    Route::get('/messages/{friendId}', [MessageController::class, 'show'])->name('messages.show');
+    Route::get('/messages/{user}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
-    Route::get('/messages/{friendId}/get', [MessageController::class, 'getMessages'])->name('messages.get');
+    Route::get('/messages/{user}/new', [MessageController::class, 'getMessages'])->name('messages.getMessages');
 });
 
 require __DIR__.'/auth.php';

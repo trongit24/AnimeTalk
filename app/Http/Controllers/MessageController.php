@@ -42,34 +42,34 @@ class MessageController extends Controller
     }
 
     // Chi tiết cuộc trò chuyện
-    public function show($friendId)
+    public function show($user)
     {
         $userId = Auth::user()->uid;
         
         // Kiểm tra có phải bạn bè không
-        $isFriend = Friendship::where(function($q) use ($userId, $friendId) {
-            $q->where('user_id', $userId)->where('friend_id', $friendId);
-        })->orWhere(function($q) use ($userId, $friendId) {
-            $q->where('user_id', $friendId)->where('friend_id', $userId);
+        $isFriend = Friendship::where(function($q) use ($userId, $user) {
+            $q->where('user_id', $userId)->where('friend_id', $user);
+        })->orWhere(function($q) use ($userId, $user) {
+            $q->where('user_id', $user)->where('friend_id', $userId);
         })->where('status', 'accepted')->exists();
 
         if (!$isFriend) {
             return redirect()->route('friends.index')->with('error', 'You can only message friends');
         }
 
-        $friend = User::where('uid', $friendId)->firstOrFail();
+        $friend = User::where('uid', $user)->firstOrFail();
 
         // Lấy tin nhắn
-        $messages = Message::where(function($q) use ($userId, $friendId) {
-            $q->where('sender_id', $userId)->where('receiver_id', $friendId);
-        })->orWhere(function($q) use ($userId, $friendId) {
-            $q->where('sender_id', $friendId)->where('receiver_id', $userId);
+        $messages = Message::where(function($q) use ($userId, $user) {
+            $q->where('sender_id', $userId)->where('receiver_id', $user);
+        })->orWhere(function($q) use ($userId, $user) {
+            $q->where('sender_id', $user)->where('receiver_id', $userId);
         })
         ->orderBy('created_at', 'asc')
         ->get();
 
         // Đánh dấu đã đọc
-        Message::where('sender_id', $friendId)
+        Message::where('sender_id', $user)
             ->where('receiver_id', $userId)
             ->where('is_read', false)
             ->update(['is_read' => true]);
@@ -112,25 +112,27 @@ class MessageController extends Controller
     }
 
     // Lấy tin nhắn mới (polling)
-    public function getMessages($friendId)
+    public function getMessages($user)
     {
         $userId = Auth::user()->uid;
+        $lastId = request('last_id', 0);
         
-        $messages = Message::where(function($q) use ($userId, $friendId) {
-            $q->where('sender_id', $userId)->where('receiver_id', $friendId);
-        })->orWhere(function($q) use ($userId, $friendId) {
-            $q->where('sender_id', $friendId)->where('receiver_id', $userId);
+        $messages = Message::where(function($q) use ($userId, $user) {
+            $q->where('sender_id', $userId)->where('receiver_id', $user);
+        })->orWhere(function($q) use ($userId, $user) {
+            $q->where('sender_id', $user)->where('receiver_id', $userId);
         })
+        ->where('id', '>', $lastId)
         ->with('sender')
         ->orderBy('created_at', 'asc')
         ->get();
 
         // Đánh dấu đã đọc
-        Message::where('sender_id', $friendId)
+        Message::where('sender_id', $user)
             ->where('receiver_id', $userId)
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        return response()->json($messages);
+        return response()->json(['messages' => $messages]);
     }
 }
