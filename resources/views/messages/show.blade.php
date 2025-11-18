@@ -1,10 +1,39 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    @media (max-width: 768px) {
+        .messenger-sidebar {
+            position: fixed;
+            left: 0;
+            top: 56px;
+            width: 100%;
+            height: calc(100vh - 56px);
+            z-index: 1040;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .messenger-sidebar.show {
+            transform: translateX(0);
+        }
+        .messenger-chat {
+            width: 100% !important;
+        }
+        .back-btn-mobile {
+            display: inline-flex !important;
+        }
+    }
+    @media (min-width: 769px) {
+        .back-btn-mobile {
+            display: none !important;
+        }
+    }
+</style>
+
 <div class="container-fluid" style="padding: 0; height: calc(100vh - 80px);">
     <div class="row g-0 h-100">
         <!-- Sidebar - Danh sách bạn bè -->
-        <div class="col-md-4 col-lg-3 border-end" style="background: white; overflow-y: auto;">
+        <div class="col-md-4 col-lg-3 border-end messenger-sidebar" style="background: white; overflow-y: auto;">
             <div class="p-3 border-bottom">
                 <h4 class="mb-0 fw-bold">Đoạn chat</h4>
             </div>
@@ -69,9 +98,14 @@
         </div>
 
         <!-- Main chat area -->
-        <div class="col-md-8 col-lg-9 d-flex flex-column" style="background: white;">
+        <div class="col-md-8 col-lg-9 d-flex flex-column messenger-chat" style="background: white;">
             <!-- Chat Header -->
             <div class="p-3 border-bottom d-flex align-items-center gap-3" style="box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+                <!-- Back button for mobile -->
+                <button onclick="toggleSidebar()" class="btn btn-link p-0 back-btn-mobile" style="display: none;">
+                    <i class="bi bi-arrow-left" style="font-size: 24px; color: #050505;"></i>
+                </button>
+                
                 @if($friend->profile_photo)
                     <img src="{{ asset('storage/' . $friend->profile_photo) }}" 
                          alt="{{ $friend->name }}" 
@@ -475,6 +509,7 @@ if (searchInput) {
         document.getElementById('imageInput').value = '';
         document.getElementById('imagePreview').style.display = 'none';
         document.getElementById('previewImage').src = '';
+        selectedGifUrl = null;
     }
 
     // Toggle emoji picker
@@ -540,6 +575,23 @@ if (searchInput) {
         if (!gifButton && !gifItem && !gifSearch && gifPicker.style.display === 'block') {
             gifPicker.style.display = 'none';
         }
+    });
+
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.messenger-sidebar');
+        sidebar.classList.toggle('show');
+    }
+
+    // Close sidebar when clicking friend on mobile
+    document.querySelectorAll('.friend-item').forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    document.querySelector('.messenger-sidebar').classList.remove('show');
+                }, 100);
+            }
+        });
     });
 </script>
 @endsection
