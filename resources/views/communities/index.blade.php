@@ -2,6 +2,10 @@
 
 @section('title', 'Communities - AnimeTalk')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/communities.css') }}">
+@endpush
+
 @section('content')
 <div class="communities-page">
     <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
@@ -128,30 +132,4 @@
         </div>
     </div>
 </div>
-
-<style>
-.btn-create-community {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #5BA3D0, #9B7EDE);
-    color: white;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-create-community:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(91, 163, 208, 0.3);
-}
-
-.community-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-color: #5BA3D0;
-}
-</style>
 @endsection

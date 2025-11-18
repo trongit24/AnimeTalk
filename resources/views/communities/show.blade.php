@@ -2,10 +2,14 @@
 
 @section('title', $community->name . ' - AnimeTalk')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/communities.css') }}">
+@endpush
+
 @section('content')
-<div class="community-detail-page" style="background: #DAE0E6; min-height: calc(100vh - 60px);">
+<div class="community-detail-page">
     <!-- Banner Section -->
-    <div style="width: 100%; height: 200px; overflow: hidden; position: relative;">
+    <div class="community-banner">
         @if($community->banner)
         <img src="{{ asset('storage/' . $community->banner) }}" alt="{{ $community->name }}" style="width: 100%; height: 100%; object-fit: cover;">
         @else
@@ -15,14 +19,13 @@
 
     <!-- Community Header -->
     <div style="background: white; border-bottom: 1px solid #e0e0e0;">
-        <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-            <div style="display: flex; align-items: flex-start; gap: 1.5rem; padding: 1.5rem 0;">
+        <div class="community-header-container">
+            <div class="community-header-content">
                 <!-- Community Icon -->
                 @if($community->icon)
-                <img src="{{ asset('storage/' . $community->icon) }}" alt="{{ $community->name }}" 
-                     style="width: 100px; height: 100px; border-radius: 16px; border: 4px solid white; margin-top: -60px; background: white; object-fit: cover;">
+                <img src="{{ asset('storage/' . $community->icon) }}" alt="{{ $community->name }}" class="community-icon">
                 @else
-                <div style="width: 100px; height: 100px; border-radius: 16px; border: 4px solid white; margin-top: -60px; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 2.5rem;">
+                <div class="community-icon-placeholder">
                     {{ strtoupper(substr($community->name, 0, 1)) }}
                 </div>
                 @endif
@@ -48,10 +51,14 @@
                 <!-- Action Button -->
                 @auth
                     @if($community->isOwner(auth()->user()))
-                    <div style="margin-top: 1rem;">
+                    <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
                         <span style="display: inline-block; padding: 0.75rem 1.5rem; background: rgba(91, 163, 208, 0.1); color: #5BA3D0; border-radius: 8px; font-weight: 600;">
                             <i class="bi bi-star-fill"></i> Owner
                         </span>
+                        <a href="{{ route('communities.edit', $community->slug) }}" 
+                           style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                            <i class="bi bi-pencil"></i> Edit Community
+                        </a>
                     </div>
                     @elseif($community->isMember(auth()->user()))
                     <form action="{{ route('communities.leave', $community) }}" method="POST" style="margin-top: 1rem;">
@@ -80,8 +87,8 @@
     </div>
 
     <!-- Main Content -->
-    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
-        <div style="display: grid; grid-template-columns: 1fr 320px; gap: 2rem;">
+    <div class="community-main-content">
+        <div class="community-content-grid">
             <!-- Posts Section -->
             <div>
                 <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem;">

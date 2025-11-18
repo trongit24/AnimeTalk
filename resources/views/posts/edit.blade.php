@@ -65,27 +65,6 @@
                                 💬 Discussion
                             </span>
                         </label>
-                        <label class="tag-checkbox">
-                            <input type="checkbox" name="categories[]" value="fanart" 
-                                {{ in_array('fanart', $currentCategories) ? 'checked' : '' }}>
-                            <span style="background-color: #A8E6CF20; color: #A8E6CF; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
-                                🎨 Fan Art
-                            </span>
-                        </label>
-                        <label class="tag-checkbox">
-                            <input type="checkbox" name="categories[]" value="news" 
-                                {{ in_array('news', $currentCategories) ? 'checked' : '' }}>
-                            <span style="background-color: #FFD3B620; color: #FFD3B6; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
-                                📰 News
-                            </span>
-                        </label>
-                        <label class="tag-checkbox">
-                            <input type="checkbox" name="categories[]" value="review" 
-                                {{ in_array('review', $currentCategories) ? 'checked' : '' }}>
-                            <span style="background-color: #FFAAA520; color: #FFAAA5; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; display: inline-block;">
-                                ⭐ Review
-                            </span>
-                        </label>
                     </div>
                     @error('categories')
                         <span class="error">{{ $message }}</span>

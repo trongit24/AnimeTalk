@@ -2,9 +2,13 @@
 
 @section('title', 'Start a Community - AnimeTalk')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/communities.css') }}">
+@endpush
+
 @section('content')
-<div class="create-community-page" style="background: #DAE0E6; min-height: calc(100vh - 60px); padding: 2rem 0;">
-    <div class="container" style="max-width: 700px; margin: 0 auto;">
+<div class="create-community-page">
+    <div class="create-community-container">
         <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e0e0e0;">
             <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Start a Community</h1>
             <p style="color: #666; margin-bottom: 2rem;">Create your own anime community and bring fans together!</p>

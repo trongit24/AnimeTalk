@@ -159,4 +159,71 @@ class CommunitiesController extends Controller
 
         return back()->with('success', 'Member removed successfully!');
     }
+
+    public function edit($slug)
+    {
+        $community = Community::where('slug', $slug)->firstOrFail();
+
+        // Only owner can edit
+        if (!$community->isOwner(Auth::user())) {
+            abort(403, 'Only the community owner can edit this community.');
+        }
+
+        return view('communities.edit', compact('community'));
+    }
+
+    public function update(Request $request, $slug)
+    {
+        $community = Community::where('slug', $slug)->firstOrFail();
+
+        // Only owner can update
+        if (!$community->isOwner(Auth::user())) {
+            abort(403, 'Only the community owner can update this community.');
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|max:100|unique:communities,name,' . $community->id,
+            'description' => 'required|max:500',
+            'category' => 'required',
+            'icon' => 'nullable|image|max:1024',
+            'banner' => 'nullable|image|max:2048',
+            'is_private' => 'boolean',
+        ]);
+
+        // Update slug if name changed
+        if ($community->name !== $validated['name']) {
+            $validated['slug'] = Str::slug($validated['name']);
+        }
+
+        $community->update([
+            'name' => $validated['name'],
+            'slug' => $validated['slug'] ?? $community->slug,
+            'description' => $validated['description'],
+            'category' => $validated['category'],
+            'is_private' => $request->has('is_private'),
+        ]);
+
+        // Update icon if uploaded
+        if ($request->hasFile('icon')) {
+            // Delete old icon
+            if ($community->icon) {
+                Storage::disk('public')->delete($community->icon);
+            }
+            $path = $request->file('icon')->store('communities/icons', 'public');
+            $community->update(['icon' => $path]);
+        }
+
+        // Update banner if uploaded
+        if ($request->hasFile('banner')) {
+            // Delete old banner
+            if ($community->banner) {
+                Storage::disk('public')->delete($community->banner);
+            }
+            $path = $request->file('banner')->store('communities/banners', 'public');
+            $community->update(['banner' => $path]);
+        }
+
+        return redirect()->route('communities.show', $community->slug)
+            ->with('success', 'Community updated successfully!');
+    }
 }

@@ -21,15 +21,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Share unread message count with all views
+        // Share unread message count and notification count with all views
         View::composer('*', function ($view) {
             if (Auth::check()) {
                 $unreadCount = \App\Models\Message::where('receiver_id', Auth::user()->uid)
                     ->where('is_read', false)
                     ->count();
                 $view->with('unreadMessagesCount', $unreadCount);
+                
+                $notificationCount = \App\Models\EventNotification::where('user_id', Auth::user()->uid)
+                    ->where('is_read', false)
+                    ->count();
+                $view->with('unreadNotificationsCount', $notificationCount);
             } else {
                 $view->with('unreadMessagesCount', 0);
+                $view->with('unreadNotificationsCount', 0);
             }
         });
     }

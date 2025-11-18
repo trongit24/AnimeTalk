@@ -8,6 +8,7 @@ use App\Models\Friendship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
@@ -126,11 +127,22 @@ class MessageController extends Controller
     // Gửi tin nhắn
     public function store(Request $request)
     {
-        $request->validate([
-            'receiver_id' => 'required',
-            'message' => 'nullable|string|max:1000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // max 5MB
-        ]);
+        try {
+            $request->validate([
+                'receiver_id' => 'required',
+                'message' => 'nullable|string|max:1000',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp,heic|max:10240', // max 10MB
+                'message_type' => 'nullable|string|in:text,image,gif',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Message validation failed: ' . json_encode($e->errors()));
+            return response()->json(['errors' => $e->errors()], 422);
+        }
+
+        // Validate that at least message or image is provided
+        if (!$request->message && !$request->hasFile('image') && $request->message_type !== 'gif') {
+            return response()->json(['error' => 'Please provide a message or image'], 422);
+        }
 
         $userId = Auth::user()->uid;
         $receiverId = $request->receiver_id;
@@ -155,9 +167,14 @@ class MessageController extends Controller
 
         // Xử lý upload ảnh/gif file
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('messages', 'public');
-            $messageData['image'] = $path;
-            $messageData['message_type'] = 'image';
+            try {
+                $path = $request->file('image')->store('messages', 'public');
+                $messageData['image'] = $path;
+                $messageData['message_type'] = 'image';
+            } catch (\Exception $e) {
+                Log::error('Image upload failed: ' . $e->getMessage());
+                return response()->json(['error' => 'Failed to upload image: ' . $e->getMessage()], 500);
+            }
         }
         
         // Nếu là GIF URL (từ Giphy)
@@ -165,12 +182,17 @@ class MessageController extends Controller
             $messageData['message_type'] = 'gif';
         }
 
-        $message = Message::create($messageData);
+        try {
+            $message = Message::create($messageData);
 
-        return response()->json([
-            'success' => true,
-            'message' => $message->load('sender'),
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => $message->load('sender'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Message creation failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create message: ' . $e->getMessage()], 500);
+        }
     }
 
     // Lấy tin nhắn mới (polling)

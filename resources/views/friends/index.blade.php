@@ -2,105 +2,103 @@
 
 @section('title', 'Friends - AnimeTalk')
 
-@section('content')
-<div class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1rem;">
-    <h1 style="margin-bottom: 2rem; font-size: 2rem; font-weight: 700;">Friends</h1>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/friends-responsive.css') }}">
+@endpush
 
-    <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem;">
+@section('content')
+<div class="friends-container">
+    <h1 class="friends-title">Friends</h1>
+
+    <div class="friends-grid">
         <!-- Main Content -->
         <div>
             <!-- Search Box -->
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <h3 style="margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">Find Friends</h3>
-                <div style="position: relative;">
-                    <input type="text" id="searchInput" placeholder="Search by name..." 
-                           style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem;">
-                    <div id="searchResults" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; margin-top: 0.5rem; max-height: 400px; overflow-y: auto; display: none; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
+            <div class="search-box">
+                <h3>Find Friends</h3>
+                <div class="search-input-wrapper">
+                    <input type="text" id="searchInput" placeholder="Search by name..." class="search-input">
+                    <div id="searchResults" class="search-results"></div>
                 </div>
             </div>
 
             <!-- Friends List -->
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <h3 style="margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">My Friends ({{ $friends->count() }})</h3>
+            <div class="friends-list">
+                <h3>My Friends ({{ $friends->count() }})</h3>
                 
                 @forelse($friends as $friend)
-                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #f0f0f0;">
+                <div class="friend-item">
                     @if($friend->profile_photo)
-                        <img src="{{ asset('storage/' . $friend->profile_photo) }}" alt="{{ $friend->name }}" 
-                             style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="{{ asset('storage/' . $friend->profile_photo) }}" alt="{{ $friend->name }}" class="friend-avatar">
                     @else
-                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem;">
+                        <div class="friend-avatar-placeholder">
                             {{ strtoupper(substr($friend->name, 0, 1)) }}
                         </div>
                     @endif
                     
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; font-size: 1rem;">{{ $friend->name }}</div>
-                        <div style="font-size: 0.875rem; color: #666;">{{ $friend->email }}</div>
+                    <div class="friend-info">
+                        <div class="friend-name">{{ $friend->name }}</div>
+                        <div class="friend-email">{{ $friend->email }}</div>
                     </div>
 
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a href="{{ route('messages.show', $friend->uid) }}" 
-                           style="padding: 0.5rem 1rem; background: #1a73e8; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.875rem;">
+                    <div class="friend-actions">
+                        <a href="{{ route('messages.show', $friend->uid) }}" class="btn-message">
                             <i class="bi bi-chat-dots"></i> Message
                         </a>
                         <form action="{{ route('friends.unfriend', $friend->uid) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to unfriend?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" style="padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
+                            <button type="submit" class="btn-unfriend">
                                 <i class="bi bi-person-x"></i> Unfriend
                             </button>
                         </form>
                     </div>
                 </div>
                 @empty
-                <p style="text-align: center; color: #999; padding: 2rem;">No friends yet. Search and add friends above!</p>
+                <p class="empty-state">No friends yet. Search and add friends above!</p>
                 @endforelse
             </div>
         </div>
 
         <!-- Sidebar -->
-        <div>
+        <div class="friends-sidebar">
             <!-- Pending Requests -->
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <h3 style="margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">
+            <div class="pending-requests">
+                <h3>
                     Friend Requests
                     @if($pendingRequests->count() > 0)
-                        <span style="background: #dc3545; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; margin-left: 0.5rem;">{{ $pendingRequests->count() }}</span>
+                        <span class="badge-count">{{ $pendingRequests->count() }}</span>
                     @endif
                 </h3>
                 
                 @forelse($pendingRequests as $request)
-                <div style="padding: 1rem; border-bottom: 1px solid #f0f0f0;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                <div class="request-item">
+                    <div class="request-header">
                         @if($request->user->profile_photo)
-                            <img src="{{ asset('storage/' . $request->user->profile_photo) }}" alt="{{ $request->user->name }}" 
-                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <img src="{{ asset('storage/' . $request->user->profile_photo) }}" alt="{{ $request->user->name }}" class="request-avatar">
                         @else
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            <div class="request-avatar-placeholder">
                                 {{ strtoupper(substr($request->user->name, 0, 1)) }}
                             </div>
                         @endif
                         
-                        <div>
-                            <div style="font-weight: 600; font-size: 0.9rem;">{{ $request->user->name }}</div>
-                            <div style="font-size: 0.75rem; color: #999;">{{ $request->created_at->diffForHumans() }}</div>
+                        <div class="request-info">
+                            <div class="request-name">{{ $request->user->name }}</div>
+                            <div class="request-time">{{ $request->created_at->diffForHumans() }}</div>
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button onclick="acceptRequest({{ $request->id }})" 
-                                style="flex: 1; padding: 0.5rem; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
+                    <div class="request-actions">
+                        <button onclick="acceptRequest({{ $request->id }})" class="btn-accept">
                             Accept
                         </button>
-                        <button onclick="rejectRequest({{ $request->id }})" 
-                                style="flex: 1; padding: 0.5rem; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
+                        <button onclick="rejectRequest({{ $request->id }})" class="btn-reject">
                             Reject
                         </button>
                     </div>
                 </div>
                 @empty
-                <p style="text-align: center; color: #999; padding: 1rem; font-size: 0.875rem;">No pending requests</p>
+                <p class="empty-state" style="padding: 1rem; font-size: 0.875rem;">No pending requests</p>
                 @endforelse
             </div>
         </div>
@@ -126,19 +124,19 @@ searchInput.addEventListener('input', function() {
             .then(res => res.json())
             .then(users => {
                 if (users.length === 0) {
-                    searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: #999;">No users found</div>';
+                    searchResults.innerHTML = '<div class="empty-state" style="padding: 1rem;">No users found</div>';
                 } else {
                     searchResults.innerHTML = users.map(user => `
-                        <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0f0; cursor: pointer;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                        <div class="search-result-item">
                             ${user.profile_photo ? 
-                                `<img src="/storage/${user.profile_photo}" alt="${user.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` :
-                                `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">${user.name.charAt(0).toUpperCase()}</div>`
+                                `<img src="/storage/${user.profile_photo}" alt="${user.name}" class="friend-avatar">` :
+                                `<div class="friend-avatar-placeholder">${user.name.charAt(0).toUpperCase()}</div>`
                             }
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600;">${user.name}</div>
-                                <div style="font-size: 0.875rem; color: #666;">${user.email}</div>
+                            <div class="friend-info">
+                                <div class="friend-name">${user.name}</div>
+                                <div class="friend-email">${user.email}</div>
                             </div>
-                            <button onclick="sendFriendRequest('${user.uid}', event)" style="padding: 0.5rem 1rem; background: #1a73e8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
+                            <button onclick="sendFriendRequest('${user.uid}', event)" class="btn-add-friend">
                                 <i class="bi bi-person-plus"></i> Add
                             </button>
                         </div>

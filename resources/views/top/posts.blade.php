@@ -73,6 +73,25 @@
                             </span>
                         </div>
                     </div>
+
+                    <!-- Thumbnail -->
+                    @if($post->video || $post->image)
+                    <div style="flex-shrink: 0;">
+                        @if($post->video)
+                            <div style="width: 120px; height: 120px; border-radius: 8px; overflow: hidden; position: relative; background: #000;">
+                                <video style="width: 100%; height: 100%; object-fit: cover;">
+                                    <source src="{{ asset('storage/' . $post->video) }}" type="video/mp4">
+                                </video>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-play-fill" style="color: white; font-size: 1.5rem;"></i>
+                                </div>
+                            </div>
+                        @elseif($post->image)
+                            <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" 
+                                 style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover;">
+                        @endif
+                    </div>
+                    @endif
                 </div>
             </article>
             @empty

@@ -11,6 +11,7 @@ class Post extends Model
 
     protected $fillable = [
         'user_id',
+        'community_id',
         'title',
         'slug',
         'category',
@@ -39,6 +40,11 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function community()
+    {
+        return $this->belongsTo(Community::class);
     }
 
     public function likes()

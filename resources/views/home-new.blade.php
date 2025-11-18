@@ -2,10 +2,17 @@
 
 @section('title', 'Home - AnimeTalk')
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/reddit-style.css') }}">
+@endpush
+
 @section('content')
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="reddit-layout">
     <!-- Left Sidebar -->
-    <aside class="left-sidebar">
+    <aside class="left-sidebar" id="leftSidebar">
         <div class="sidebar-section">
             <h3 class="sidebar-title">MENU</h3>
             <ul class="sidebar-menu">
@@ -13,12 +20,6 @@
                     <a href="{{ route('home') }}">
                         <i class="bi bi-house-door-fill"></i>
                         <span>Home</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('search') }}">
-                        <i class="bi bi-compass"></i>
-                        <span>Explore</span>
                     </a>
                 </li>
                 @auth
@@ -53,12 +54,22 @@
         </div>
 
         <div class="sidebar-section mt-4">
-            <h3 class="sidebar-title">ANIME GROUPS</h3>
-            <ul class="group-list">
-                <li><a href="#"><span class="group-dot cosplay"></span> Cosplay Events</a></li>
-                <li><a href="#"><span class="group-dot manga"></span> Manga Readers</a></li>
-                <li><a href="#"><span class="group-dot music"></span> Anime Music</a></li>
-                <li><a href="#"><span class="group-dot art"></span> Fan Art Showcase</a></li>
+            <h3 class="sidebar-title">EVENTS</h3>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{{ route('events.index') }}" class="sidebar-link">
+                        <i class="bi bi-calendar-event"></i>
+                        <span>Browse Events</span>
+                    </a>
+                </li>
+                @auth
+                <li>
+                    <a href="{{ route('events.create') }}" class="sidebar-link">
+                        <i class="bi bi-calendar-plus"></i>
+                        <span>Create Event</span>
+                    </a>
+                </li>
+                @endauth
             </ul>
         </div>
     </aside>
@@ -66,46 +77,26 @@
     <!-- Main Feed -->
     <main class="main-feed">
         <!-- Category Tabs -->
-        <div class="category-tabs" style="background: white; border-radius: 8px; margin-bottom: 1rem; padding: 0.5rem; display: flex; gap: 0.5rem; border: 1px solid #e0e0e0; overflow-x: auto;">
+        <div class="category-tabs">
             <a href="{{ route('home', ['category' => 'all']) }}" 
-               class="category-tab {{ (!isset($category) || $category == 'all') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (!isset($category) || $category == 'all') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               class="category-tab {{ (!isset($category) || $category == 'all') ? 'active' : '' }}">
                 <i class="bi bi-grid-3x3"></i> All
             </a>
             <a href="{{ route('home', ['category' => 'anime']) }}" 
-               class="category-tab {{ (isset($category) && $category == 'anime') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'anime') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               class="category-tab {{ (isset($category) && $category == 'anime') ? 'active' : '' }}">
                 <i class="bi bi-play-circle"></i> Anime
             </a>
             <a href="{{ route('home', ['category' => 'manga']) }}" 
-               class="category-tab {{ (isset($category) && $category == 'manga') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'manga') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               class="category-tab {{ (isset($category) && $category == 'manga') ? 'active' : '' }}">
                 <i class="bi bi-book"></i> Manga
             </a>
             <a href="{{ route('home', ['category' => 'cosplay']) }}" 
-               class="category-tab {{ (isset($category) && $category == 'cosplay') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'cosplay') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               class="category-tab {{ (isset($category) && $category == 'cosplay') ? 'active' : '' }}">
                 <i class="bi bi-mask"></i> Cosplay
             </a>
             <a href="{{ route('home', ['category' => 'discussion']) }}" 
-               class="category-tab {{ (isset($category) && $category == 'discussion') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'discussion') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
+               class="category-tab {{ (isset($category) && $category == 'discussion') ? 'active' : '' }}">
                 <i class="bi bi-chat-dots"></i> Discussion
-            </a>
-            <a href="{{ route('home', ['category' => 'fanart']) }}" 
-               class="category-tab {{ (isset($category) && $category == 'fanart') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'fanart') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
-                <i class="bi bi-palette"></i> Fan Art
-            </a>
-            <a href="{{ route('home', ['category' => 'news']) }}" 
-               class="category-tab {{ (isset($category) && $category == 'news') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'news') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
-                <i class="bi bi-newspaper"></i> News
-            </a>
-            <a href="{{ route('home', ['category' => 'review']) }}" 
-               class="category-tab {{ (isset($category) && $category == 'review') ? 'active' : '' }}"
-               style="flex: 0 0 auto; text-align: center; padding: 0.75rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; {{ (isset($category) && $category == 'review') ? 'background: #1a73e8; color: white;' : 'color: #666; background: transparent;' }}">
-                <i class="bi bi-star"></i> Review
             </a>
         </div>
 
@@ -113,7 +104,7 @@
         @auth
         <div class="create-box">
             @if(auth()->user()->profile_photo)
-                <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}" class="user-avatar-circle" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <img src="{{ asset('storage/' . auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}" class="user-avatar-circle">
             @else
                 <div class="user-avatar-circle">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
             @endif
@@ -152,7 +143,7 @@
                 </div>
 
                 <a href="{{ route('posts.show', $post->slug) }}" class="card-content-link">
-                    <h2 class="card-title">{{ $post->title }}</h2>
+                    <p class="card-text">{{ $post->content }}</p>
                     
                     @if($post->image)
                     <div class="card-image">
@@ -168,8 +159,6 @@
                         </video>
                     </div>
                     @endif
-
-                    <p class="card-text">{{ Str::limit($post->content, 250) }}</p>
                 </a>
 
                 @if($post->tags->count() > 0)
@@ -182,29 +171,41 @@
                 </div>
                 @endif
 
+                <!-- Post Stats -->
+                <div style="padding: 12px 0; border-bottom: 1px solid #e4e6eb; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #65676b;">
+                    <div>
+                        @if($post->likes()->count() > 0)
+                        <span><i class="bi bi-heart-fill" style="color: #FF6B9D;"></i> {{ $post->likes()->count() }}</span>
+                        @endif
+                    </div>
+                    <div>
+                        @if($post->comments->count() > 0)
+                        <span>{{ $post->comments->count() }} bình luận</span>
+                        @endif
+                    </div>
+                </div>
+
                 <div class="card-actions">
-                    <button class="action-btn comment-modal-btn" data-post-id="{{ $post->id }}" data-post-title="{{ $post->title }}">
-                        <i class="bi bi-chat"></i>
-                        {{ $post->comments->count() }} Comments
-                    </button>
                     @auth
                     <button class="action-btn post-like-btn {{ $post->likedBy(auth()->user()) ? 'liked' : '' }}" data-post-id="{{ $post->id }}">
                         <i class="bi {{ $post->likedBy(auth()->user()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
-                        <span class="like-count">{{ $post->likes()->count() }}</span> Likes
+                        <span>Thích</span>
                     </button>
                     @else
                     <a href="{{ route('login') }}" class="action-btn">
                         <i class="bi bi-heart"></i>
-                        {{ $post->likes()->count() }} Likes
+                        <span>Thích</span>
                     </a>
                     @endauth
+                    
+                    <button class="action-btn comment-modal-btn" data-post-id="{{ $post->id }}" data-post-title="{{ $post->title }}">
+                        <i class="bi bi-chat"></i>
+                        <span>Bình luận</span>
+                    </button>
+                    
                     <button class="action-btn">
                         <i class="bi bi-share"></i>
-                        Share
-                    </button>
-                    <button class="action-btn">
-                        <i class="bi bi-bookmark"></i>
-                        Save
+                        <span>Chia sẻ</span>
                     </button>
                 </div>
             </div>
@@ -226,13 +227,27 @@
     <aside class="right-sidebar">
         <!-- Top Posts -->
         <div class="widget">
-            <h3 class="widget-title">Top Posts</h3>
+            <h3 class="widget-title">🔥 Top Posts</h3>
             <ul class="event-list">
                 @foreach($topPosts as $topPost)
                 <li class="event-item" style="cursor: pointer;" onclick="window.location='{{ route('posts.show', $topPost->slug) }}'">
-                    <div class="event-date" style="background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; min-width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                        <i class="bi bi-fire" style="font-size: 1.2rem;"></i>
-                    </div>
+                    @if($topPost->video)
+                        <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; position: relative; background: #000;">
+                            <video style="width: 100%; height: 100%; object-fit: cover;">
+                                <source src="{{ asset('storage/' . $topPost->video) }}" type="video/mp4">
+                            </video>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.6); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-play-fill" style="color: white; font-size: 0.8rem;"></i>
+                            </div>
+                        </div>
+                    @elseif($topPost->image)
+                        <img src="{{ asset('storage/' . $topPost->image) }}" alt="{{ $topPost->title }}" 
+                             style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
+                    @else
+                        <div class="event-date" style="background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; min-width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                            <i class="bi bi-fire" style="font-size: 1.2rem;"></i>
+                        </div>
+                    @endif
                     <div class="event-details">
                         <div class="event-title">{{ Str::limit($topPost->title, 40) }}</div>
                         <div class="event-type" style="color: #FF6B6B; font-weight: 600;">
@@ -242,7 +257,35 @@
                 </li>
                 @endforeach
             </ul>
-            <a href="{{ route('top.posts') }}" class="widget-link">View All →</a>
+        </div>
+
+        <!-- Top Communities -->
+        <div class="widget">
+            <h3 class="widget-title">🌟 Top Communities</h3>
+            <ul class="event-list">
+                @foreach($topCommunities as $index => $community)
+                <li class="event-item" style="cursor: pointer;" onclick="window.location='{{ route('communities.show', $community->slug) }}'">
+                    @if($community->icon)
+                        <img src="{{ asset('storage/' . $community->icon) }}" alt="{{ $community->name }}" 
+                             style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 2px solid {{ $index == 0 ? '#FFD700' : ($index == 1 ? '#C0C0C0' : ($index == 2 ? '#CD7F32' : '#e0e0e0')) }};">
+                    @else
+                        <div class="event-date" style="background: linear-gradient(135deg, {{ $index == 0 ? '#FFD700, #FFA500' : ($index == 1 ? '#C0C0C0, #A8A8A8' : ($index == 2 ? '#CD7F32, #A0522D' : '#5BA3D0, #9B7EDE')) }}); color: white; min-width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 700; font-size: 1.25rem;">
+                            {{ strtoupper(substr($community->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div class="event-details">
+                        <div class="event-title">
+                            <span style="background: {{ $index == 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)' : ($index == 1 ? 'linear-gradient(135deg, #C0C0C0, #A8A8A8)' : ($index == 2 ? 'linear-gradient(135deg, #CD7F32, #A0522D)' : 'linear-gradient(135deg, #5BA3D0, #9B7EDE)')) }}; color: white; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-right: 0.375rem;">#{{ $index + 1 }}</span>
+                            {{ Str::limit($community->name, 25) }}
+                        </div>
+                        <div class="event-type" style="color: #667eea; font-weight: 600;">
+                            <i class="bi bi-people-fill"></i> {{ number_format($community->members_count) }} members
+                        </div>
+                    </div>
+                </li>
+                @endforeach
+            </ul>
+            <a href="{{ route('communities.index') }}" class="widget-link">View All Communities →</a>
         </div>
     </aside>
 </div>
@@ -1200,8 +1243,8 @@ likeButtons.forEach(btn => {
         
         console.log('Like button clicked');
         const postId = this.dataset.postId;
-        const likeCountSpan = this.querySelector('.like-count');
         const icon = this.querySelector('i');
+        const card = this.closest('article');
         
         fetch(`/posts/${postId}/like`, {
             method: 'POST',
@@ -1212,8 +1255,24 @@ likeButtons.forEach(btn => {
         })
         .then(response => response.json())
         .then(data => {
-            likeCountSpan.textContent = data.likes_count;
+            // Update like count display
+            const likeCountDiv = card.querySelector('.card-actions').previousElementSibling;
+            const likeCountSpan = likeCountDiv.querySelector('.bi-heart-fill')?.parentElement;
             
+            if (data.likes_count > 0) {
+                if (likeCountSpan) {
+                    likeCountSpan.innerHTML = `<i class="bi bi-heart-fill" style="color: #FF6B9D;"></i> ${data.likes_count}`;
+                } else {
+                    const firstDiv = likeCountDiv.querySelector('div');
+                    firstDiv.innerHTML = `<span><i class="bi bi-heart-fill" style="color: #FF6B9D;"></i> ${data.likes_count}</span>`;
+                }
+            } else {
+                if (likeCountSpan) {
+                    likeCountSpan.innerHTML = '';
+                }
+            }
+            
+            // Update button state
             if (data.liked) {
                 this.classList.add('liked');
                 icon.classList.remove('bi-heart');
@@ -1224,7 +1283,10 @@ likeButtons.forEach(btn => {
                 icon.classList.add('bi-heart');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to like post. Please try again.');
+        });
     });
 });
 

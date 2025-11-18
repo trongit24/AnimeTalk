@@ -50,6 +50,7 @@ class User extends Authenticatable
         'bio',
         'profile_photo',
         'cover_photo',
+        'role',
     ];
 
     /**
@@ -83,6 +84,19 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(Comment::class, 'user_id', 'uid');
+    }
+
+    public function communities()
+    {
+        return $this->belongsToMany(Community::class, 'community_members', 'user_id', 'community_id', 'uid');
+    }
+
+    /**
+     * Check if user is admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 
     /**

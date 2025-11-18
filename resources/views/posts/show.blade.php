@@ -2,7 +2,17 @@
 
 @section('title', $post->title)
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/post-detail-responsive.css') }}">
+@endpush
+
 @section('content')
+<!-- Mobile Back Button -->
+<button class="mobile-back-btn" onclick="window.history.back()">
+    <i class="bi bi-arrow-left"></i>
+    <span>Back</span>
+</button>
+
 <div class="fb-post-detail-page">
     <div class="fb-post-container">
         <!-- Left Side - Media -->
@@ -65,8 +75,6 @@
 
             <!-- Post Title & Content -->
             <div class="fb-post-content">
-                <h1 class="fb-post-title">{{ $post->title }}</h1>
-                
                 @if($post->tags->count() > 0)
                 <div class="fb-post-tags">
                     @foreach($post->tags as $tag)

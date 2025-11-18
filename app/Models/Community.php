@@ -29,11 +29,22 @@ class Community extends Model
         return $this->belongsTo(User::class, 'user_id', 'uid');
     }
 
+    // Alias for admin panel compatibility
+    public function creator(): BelongsTo
+    {
+        return $this->owner();
+    }
+
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'community_members', 'community_id', 'user_id', 'id', 'uid')
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'community_id');
     }
 
     public function activities()

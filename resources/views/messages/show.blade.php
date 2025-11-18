@@ -372,6 +372,22 @@ if (searchInput) {
                 body: formData
             });
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server error:', errorData);
+                
+                if (errorData.errors) {
+                    // Validation errors
+                    const errorMessages = Object.values(errorData.errors).flat().join('\n');
+                    alert('Validation error:\n' + errorMessages);
+                } else if (errorData.error) {
+                    alert(errorData.error);
+                } else {
+                    alert('Failed to send message. Please try again.');
+                }
+                return;
+            }
+
             const data = await response.json();
 
             if (data.success) {
