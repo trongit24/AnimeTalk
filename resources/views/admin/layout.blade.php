@@ -33,9 +33,9 @@
             <div class="p-6">
                 <h1 class="text-2xl font-bold flex items-center gap-2">
                     <i class="fas fa-shield-halved"></i>
-                    Admin Panel
+                    AnimeTalk
                 </h1>
-                <p class="text-purple-200 text-sm mt-1">AnimeTalk</p>
+                <p class="text-purple-200 text-sm mt-1">Admin</p>
             </div>
 
             <nav class="mt-6">

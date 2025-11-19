@@ -16,6 +16,7 @@ class Post extends Model
         'slug',
         'category',
         'content',
+        'background',
         'image',
         'video',
         'views',

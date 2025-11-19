@@ -70,11 +70,25 @@
                 @forelse($topPosts as $post)
                     <a href="{{ route('admin.posts.show', $post) }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                         <div class="flex items-start gap-3">
-                            <div class="flex-1">
-                                <h4 class="font-medium text-gray-800 line-clamp-1">{{ $post->title }}</h4>
+                            @if($post->image)
+                                <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                            @elseif($post->video)
+                                <div class="w-16 h-16 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                                    <i class="fas fa-play text-white text-xl absolute z-10"></i>
+                                    <video class="w-full h-full object-cover opacity-60">
+                                        <source src="{{ asset('storage/' . $post->video) }}" type="video/mp4">
+                                    </video>
+                                </div>
+                            @else
+                                <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-file-alt text-white text-xl"></i>
+                                </div>
+                            @endif
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-800 line-clamp-2">{{ $post->title }}</h4>
                                 <div class="flex items-center gap-3 mt-1 text-sm text-gray-500">
                                     <span><i class="fas fa-user"></i> {{ $post->user->name }}</span>
-                                    <span><i class="fas fa-heart text-red-500"></i> {{ $post->likes_count }}</span>
+                                    <span class="text-red-500"><i class="fas fa-heart"></i> {{ $post->likes_count }} tương tác</span>
                                 </div>
                             </div>
                         </div>
@@ -156,8 +170,22 @@
                 @forelse($recentPosts as $post)
                     <a href="{{ route('admin.posts.show', $post) }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                         <div class="flex items-start gap-3">
-                            <div class="flex-1">
-                                <h4 class="font-medium text-gray-800 line-clamp-1">{{ $post->title }}</h4>
+                            @if($post->image)
+                                <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
+                            @elseif($post->video)
+                                <div class="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                                    <i class="fas fa-play text-white text-sm absolute z-10"></i>
+                                    <video class="w-full h-full object-cover opacity-60">
+                                        <source src="{{ asset('storage/' . $post->video) }}" type="video/mp4">
+                                    </video>
+                                </div>
+                            @else
+                                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-file-alt text-white"></i>
+                                </div>
+                            @endif
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-medium text-gray-800 line-clamp-2">{{ $post->title }}</h4>
                                 <div class="flex items-center gap-3 mt-1 text-sm text-gray-500">
                                     <span><i class="fas fa-user"></i> {{ $post->user->name }}</span>
                                     <span>{{ $post->created_at->diffForHumans() }}</span>

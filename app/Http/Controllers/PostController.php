@@ -34,6 +34,7 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
+            'background' => 'nullable|string|max:50',
             'categories' => 'nullable|array',
             'categories.*' => 'in:anime,manga,cosplay,discussion,fanart,news,review',
             'tags' => 'array',
@@ -50,6 +51,7 @@ class PostController extends Controller
             'slug' => $slug,
             'category' => isset($validated['categories']) ? implode(',', $validated['categories']) : null,
             'content' => $validated['content'],
+            'background' => $validated['background'] ?? null,
         ]);
 
         if ($request->hasFile('image')) {

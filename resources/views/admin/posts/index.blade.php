@@ -66,7 +66,18 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-start gap-3">
                                     @if($post->image)
-                                        <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="w-16 h-16 rounded-lg object-cover">
+                                        <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
+                                    @elseif($post->video)
+                                        <div class="w-16 h-16 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                                            <i class="fas fa-play text-white text-xl absolute z-10"></i>
+                                            <video class="w-full h-full object-cover opacity-60">
+                                                <source src="{{ asset('storage/' . $post->video) }}" type="video/mp4">
+                                            </video>
+                                        </div>
+                                    @else
+                                        <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-file-alt text-white text-xl"></i>
+                                        </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
                                         <p class="font-medium text-gray-800 line-clamp-2">{{ $post->title }}</p>

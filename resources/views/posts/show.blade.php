@@ -17,7 +17,26 @@
     <div class="fb-post-container">
         <!-- Left Side - Media -->
         <div class="fb-media-section">
-            @if($post->image)
+            @if($post->background)
+                @php
+                    $gradients = [
+                        'gradient-1' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        'gradient-2' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        'gradient-3' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                        'gradient-4' => 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                        'gradient-5' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                        'gradient-6' => 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                        'gradient-7' => 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                        'gradient-8' => 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+                    ];
+                    $bgGradient = $gradients[$post->background] ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                @endphp
+                <div class="fb-background-post" style="background: {{ $bgGradient }};">
+                    <div class="fb-background-content">
+                        {!! nl2br(e($post->content)) !!}
+                    </div>
+                </div>
+            @elseif($post->image)
                 <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="fb-main-image">
             @elseif($post->video)
                 <video controls class="fb-main-video">
@@ -85,9 +104,11 @@
                 </div>
                 @endif
                 
+                @if(!$post->background)
                 <div class="fb-post-text">
                     {!! nl2br(e($post->content)) !!}
                 </div>
+                @endif
             </div>
 
             <!-- Post Stats & Actions -->
@@ -302,6 +323,27 @@
     width: auto;
     height: auto;
     object-fit: contain;
+}
+
+.fb-background-post {
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.fb-background-content {
+    color: white;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.4;
+    max-width: 600px;
+    word-wrap: break-word;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .fb-no-media {

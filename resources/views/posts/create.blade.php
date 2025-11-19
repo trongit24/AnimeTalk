@@ -63,6 +63,9 @@
 .fb-content-area {
     position: relative;
     margin-bottom: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
 }
 
 .fb-textarea {
@@ -73,8 +76,11 @@
     font-family: inherit;
     resize: none;
     min-height: 120px;
-    padding: 0;
+    padding: 16px;
     color: #050505;
+    background: transparent;
+    position: relative;
+    z-index: 1;
 }
 
 .fb-textarea.has-media {
@@ -82,8 +88,24 @@
     min-height: 80px;
 }
 
+.fb-textarea.has-background {
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 .fb-textarea::placeholder {
     color: #b0b3b8;
+}
+
+.fb-textarea.has-background::placeholder {
+    color: rgba(255,255,255,0.8);
 }
 
 .background-selector {
@@ -536,6 +558,35 @@ document.querySelectorAll('.bg-option').forEach(option => {
         this.classList.add('selected');
         const bgValue = this.querySelector('input').value;
         backgroundField.value = bgValue;
+        
+        // Apply background to content area
+        const contentAreaWrapper = document.querySelector('.fb-content-area');
+        const textarea = document.getElementById('contentArea');
+        
+        if (bgValue) {
+            // Remove existing background classes
+            contentAreaWrapper.className = 'fb-content-area';
+            contentAreaWrapper.classList.add('bg-' + bgValue);
+            textarea.classList.add('has-background');
+            
+            // Apply gradient
+            const gradients = {
+                'gradient-1': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'gradient-2': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'gradient-3': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'gradient-4': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'gradient-5': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'gradient-6': 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'gradient-7': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'gradient-8': 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            };
+            contentAreaWrapper.style.background = gradients[bgValue];
+        } else {
+            // Reset to default
+            contentAreaWrapper.className = 'fb-content-area';
+            contentAreaWrapper.style.background = '';
+            textarea.classList.remove('has-background');
+        }
     });
 });
 
