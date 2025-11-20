@@ -4,10 +4,29 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/friends-responsive.css') }}">
+<style>
+.friends-container,
+.friends-container *,
+.friend-item,
+.friend-item *,
+.search-box,
+.search-box *,
+.pending-requests,
+.pending-requests * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.friend-item,
+.search-box,
+.pending-requests,
+.request-item {
+    background: white !important;
+}
+</style>
 @endpush
 
 @section('content')
-<div class="friends-container">
+<div class="friends-container" style="opacity: 1 !important; visibility: visible !important;">
     <h1 class="friends-title">Friends</h1>
 
     <div class="friends-grid">

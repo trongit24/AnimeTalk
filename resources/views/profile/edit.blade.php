@@ -2,10 +2,22 @@
 
 @section('title', 'Edit Profile - AnimeTalk')
 
+@push('styles')
+<style>
+.container,
+.container *,
+.card,
+.card * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+</style>
+@endpush
+
 @section('content')
-<div class="container" style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
-    <div class="card" style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem;">
-        <h2 style="margin-bottom: 1.5rem; color: #1c1c1c;">Edit Profile</h2>
+<div class="container" style="max-width: 800px; margin: 2rem auto; padding: 0 1rem; opacity: 1 !important; visibility: visible !important;">
+    <div class="card" style="background: white !important; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; opacity: 1 !important; visibility: visible !important;">
+        <h2 style="margin-bottom: 1.5rem; color: #1c1c1c !important;">Edit Profile</h2>
 
         @if(session('success'))
         <div style="background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #c3e6cb;">

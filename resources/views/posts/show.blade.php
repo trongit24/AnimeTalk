@@ -4,6 +4,18 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/post-detail-responsive.css') }}">
+<style>
+.fb-post-detail-page,
+.fb-post-detail-page * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.fb-post-container,
+.fb-media-section,
+.fb-info-section {
+    background: white !important;
+}
+</style>
 @endpush
 
 @section('content')
@@ -257,14 +269,13 @@
                             
                             <!-- GIF Picker -->
                             <div class="fb-gif-picker" id="gif-picker" style="display: none;">
-                                <input type="text" class="gif-search" placeholder="Tìm GIF...">
-                                <div class="gif-grid">
-                                    <img src="https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif" class="gif-item" alt="GIF">
-                                    <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" class="gif-item" alt="GIF">
-                                    <img src="https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif" class="gif-item" alt="GIF">
-                                    <img src="https://media.giphy.com/media/ZBQhoZC0nqknSviPqT/giphy.gif" class="gif-item" alt="GIF">
-                                    <img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" class="gif-item" alt="GIF">
-                                    <img src="https://media.giphy.com/media/12NUbkX6p4xOO4/giphy.gif" class="gif-item" alt="GIF">
+                                <input type="text" class="gif-search" id="gif-search-input" placeholder="Tìm kiếm GIF anime..." autocomplete="off">
+                                <div class="gif-loading" id="gif-loading" style="display: none; text-align: center; padding: 20px; color: #65676b;">
+                                    <i class="bi bi-arrow-repeat" style="font-size: 24px; animation: spin 1s linear infinite;"></i>
+                                    <p style="margin-top: 8px; font-size: 13px;">Đang tìm kiếm...</p>
+                                </div>
+                                <div class="gif-grid" id="gif-grid">
+                                    <!-- Trending anime GIFs will load here -->
                                 </div>
                             </div>
                         </form>
@@ -864,6 +875,8 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 .gif-item {
@@ -877,6 +890,12 @@
 
 .gif-item:hover {
     transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .fb-send-btn {
@@ -927,6 +946,9 @@
 
 @push('scripts')
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM loaded - Initializing post.show scripts...');
+
 // Like button functionality
 document.getElementById('like-btn')?.addEventListener('click', function() {
     const postId = this.dataset.postId;
@@ -1033,15 +1055,26 @@ function removePreview() {
 }
 
 // Emoji picker toggle
+console.log('🔍 Looking for elements...');
 const emojiBtn = document.getElementById('emoji-btn');
 const emojiPicker = document.getElementById('emoji-picker');
 const gifBtn = document.getElementById('gif-btn');
 const gifPicker = document.getElementById('gif-picker');
 
+console.log('Found elements:', {
+    emojiBtn: emojiBtn ? 'YES ✅' : 'NO ❌',
+    emojiPicker: emojiPicker ? 'YES ✅' : 'NO ❌',
+    gifBtn: gifBtn ? 'YES ✅' : 'NO ❌',
+    gifPicker: gifPicker ? 'YES ✅' : 'NO ❌'
+});
+
 if (emojiBtn && emojiPicker) {
+    console.log('✅ Setting up emoji picker...');
     emojiBtn.addEventListener('click', function(e) {
+        console.log('😀 Emoji button clicked!');
         e.stopPropagation();
         emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
+        console.log('Emoji picker display:', emojiPicker.style.display);
         if (gifPicker) gifPicker.style.display = 'none';
     });
 
@@ -1070,31 +1103,154 @@ if (emojiBtn && emojiPicker) {
     });
 }
 
+// Giphy API configuration
+const GIPHY_API_KEY = '2UNLRUTAqLhcKD4ZX3mZZpn5Tw1eVryk';
+const GIPHY_LIMIT = 20;
+let gifSearchTimeout;
+
+// Load trending anime GIFs
+async function loadTrendingGIFs() {
+    const gifGrid = document.getElementById('gif-grid');
+    const gifLoading = document.getElementById('gif-loading');
+    
+    try {
+        gifLoading.style.display = 'block';
+        gifGrid.innerHTML = '';
+        
+        console.log('Fetching trending anime GIFs...');
+        const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=anime&limit=${GIPHY_LIMIT}&rating=g`;
+        console.log('URL:', url);
+        
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers.get('content-type'));
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text.substring(0, 200));
+            throw new Error('Response is not JSON');
+        }
+        
+        const data = await response.json();
+        console.log('GIFs loaded:', data.data ? data.data.length : 0);
+        console.log('Full response:', data);
+        
+        gifLoading.style.display = 'none';
+        
+        if (data.data && data.data.length > 0) {
+            data.data.forEach(gif => {
+                const img = document.createElement('img');
+                img.src = gif.images.fixed_height_small.url;
+                img.className = 'gif-item';
+                img.alt = gif.title;
+                img.addEventListener('click', function() {
+                    selectGIF(this.src);
+                });
+                gifGrid.appendChild(img);
+            });
+        } else {
+            gifGrid.innerHTML = '<p style="text-align: center; color: #65676b; padding: 20px;">Không tìm thấy GIF</p>';
+        }
+    } catch (error) {
+        console.error('Error loading GIFs:', error);
+        gifLoading.style.display = 'none';
+        gifGrid.innerHTML = `<p style="text-align: center; color: #e74c3c; padding: 10px; font-size: 12px;">Lỗi: ${error.message}<br><small>Kiểm tra Console để biết chi tiết</small></p>`;
+    }
+}
+
+// Search GIFs
+async function searchGIFs(query) {
+    const gifGrid = document.getElementById('gif-grid');
+    const gifLoading = document.getElementById('gif-loading');
+    
+    if (!query.trim()) {
+        loadTrendingGIFs();
+        return;
+    }
+    
+    try {
+        gifLoading.style.display = 'block';
+        gifGrid.innerHTML = '';
+        
+        const response = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=${GIPHY_LIMIT}&rating=g`);
+        const data = await response.json();
+        
+        gifLoading.style.display = 'none';
+        
+        if (data.data && data.data.length > 0) {
+            data.data.forEach(gif => {
+                const img = document.createElement('img');
+                img.src = gif.images.fixed_height_small.url;
+                img.className = 'gif-item';
+                img.alt = gif.title;
+                img.addEventListener('click', function() {
+                    selectGIF(this.src);
+                });
+                gifGrid.appendChild(img);
+            });
+        } else {
+            gifGrid.innerHTML = '<p style="text-align: center; color: #65676b; padding: 20px;">Không tìm thấy GIF</p>';
+        }
+    } catch (error) {
+        console.error('Error searching GIFs:', error);
+        gifLoading.style.display = 'none';
+        gifGrid.innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 20px;">Lỗi tìm kiếm. Vui lòng thử lại.</p>';
+    }
+}
+
+// Select GIF
+function selectGIF(gifUrl) {
+    const commentPreview = document.getElementById('comment-preview');
+    const previewImg = document.getElementById('preview-img');
+    const imageInput = document.getElementById('comment-image-input');
+    const gifPicker = document.getElementById('gif-picker');
+    
+    // Clear file input
+    imageInput.value = '';
+    
+    // Show GIF preview
+    previewImg.src = gifUrl;
+    commentPreview.style.display = 'block';
+    commentPreview.dataset.gifUrl = gifUrl;
+    
+    // Hide GIF picker
+    gifPicker.style.display = 'none';
+}
+
 // GIF picker toggle
 if (gifBtn && gifPicker) {
+    console.log('✅ GIF picker initialized - NEW CODE LOADED');
+    
     gifBtn.addEventListener('click', function() {
-        gifPicker.style.display = gifPicker.style.display === 'none' ? 'block' : 'none';
+        console.log('🎬 GIF button clicked');
+        const isVisible = gifPicker.style.display === 'block';
+        gifPicker.style.display = isVisible ? 'none' : 'block';
         emojiPicker.style.display = 'none';
+        
+        // Load trending GIFs when opening
+        if (!isVisible) {
+            console.log('📡 Loading GIFs...');
+            loadTrendingGIFs();
+        }
     });
-
-    // Select GIF
-    gifPicker.querySelectorAll('.gif-item').forEach(gif => {
-        gif.addEventListener('click', function() {
-            const commentPreview = document.getElementById('comment-preview');
-            const previewImg = document.getElementById('preview-img');
-            const imageInput = document.getElementById('comment-image-input');
-            
-            // Clear file input
-            imageInput.value = '';
-            
-            // Show GIF preview
-            previewImg.src = this.src;
-            commentPreview.style.display = 'block';
-            commentPreview.dataset.gifUrl = this.src;
-            
-            gifPicker.style.display = 'none';
+    
+    // GIF search input
+    const gifSearchInput = document.getElementById('gif-search-input');
+    if (gifSearchInput) {
+        gifSearchInput.addEventListener('input', function() {
+            clearTimeout(gifSearchTimeout);
+            gifSearchTimeout = setTimeout(() => {
+                searchGIFs(this.value);
+            }, 500); // Debounce 500ms
         });
-    });
+    }
 }
 
 // Close pickers when clicking outside
@@ -1141,6 +1297,8 @@ if (commentForm) {
         }
     });
 }
+
+}); // End DOMContentLoaded
 </script>
 @endpush
 @endsection

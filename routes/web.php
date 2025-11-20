@@ -34,6 +34,7 @@ Route::get('/posts/{slug}', [PostController::class, 'show'])->name('posts.show')
 Route::get('/posts/{post}/comments', [CommentController::class, 'index'])->name('comments.index');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search/autocomplete', [SearchController::class, 'autocomplete'])->name('search.autocomplete');
 
 // Events (public routes)
 Route::get('/events', [EventController::class, 'index'])->name('events.index');

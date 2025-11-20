@@ -3,7 +3,7 @@
 @section('title', 'Home - AnimeTalk')
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/reddit-style.css') }}">
+<link rel="stylesheet" href="{{ asset('css/home.css') }}">
 @endpush
 
 @section('content')
@@ -127,23 +127,44 @@
 
         <!-- Posts Feed -->
         @forelse($posts as $post)
-        <article class="feed-card">
-            <div class="card-body">
-                <div class="card-meta" style="display: flex; align-items: center; gap: 0.5rem;">
+        <article class="feed-card" style="background: white !important; margin-bottom: 1rem !important; padding: 1rem !important; border-radius: 8px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;">
+            <div class="card-body" style="padding: 0 !important;">
+                <div class="card-meta" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
                     @if($post->user->profile_photo)
-                    <img src="{{ asset('storage/' . $post->user->profile_photo) }}" alt="{{ $post->user->name }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                    <img src="{{ asset('storage/' . $post->user->profile_photo) }}" alt="{{ $post->user->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                     @else
-                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.7rem;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem;">
                         {{ strtoupper(substr($post->user->name, 0, 1)) }}
                     </div>
                     @endif
-                    <span class="meta-author">{{ $post->user->name }}</span>
-                    <span class="meta-dot">•</span>
-                    <time class="meta-time">{{ $post->created_at->diffForHumans() }}</time>
+                    <span class="meta-author" style="font-weight: 600; color: #1c1c1c !important; font-size: 0.95rem;">{{ $post->user->name }}</span>
+                    <span class="meta-dot" style="color: #999;">•</span>
+                    <time class="meta-time" style="color: #666 !important; font-size: 0.9rem;">{{ $post->created_at->diffForHumans() }}</time>
                 </div>
 
-                <a href="{{ route('posts.show', $post->slug) }}" class="card-content-link">
-                    <p class="card-text">{{ $post->content }}</p>
+                <a href="{{ route('posts.show', $post->slug) }}" style="text-decoration: none; color: inherit; display: block;">
+                    @if($post->background)
+                        @php
+                            $gradients = [
+                                'gradient-1' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                'gradient-2' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                                'gradient-3' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                'gradient-4' => 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                                'gradient-5' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                                'gradient-6' => 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                                'gradient-7' => 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                                'gradient-8' => 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+                            ];
+                            $bgGradient = $gradients[$post->background] ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        @endphp
+                        <div style="background: {{ $bgGradient }}; min-height: 300px; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 2rem; margin-bottom: 1rem;">
+                            <p style="color: white !important; font-size: 24px !important; font-weight: 600 !important; text-align: center !important; line-height: 1.4 !important; max-width: 500px !important; word-wrap: break-word !important; text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important; margin: 0 !important;">
+                                {!! nl2br(e($post->content)) !!}
+                            </p>
+                        </div>
+                    @else
+                        <p class="card-text" style="color: #1c1c1c !important; font-size: 1rem !important; line-height: 1.6 !important; margin-bottom: 1rem !important;">{{ $post->content }}</p>
+                    @endif
                     
                     @if($post->image)
                     <div class="card-image">
@@ -226,12 +247,31 @@
     <!-- Right Sidebar -->
     <aside class="right-sidebar">
         <!-- Top Posts -->
-        <div class="widget">
-            <h3 class="widget-title">🔥 Top Posts</h3>
+        <div class="widget" style="background: white !important; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.6); opacity: 1 !important; visibility: visible !important;" data-aos="fade-left" data-aos-duration="800">
+            <h3 class="widget-title" style="color: #1c1c1c !important;">🔥 Top Posts</h3>
             <ul class="event-list">
                 @foreach($topPosts as $topPost)
                 <li class="event-item" style="cursor: pointer;" onclick="window.location='{{ route('posts.show', $topPost->slug) }}'">
-                    @if($topPost->video)
+                    @if($topPost->background)
+                        @php
+                            $gradients = [
+                                'gradient-1' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                'gradient-2' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                                'gradient-3' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                'gradient-4' => 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                                'gradient-5' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                                'gradient-6' => 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                                'gradient-7' => 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                                'gradient-8' => 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+                            ];
+                            $bgGradient = $gradients[$topPost->background] ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        @endphp
+                        <div style="background: {{ $bgGradient }}; width: 50px; height: 50px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 700; padding: 4px; text-align: center; line-height: 1.2; overflow: hidden;">
+                            <span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 10px;">
+                                {{ Str::limit($topPost->content, 20) }}
+                            </span>
+                        </div>
+                    @elseif($topPost->video)
                         <div style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; position: relative; background: #000;">
                             <video style="width: 100%; height: 100%; object-fit: cover;">
                                 <source src="{{ asset('storage/' . $topPost->video) }}" type="video/mp4">
@@ -244,12 +284,12 @@
                         <img src="{{ asset('storage/' . $topPost->image) }}" alt="{{ $topPost->title }}" 
                              style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">
                     @else
-                        <div class="event-date" style="background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; min-width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                            <i class="bi bi-fire" style="font-size: 1.2rem;"></i>
+                        <div style="background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; min-width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 700; font-size: 16px;">
+                            {{ strtoupper(substr($topPost->user->name ?? 'A', 0, 1)) }}
                         </div>
                     @endif
                     <div class="event-details">
-                        <div class="event-title">{{ Str::limit($topPost->title, 40) }}</div>
+                        <div class="event-title">{{ Str::limit($topPost->content, 40) }}</div>
                         <div class="event-type" style="color: #FF6B6B; font-weight: 600;">
                             {{ number_format($topPost->interactions_count) }} tương tác
                         </div>
@@ -260,8 +300,8 @@
         </div>
 
         <!-- Top Communities -->
-        <div class="widget">
-            <h3 class="widget-title">🌟 Top Communities</h3>
+        <div class="widget" style="background: white !important; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.6); opacity: 1 !important; visibility: visible !important;" data-aos="fade-left" data-aos-duration="800" data-aos-delay="100">
+            <h3 class="widget-title" style="color: #1c1c1c !important;">🌟 Top Communities</h3>
             <ul class="event-list">
                 @foreach($topCommunities as $index => $community)
                 <li class="event-item" style="cursor: pointer;" onclick="window.location='{{ route('communities.show', $community->slug) }}'">
@@ -292,39 +332,53 @@
 
 @push('styles')
 <style>
+/* Shinkai-style Home Page */
 body {
-    background: #DAE0E6;
+    background: transparent !important;
     margin: 0;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
 }
 
 .reddit-layout {
     display: grid;
-    grid-template-columns: 250px 1fr 320px;
-    gap: 20px;
+    grid-template-columns: 280px 1fr 340px;
+    gap: 24px;
     max-width: 1600px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px;
     min-height: 100vh;
 }
 
-/* LEFT SIDEBAR */
+/* LEFT SIDEBAR - Glassmorphism */
 .left-sidebar {
-    background: #4A5568;
-    border-radius: 12px;
-    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 1.5rem;
     height: fit-content;
     position: sticky;
-    top: 90px;
-    color: white;
+    top: 100px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.left-sidebar:hover {
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
 }
 
 .sidebar-title {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 1px;
-    color: #CBD5E0;
-    margin-bottom: 0.75rem;
+    letter-spacing: 1.5px;
+    background: linear-gradient(135deg, #4A90E2, #9B59B6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
 }
 
 .sidebar-menu {
@@ -334,29 +388,49 @@ body {
 }
 
 .sidebar-menu li {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
 .sidebar-menu a {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0.875rem;
-    color: #E2E8F0;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+    color: #2C3E50;
     text-decoration: none;
-    border-radius: 8px;
-    transition: all 0.2s;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
     font-size: 0.95rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-menu a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.sidebar-menu a:hover::before {
+    left: 100%;
 }
 
 .sidebar-menu a:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(74, 144, 226, 0.15);
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
 }
 
 .sidebar-menu li.active a {
-    background: linear-gradient(135deg, #5BA3D0, #9B7EDE);
+    background: linear-gradient(135deg, #4A90E2, #9B59B6);
     color: white;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
 }
 
 .sidebar-menu i {
@@ -507,12 +581,38 @@ body {
 }
 
 .feed-card {
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    padding: 0.875rem 1rem;
-    transition: all 0.2s;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feed-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.6s;
+}
+
+.feed-card:hover::before {
+    left: 100%;
+}
+
+.feed-card:hover {
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
 }
 
 .feed-card:hover {
@@ -616,27 +716,52 @@ body {
 }
 
 .action-btn {
-    background: none;
-    border: none;
-    color: #878A8C;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    color: #2C3E50;
     font-size: 0.875rem;
     font-weight: 600;
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px;
+    padding: 0.625rem 1rem;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    gap: 0.375rem;
+    gap: 0.5rem;
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(74, 144, 226, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+}
+
+.action-btn:hover::before {
+    width: 200px;
+    height: 200px;
 }
 
 .action-btn:hover {
-    background: #F6F7F8;
+    background: rgba(255, 255, 255, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
 }
 
 .post-like-btn.liked {
-    color: #FF6B9D;
+    background: linear-gradient(135deg, #FF6B9D, #FF9A56);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
 }
 
 .post-like-btn.liked i {
@@ -647,24 +772,37 @@ body {
 .right-sidebar {
     height: fit-content;
     position: sticky;
-    top: 90px;
+    top: 100px;
 }
 
 .widget {
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.widget:hover {
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
 }
 
 .widget-title {
     font-size: 0.875rem;
     font-weight: 700;
-    color: #1c1c1c;
-    margin: 0 0 0.875rem 0;
+    background: linear-gradient(135deg, #4A90E2, #9B59B6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 1rem 0;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .event-list {
@@ -1230,7 +1368,112 @@ body {
 
 @push('scripts')
 <script>
-console.log('Script loaded');
+console.log('🚀 Home page script loaded');
+
+// Giphy API Configuration
+const GIPHY_API_KEY = '2UNLRUTAqLhcKD4ZX3mZZpn5Tw1eVryk';
+const GIPHY_LIMIT = 20;
+let gifSearchTimeout;
+
+// Load trending anime GIFs for home page
+async function loadHomeGIFs() {
+    const gifGrid = document.getElementById('home-gif-grid');
+    const gifLoading = document.getElementById('home-gif-loading');
+    
+    if (!gifGrid || !gifLoading) return;
+    
+    try {
+        gifLoading.style.display = 'block';
+        gifGrid.innerHTML = '';
+        
+        const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=anime&limit=${GIPHY_LIMIT}&rating=g`;
+        const response = await fetch(url);
+        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const data = await response.json();
+        gifLoading.style.display = 'none';
+        
+        if (data.data && data.data.length > 0) {
+            data.data.forEach(gif => {
+                const img = document.createElement('img');
+                img.src = gif.images.fixed_height.url;
+                img.className = 'gif-item';
+                img.alt = gif.title || 'GIF';
+                img.style.cursor = 'pointer';
+                img.addEventListener('click', function() {
+                    selectHomeGIF(gif.images.original.url);
+                });
+                gifGrid.appendChild(img);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading GIFs:', error);
+        gifLoading.style.display = 'none';
+        gifGrid.innerHTML = '<p style="text-align:center;color:#65676b;padding:20px;">Không thể tải GIF</p>';
+    }
+}
+
+// Search GIFs for home page
+async function searchHomeGIFs(query) {
+    if (!query.trim()) {
+        loadHomeGIFs();
+        return;
+    }
+    
+    const gifGrid = document.getElementById('home-gif-grid');
+    const gifLoading = document.getElementById('home-gif-loading');
+    
+    try {
+        gifLoading.style.display = 'block';
+        gifGrid.innerHTML = '';
+        
+        const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=${GIPHY_LIMIT}&rating=g`;
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        gifLoading.style.display = 'none';
+        
+        if (data.data && data.data.length > 0) {
+            data.data.forEach(gif => {
+                const img = document.createElement('img');
+                img.src = gif.images.fixed_height.url;
+                img.className = 'gif-item';
+                img.alt = gif.title || 'GIF';
+                img.style.cursor = 'pointer';
+                img.addEventListener('click', function() {
+                    selectHomeGIF(gif.images.original.url);
+                });
+                gifGrid.appendChild(img);
+            });
+        } else {
+            gifGrid.innerHTML = '<p style="text-align:center;color:#65676b;padding:20px;">Không tìm thấy GIF</p>';
+        }
+    } catch (error) {
+        console.error('Error searching GIFs:', error);
+        gifLoading.style.display = 'none';
+    }
+}
+
+// Select GIF for home page
+function selectHomeGIF(gifUrl) {
+    // Get the active modal
+    const activeModal = document.querySelector('.comment-modal[style*="display: flex"]');
+    if (!activeModal) return;
+    
+    const postId = activeModal.id.replace('comment-modal-', '');
+    const imagePreview = document.getElementById(`image-preview-${postId}`);
+    
+    if (imagePreview) {
+        imagePreview.querySelector('img').src = gifUrl;
+        imagePreview.style.display = 'block';
+        imagePreview.dataset.gifUrl = gifUrl;
+    }
+    
+    // Hide GIF picker
+    const gifPicker = activeModal.querySelector('.gif-picker');
+    if (gifPicker) gifPicker.style.display = 'none';
+}
 
 // Like button functionality on home page
 const likeButtons = document.querySelectorAll('.post-like-btn');
@@ -1349,15 +1592,14 @@ function openCommentModal(postId, postTitle) {
                             <span>😀</span><span>😃</span><span>😄</span><span>😁</span><span>😆</span><span>😅</span><span>😂</span><span>🤣</span><span>😊</span><span>😇</span><span>🙂</span><span>🙃</span><span>😉</span><span>😌</span><span>😍</span><span>🥰</span><span>😘</span><span>😗</span><span>😙</span><span>😚</span><span>😋</span><span>😛</span><span>😝</span><span>😜</span><span>🤪</span><span>🤨</span><span>🧐</span><span>🤓</span><span>😎</span><span>🤩</span><span>🥳</span><span>😏</span><span>😒</span><span>😞</span><span>😔</span><span>😟</span><span>😕</span><span>🙁</span><span>☹️</span><span>😣</span><span>😖</span><span>😫</span><span>😩</span><span>🥺</span><span>😢</span><span>😭</span><span>😤</span><span>😠</span><span>😡</span><span>🤬</span><span>🤯</span><span>😳</span><span>🥵</span><span>🥶</span><span>😱</span><span>😨</span><span>😰</span><span>😥</span><span>😓</span><span>🤗</span><span>🤔</span><span>🤭</span><span>🤫</span><span>🤥</span><span>😶</span><span>😐</span><span>😑</span><span>😬</span><span>🙄</span><span>😯</span><span>😦</span><span>😧</span><span>😮</span><span>😲</span><span>🥱</span><span>😴</span><span>🤤</span><span>😪</span><span>😵</span><span>🤐</span><span>🥴</span><span>🤢</span><span>🤮</span><span>🤧</span><span>😷</span><span>🤒</span><span>🤕</span><span>🤑</span><span>🤠</span><span>👍</span><span>👎</span><span>👊</span><span>✊</span><span>🤛</span><span>🤜</span><span>🤞</span><span>✌️</span><span>🤟</span><span>🤘</span><span>👌</span><span>🤌</span><span>🤏</span><span>👈</span><span>👉</span><span>👆</span><span>👇</span><span>☝️</span><span>✋</span><span>🤚</span><span>🖐</span><span>🖖</span><span>👋</span><span>🤙</span><span>💪</span><span>🙏</span><span>❤️</span><span>🧡</span><span>💛</span><span>💚</span><span>💙</span><span>💜</span><span>🖤</span><span>🤍</span><span>🤎</span><span>💔</span><span>❣️</span><span>💕</span><span>💞</span><span>💓</span><span>💗</span><span>💖</span><span>💘</span><span>💝</span><span>✨</span><span>💫</span><span>⭐</span><span>🌟</span><span>✅</span><span>❌</span><span>🔥</span><span>💯</span><span>👏</span><span>🎉</span><span>🎊</span>
                         </div>
                     </div>
-                    <div class="gif-picker" style="display: none;">
-                        <input type="text" class="gif-search" placeholder="Tìm GIF...">
-                        <div class="gif-grid">
-                            <img src="https://media.giphy.com/media/ICOgUNjpvO0PC/giphy.gif" class="gif-item" alt="GIF">
-                            <img src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif" class="gif-item" alt="GIF">
-                            <img src="https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif" class="gif-item" alt="GIF">
-                            <img src="https://media.giphy.com/media/ZBQhoZC0nqknSviPqT/giphy.gif" class="gif-item" alt="GIF">
-                            <img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" class="gif-item" alt="GIF">
-                            <img src="https://media.giphy.com/media/12NUbkX6p4xOO4/giphy.gif" class="gif-item" alt="GIF">
+                    <div class="gif-picker" id="home-gif-picker" style="display: none;">
+                        <input type="text" class="gif-search" id="home-gif-search" placeholder="Tìm kiếm GIF anime..." autocomplete="off">
+                        <div class="gif-loading" id="home-gif-loading" style="display: none; text-align: center; padding: 20px; color: #65676b;">
+                            <i class="bi bi-arrow-repeat" style="font-size: 24px; animation: spin 1s linear infinite;"></i>
+                            <p style="margin-top: 8px; font-size: 13px;">Đang tìm kiếm...</p>
+                        </div>
+                        <div class="gif-grid" id="home-gif-grid">
+                            <!-- Trending anime GIFs will load here via Giphy API -->
                         </div>
                     </div>
                 </form>
@@ -1427,22 +1669,28 @@ function openCommentModal(postId, postTitle) {
     // GIF picker
     const gifBtn = modal.querySelector('.gif-btn');
     const gifPicker = modal.querySelector('.gif-picker');
+    
     gifBtn.addEventListener('click', () => {
-        gifPicker.style.display = gifPicker.style.display === 'none' ? 'block' : 'none';
+        const isVisible = gifPicker.style.display === 'block';
+        gifPicker.style.display = isVisible ? 'none' : 'block';
         emojiPicker.style.display = 'none';
+        
+        // Load GIFs when opening
+        if (!isVisible) {
+            loadHomeGIFs();
+        }
     });
-
-    gifPicker.querySelectorAll('.gif-item').forEach(gif => {
-        gif.addEventListener('click', () => {
-            const textarea = modal.querySelector('.comment-textarea');
-            // Thay vì gán link vào textarea, ta gán vào một trường ẩn và hiển thị preview
-            const imagePreview = document.getElementById(`image-preview-${postId}`);
-            imagePreview.querySelector('img').src = gif.src;
-            imagePreview.style.display = 'block';
-            imagePreview.dataset.gifUrl = gif.src;
-            gifPicker.style.display = 'none';
+    
+    // GIF search input
+    const gifSearchInput = modal.querySelector('#home-gif-search');
+    if (gifSearchInput) {
+        gifSearchInput.addEventListener('input', function() {
+            clearTimeout(gifSearchTimeout);
+            gifSearchTimeout = setTimeout(() => {
+                searchHomeGIFs(this.value);
+            }, 500);
         });
-    });
+    }
 
     // Submit comment
     modal.querySelector('.comment-form').addEventListener('submit', function(e) {

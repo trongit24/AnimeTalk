@@ -12,6 +12,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $query = Post::with(['user', 'tags', 'comments'])
+            ->withCount(['likes', 'comments'])
             ->orderBy('is_pinned', 'desc')
             ->orderBy('created_at', 'desc');
 

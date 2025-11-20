@@ -1,12 +1,27 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+.container-fluid,
+.container-fluid *,
+.friend-item,
+.friend-item * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+div[style*="background: white"] {
+    background: white !important;
+}
+</style>
+@endpush
+
 @section('content')
-<div class="container-fluid" style="padding: 0; height: calc(100vh - 80px);">
+<div class="container-fluid" style="padding: 0; height: calc(100vh - 80px); opacity: 1 !important; visibility: visible !important;">
     <div class="row g-0 h-100">
         <!-- Sidebar - Danh sách bạn bè -->
-        <div class="col-md-4 col-lg-3 border-end" style="background: white; overflow-y: auto;">
-            <div class="p-3 border-bottom">
-                <h4 class="mb-0 fw-bold">Đoạn chat</h4>
+        <div class="col-md-4 col-lg-3 border-end" style="background: white !important; overflow-y: auto; opacity: 1 !important; visibility: visible !important;">
+            <div class="p-3 border-bottom" style="background: white !important;">
+                <h4 class="mb-0 fw-bold" style="color: #1c1c1c !important;">Đoạn chat</h4>
             </div>
             
             <div class="p-2">

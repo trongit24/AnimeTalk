@@ -2,8 +2,25 @@
 
 @section('title', 'Search - AnimeTalk')
 
+@push('styles')
+<style>
+.search-page,
+.search-page *,
+.post-card,
+.post-card *,
+.search-section,
+.search-section * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.post-card {
+    background: white !important;
+}
+</style>
+@endpush
+
 @section('content')
-<div class="search-page">
+<div class="search-page" style="opacity: 1 !important; visibility: visible !important;">
     <div class="container">
         <!-- Search Header -->
         <div class="search-header">

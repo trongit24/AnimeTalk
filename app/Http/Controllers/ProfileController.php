@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -20,7 +21,27 @@ class ProfileController extends Controller
             ->latest()
             ->paginate(10);
         
-        return view('profile.show', compact('user', 'posts'));
+        // Get user's friends (using Friendship model)
+        $friendIds = \App\Models\Friendship::where('user_id', $user->uid)
+            ->where('status', 'accepted')
+            ->pluck('friend_id');
+        $friends = User::whereIn('uid', $friendIds)->take(12)->get();
+        
+        // Get user's communities
+        $communities = $user->communities()->withCount('members')->take(12)->get();
+        
+        // Get user's events
+        $eventIds = DB::table('event_participants')
+            ->where('user_id', $user->uid)
+            ->whereIn('status', ['going', 'interested'])
+            ->pluck('event_id');
+        $events = \App\Models\Event::whereIn('id', $eventIds)
+            ->where('start_time', '>=', now())
+            ->orderBy('start_time')
+            ->take(12)
+            ->get();
+        
+        return view('profile.show', compact('user', 'posts', 'friends', 'communities', 'events'));
     }
 
     public function edit()

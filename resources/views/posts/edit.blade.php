@@ -2,8 +2,24 @@
 
 @section('title', 'Edit Post - AnimeTalk')
 
+@push('styles')
+<style>
+.create-post-page,
+.create-post-page *,
+.create-post-form,
+.create-post-form * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+.create-post-form,
+.page-header {
+    background: white !important;
+}
+</style>
+@endpush
+
 @section('content')
-<div class="create-post-page">
+<div class="create-post-page" style="opacity: 1 !important; visibility: visible !important;">
     <div class="container">
         <div class="page-header">
             <h1>Edit Post</h1>

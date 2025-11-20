@@ -1,5 +1,21 @@
 /* ===== HOME PAGE - Reddit-Style Layout Responsive ===== */
 
+/* Force Visibility for All Elements */
+.widget,
+.widget *,
+.right-sidebar,
+.right-sidebar * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.widget-title,
+.event-title,
+.event-type,
+.event-details {
+    color: #1c1c1c !important;
+}
+
 /* Base Layout - Mobile First */
 .reddit-layout {
     display: grid;
@@ -8,6 +24,8 @@
     max-width: 100%;
     margin: 0 auto;
     padding: 0;
+    position: relative;
+    z-index: 100;
 }
 
 /* Left Sidebar */
@@ -229,8 +247,32 @@
     border-bottom: 8px solid #f5f5f5;
     border-radius: 0;
     margin: 0;
-    overflow: hidden;
+    overflow: visible;
     transition: none;
+}
+
+/* Glass Card Override for Feed */
+.feed-card.glass-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    border-radius: 16px !important;
+    margin-bottom: 1rem;
+    border-bottom: none !important;
+}
+
+/* Force visibility for all text inside glass-card */
+.feed-card.glass-card * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.feed-card.glass-card .card-text,
+.feed-card.glass-card .meta-author,
+.feed-card.glass-card .meta-time,
+.feed-card.glass-card .card-title {
+    color: #1c1c1c !important;
 }
 
 .card-body {

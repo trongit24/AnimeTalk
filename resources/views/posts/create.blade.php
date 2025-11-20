@@ -4,6 +4,14 @@
 
 @push('styles')
 <style>
+.fb-create-post,
+.fb-create-post *,
+.fb-post-card,
+.fb-post-card * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 .fb-create-post {
     max-width: 680px;
     margin: 2rem auto;
@@ -11,10 +19,19 @@
 }
 
 .fb-post-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    padding: 1rem;
+    background: white !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fb-post-card:hover {
+    background: white !important;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
 }
 
 .fb-post-header {

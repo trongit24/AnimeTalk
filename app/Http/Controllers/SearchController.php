@@ -19,10 +19,7 @@ class SearchController extends Controller
             $postsQuery = Post::with(['user', 'tags', 'comments']);
 
             if ($query) {
-                $postsQuery->where(function ($q) use ($query) {
-                    $q->where('title', 'like', "%{$query}%")
-                      ->orWhere('content', 'like', "%{$query}%");
-                });
+                $postsQuery->where('content', 'like', "%{$query}%");
             }
 
             if ($tag) {
@@ -37,5 +34,32 @@ class SearchController extends Controller
         $tags = Tag::all();
 
         return view('search.index', compact('posts', 'tags', 'query', 'tag'));
+    }
+
+    // API endpoint for autocomplete suggestions
+    public function autocomplete(Request $request)
+    {
+        $query = $request->input('q');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $suggestions = Post::where('content', 'like', "%{$query}%")
+            ->with('user:uid,name,profile_photo')
+            ->select('id', 'user_id', 'content', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'content' => \Illuminate\Support\Str::limit(strip_tags($post->content), 60),
+                    'user_name' => $post->user->name ?? 'Unknown',
+                    'user_photo' => $post->user->profile_photo ? asset('storage/' . $post->user->profile_photo) : null,
+                ];
+            });
+
+        return response()->json($suggestions);
     }
 }

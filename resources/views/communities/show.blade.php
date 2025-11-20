@@ -91,9 +91,9 @@
         <div class="community-content-grid">
             <!-- Posts Section -->
             <div>
-                <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem;">
-                    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Posts</h2>
-                    <p style="color: #999; text-align: center; padding: 2rem;">
+                <div style="background: white !important; border-radius: 12px; padding: 1.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem; opacity: 1 !important; visibility: visible !important;">
+                    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #1c1c1c !important;">Posts</h2>
+                    <p style="color: #999 !important; text-align: center; padding: 2rem;">
                         Community posts feature coming soon!
                     </p>
                 </div>

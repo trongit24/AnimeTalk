@@ -2,8 +2,23 @@
 
 @section('title', $event->title . ' - AnimeTalk')
 
+@push('styles')
+<style>
+div[style*="background: white"],
+div[style*="background: #F0F2F5"] {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+div[style*="background: white"] * {
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: inherit !important;
+}
+</style>
+@endpush
+
 @section('content')
-<div style="background: #F0F2F5; min-height: calc(100vh - 60px);">
+<div style="background: #F0F2F5; min-height: calc(100vh - 60px); opacity: 1 !important; visibility: visible !important;">
     <!-- Cover Image -->
     <div style="width: 100%; height: 400px; background: {{ $event->cover_image ? 'url(' . asset('storage/' . $event->cover_image) . ')' : 'linear-gradient(135deg, #5BA3D0, #9B7EDE)' }}; background-size: cover; background-position: center; position: relative;">
         @if(!$event->cover_image)

@@ -4,10 +4,22 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/communities.css') }}">
+<style>
+.create-community-page,
+.create-community-page *,
+.create-community-container,
+.create-community-container * {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+div[style*="background: white"] {
+    background: white !important;
+}
+</style>
 @endpush
 
 @section('content')
-<div class="create-community-page">
+<div class="create-community-page" style="opacity: 1 !important; visibility: visible !important;">
     <div class="create-community-container">
         <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e0e0e0;">
             <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Start a Community</h1>
