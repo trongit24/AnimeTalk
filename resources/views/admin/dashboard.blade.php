@@ -68,7 +68,7 @@
             </h3>
             <div class="space-y-3">
                 @forelse($topPosts as $post)
-                    <a href="{{ route('admin.posts.show', $post) }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                    <a href="{{ route('admin.posts.detail', $post) }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                         <div class="flex items-start gap-3">
                             @if($post->image)
                                 <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
@@ -168,7 +168,7 @@
             </h3>
             <div class="space-y-3">
                 @forelse($recentPosts as $post)
-                    <a href="{{ route('admin.posts.show', $post) }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                    <a href="{{ route('admin.posts.detail', $post) }}" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                         <div class="flex items-start gap-3">
                             @if($post->image)
                                 <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">

@@ -22,6 +22,49 @@
 .request-item {
     background: white !important;
 }
+
+/* Force search results to display */
+#searchResults {
+    display: none;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    border: 2px solid #667eea !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
+    margin-top: 0.5rem !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+    z-index: 9999 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+#searchResults[style*="display: block"] {
+    display: block !important;
+}
+
+.search-result-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid #e4e6eb !important;
+    transition: background 0.2s !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: white !important;
+}
+
+.search-result-item:hover {
+    background: #f0f2ff !important;
+}
+
+.search-input-wrapper {
+    position: relative !important;
+}
 </style>
 <?php $__env->stopPush(); ?>
 
@@ -131,39 +174,54 @@ let searchTimeout;
 const searchInput = document.getElementById('searchInput');
 const searchResults = document.getElementById('searchResults');
 
+console.log('🚀 Script loaded', { searchInput, searchResults });
+
 searchInput.addEventListener('input', function() {
     clearTimeout(searchTimeout);
     const query = this.value.trim();
     
+    console.log('🔍 Search query:', query);
+    
     if (query.length < 2) {
-        searchResults.style.display = 'none';
+        searchResults.style.cssText = 'display: none !important;';
         return;
     }
     
     searchTimeout = setTimeout(() => {
+        console.log('📡 Fetching users from:', `/friends/search?q=${encodeURIComponent(query)}`);
         fetch(`/friends/search?q=${encodeURIComponent(query)}`)
-            .then(res => res.json())
+            .then(res => {
+                console.log('✅ Response status:', res.status);
+                return res.json();
+            })
             .then(users => {
+                console.log('👥 Users found:', users.length, users);
                 if (users.length === 0) {
-                    searchResults.innerHTML = '<div class="empty-state" style="padding: 1rem;">No users found</div>';
+                    searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">No users found</div>';
                 } else {
                     searchResults.innerHTML = users.map(user => `
-                        <div class="search-result-item">
+                        <div class="search-result-item" style="display: flex !important; align-items: center !important; gap: 1rem !important; padding: 0.75rem 1rem !important; border-bottom: 1px solid #e4e6eb !important; opacity: 1 !important; visibility: visible !important; background: white !important;">
                             ${user.profile_photo ? 
-                                `<img src="/storage/${user.profile_photo}" alt="${user.name}" class="friend-avatar">` :
-                                `<div class="friend-avatar-placeholder">${user.name.charAt(0).toUpperCase()}</div>`
+                                `<img src="/storage/${user.profile_photo}" alt="${user.name}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">` :
+                                `<div style="width: 48px; height: 48px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.2rem;">${user.name.charAt(0).toUpperCase()}</div>`
                             }
-                            <div class="friend-info">
-                                <div class="friend-name">${user.name}</div>
-                                <div class="friend-email">${user.email}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1a1a1a;">${user.name}</div>
+                                <div style="font-size: 0.875rem; color: #666;">${user.email}</div>
                             </div>
-                            <button onclick="sendFriendRequest('${user.uid}', event)" class="btn-add-friend">
+                            <button onclick="sendFriendRequest('${user.uid}', event)" style="padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
                                 <i class="bi bi-person-plus"></i> Add
                             </button>
                         </div>
                     `).join('');
                 }
-                searchResults.style.display = 'block';
+                searchResults.style.cssText = 'display: block !important; position: absolute !important; top: 100% !important; left: 0 !important; right: 0 !important; background: white !important; border: 2px solid #667eea !important; border-radius: 12px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important; margin-top: 0.5rem !important; max-height: 400px !important; overflow-y: auto !important; z-index: 9999 !important; opacity: 1 !important; visibility: visible !important;';
+                console.log('✅ Search results displayed, HTML length:', searchResults.innerHTML.length);
+            })
+            .catch(err => {
+                console.error('❌ Error:', err);
+                searchResults.innerHTML = '<div style="padding: 1rem; color: red; text-align: center;">Error: ' + err.message + '</div>';
+                searchResults.style.cssText = 'display: block !important; position: absolute !important; top: 100% !important; left: 0 !important; right: 0 !important; background: white !important; border: 2px solid #f44336 !important; border-radius: 12px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important; margin-top: 0.5rem !important; z-index: 9999 !important;';
             });
     }, 300);
 });
@@ -171,7 +229,9 @@ searchInput.addEventListener('input', function() {
 // Close search results when clicking outside
 document.addEventListener('click', function(e) {
     if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-        searchResults.style.display = 'none';
+        searchResults.style.cssText = 'display: none !important;';
+    }
+});
     }
 });
 

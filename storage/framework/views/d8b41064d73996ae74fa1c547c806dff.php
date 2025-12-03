@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    
+    <!-- Prevent browser caching for images -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <title><?php echo $__env->yieldContent('title', 'AnimeTalk - Anime Community Forum'); ?></title>
     
     <!-- Bootstrap 5 CSS -->
@@ -813,7 +819,7 @@
                                         : `<div class="suggestion-avatar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">${item.user_name.charAt(0).toUpperCase()}</div>`;
                                     
                                     html += `
-                                        <div class="suggestion-item" data-id="${item.id}">
+                                        <div class="suggestion-item" data-slug="${item.slug}">
                                             ${avatar}
                                             <div class="suggestion-content">
                                                 <div class="suggestion-text">${item.content}</div>
@@ -829,8 +835,8 @@
                                 // Add click handlers to suggestions
                                 document.querySelectorAll('.suggestion-item').forEach(item => {
                                     item.addEventListener('click', function() {
-                                        const postId = this.getAttribute('data-id');
-                                        window.location.href = `/posts/${postId}`;
+                                        const postSlug = this.getAttribute('data-slug');
+                                        window.location.href = `/posts/${postSlug}`;
                                     });
                                 });
                             })

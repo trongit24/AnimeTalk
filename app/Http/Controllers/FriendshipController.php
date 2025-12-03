@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Friendship;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,6 +32,7 @@ class FriendshipController extends Controller
     {
         $friendId = $request->friend_id;
         $userId = Auth::user()->uid;
+        $user = Auth::user();
 
         // Kiểm tra đã gửi lời mời chưa
         $existing = Friendship::where(function($q) use ($userId, $friendId) {
@@ -43,11 +45,21 @@ class FriendshipController extends Controller
             return response()->json(['message' => 'Friend request already exists'], 400);
         }
 
-        Friendship::create([
+        $friendship = Friendship::create([
             'user_id' => $userId,
             'friend_id' => $friendId,
             'status' => 'pending',
         ]);
+
+        // Tạo thông báo cho người nhận lời mời
+        Notification::createNotification(
+            'friend_request',
+            'Lời mời kết bạn mới',
+            $user->name . ' đã gửi lời mời kết bạn cho bạn',
+            $friendId,
+            ['friendship_id' => $friendship->id, 'sender_id' => $userId],
+            route('friends.index')
+        );
 
         return response()->json(['message' => 'Friend request sent successfully']);
     }
@@ -101,7 +113,7 @@ class FriendshipController extends Controller
             ->with('user')
             ->get();
 
-        return view('friends.index', compact('friends', 'pendingRequests'));
+        return view('friends.new-index', compact('friends', 'pendingRequests'));
     }
 
     // Hủy kết bạn
@@ -115,6 +127,6 @@ class FriendshipController extends Controller
             $q->where('user_id', $friendId)->where('friend_id', $userId);
         })->delete();
 
-        return back()->with('success', 'Unfriended successfully');
+        return response()->json(['message' => 'Unfriended successfully']);
     }
 }

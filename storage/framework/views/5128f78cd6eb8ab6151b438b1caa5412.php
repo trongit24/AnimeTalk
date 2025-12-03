@@ -47,9 +47,19 @@
                     <i class="fas fa-users w-5"></i>
                     <span>Người dùng</span>
                 </a>
-                <a href="<?php echo e(route('admin.posts.index')); ?>" class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition <?php echo e(request()->routeIs('admin.posts.*') ? 'bg-white/20 border-r-4 border-white' : ''); ?>">
+                <a href="<?php echo e(route('admin.posts.index')); ?>" class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition <?php echo e(request()->routeIs('admin.posts.index') || request()->routeIs('admin.posts.detail') ? 'bg-white/20 border-r-4 border-white' : ''); ?>">
                     <i class="fas fa-newspaper w-5"></i>
                     <span>Bài viết</span>
+                </a>
+                <a href="<?php echo e(route('admin.posts.reported')); ?>" class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition <?php echo e(request()->routeIs('admin.posts.reported') ? 'bg-white/20 border-r-4 border-white' : ''); ?>">
+                    <i class="fas fa-flag w-5"></i>
+                    <span>Bài viết bị báo cáo</span>
+                    <?php
+                        $reportedCount = \App\Models\Post::has('reports')->count();
+                    ?>
+                    <?php if($reportedCount > 0): ?>
+                        <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full"><?php echo e($reportedCount); ?></span>
+                    <?php endif; ?>
                 </a>
                 <a href="<?php echo e(route('admin.communities.index')); ?>" class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition <?php echo e(request()->routeIs('admin.communities.*') ? 'bg-white/20 border-r-4 border-white' : ''); ?>">
                     <i class="fas fa-users-rectangle w-5"></i>
@@ -58,6 +68,10 @@
                 <a href="<?php echo e(route('admin.events.index')); ?>" class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition <?php echo e(request()->routeIs('admin.events.*') ? 'bg-white/20 border-r-4 border-white' : ''); ?>">
                     <i class="fas fa-calendar-alt w-5"></i>
                     <span>Sự kiện</span>
+                </a>
+                <a href="<?php echo e(route('admin.notifications.index')); ?>" class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition <?php echo e(request()->routeIs('admin.notifications.*') ? 'bg-white/20 border-r-4 border-white' : ''); ?>">
+                    <i class="fas fa-bell w-5"></i>
+                    <span>Thông báo</span>
                 </a>
                 
                 <div class="border-t border-white/20 my-4"></div>

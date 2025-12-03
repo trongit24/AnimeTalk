@@ -34,19 +34,19 @@
         </div>
 
         <div class="sidebar-section mt-4">
-            <h3 class="sidebar-title">COMMUNITIES</h3>
+            <h3 class="sidebar-title">COMMUNITY</h3>
             <ul class="sidebar-menu">
                 <li>
                     <a href="<?php echo e(route('communities.index')); ?>" class="sidebar-link">
                         <i class="bi bi-grid-3x3-gap"></i>
-                        <span>Browse Communities</span>
+                        <span>Community</span>
                     </a>
                 </li>
                 <?php if(auth()->guard()->check()): ?>
                 <li>
                     <a href="<?php echo e(route('communities.create')); ?>" class="sidebar-link">
                         <i class="bi bi-plus-circle"></i>
-                        <span>Start a Community</span>
+                        <span>Create Community</span>
                     </a>
                 </li>
                 <?php endif; ?>
@@ -59,7 +59,7 @@
                 <li>
                     <a href="<?php echo e(route('events.index')); ?>" class="sidebar-link">
                         <i class="bi bi-calendar-event"></i>
-                        <span>Browse Events</span>
+                        <span>Events</span>
                     </a>
                 </li>
                 <?php if(auth()->guard()->check()): ?>
@@ -227,10 +227,14 @@
                         <span>Bình luận</span>
                     </button>
                     
-                    <button class="action-btn">
-                        <i class="bi bi-share"></i>
-                        <span>Chia sẻ</span>
-                    </button>
+                    <?php if(auth()->guard()->check()): ?>
+                        <?php if($post->user_id !== Auth::user()->uid): ?>
+                        <button class="action-btn" onclick="openReportModal(<?php echo e($post->id); ?>, '<?php echo e(addslashes($post->title)); ?>')" title="Báo cáo vi phạm">
+                            <i class="bi bi-flag"></i>
+                            <span>Báo cáo</span>
+                        </button>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </article>
@@ -1122,10 +1126,13 @@ body {
 }
 
 .comment-image {
-    max-width: 100%;
-    border-radius: 8px;
-    margin-top: 0.5rem;
-    display: block;
+    max-width: 150px !important;
+    border-radius: 8px !important;
+    margin-top: 0.5rem !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    height: auto !important;
 }
 
 .comment-actions-btns {
@@ -1719,7 +1726,7 @@ function loadComments(postId) {
                     <div class="comment-item" data-comment-id="${comment.id}">
                         <div class="comment-avatar">
                             ${comment.user.profile_photo ? 
-                                `<img src="/storage/${comment.user.profile_photo}" alt="${comment.user.name}">` :
+                                `<img src="${comment.user.profile_photo}" alt="${comment.user.name}">` :
                                 `<div class="avatar-circle">${comment.user.name.charAt(0).toUpperCase()}</div>`
                             }
                         </div>
@@ -1940,6 +1947,126 @@ function deleteComment(commentId, postId) {
     color: white !important;
 }
 </style>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">
+                    <i class="bi bi-flag text-danger me-2"></i>Báo cáo vi phạm
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Bài viết: <strong id="reportPostTitle"></strong></p>
+                <form id="reportForm">
+                    <div class="mb-3">
+                        <label for="reportReason" class="form-label">Lý do báo cáo <span class="text-danger">*</span></label>
+                        <select class="form-select" id="reportReason" name="reason" required>
+                            <option value="">-- Chọn lý do --</option>
+                            <option value="Spam hoặc quảng cáo">Spam hoặc quảng cáo</option>
+                            <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                            <option value="Thông tin sai sự thật">Thông tin sai sự thật</option>
+                            <option value="Ngôn từ hung hăng, thù ghét">Ngôn từ hung hăng, thù ghét</option>
+                            <option value="Xâm phạm bản quyền">Xâm phạm bản quyền</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="otherReasonContainer" style="display: none;">
+                        <label for="otherReason" class="form-label">Mô tả chi tiết</label>
+                        <textarea class="form-control" id="otherReason" rows="3" placeholder="Vui lòng mô tả chi tiết..."></textarea>
+                    </div>
+                    <input type="hidden" id="reportPostId" name="post_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" onclick="submitReport()">
+                    <i class="bi bi-send me-1"></i>Gửi báo cáo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let reportModal;
+
+document.addEventListener('DOMContentLoaded', function() {
+    reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+    
+    // Show/hide other reason textarea
+    document.getElementById('reportReason').addEventListener('change', function() {
+        const otherContainer = document.getElementById('otherReasonContainer');
+        if (this.value === 'Khác') {
+            otherContainer.style.display = 'block';
+        } else {
+            otherContainer.style.display = 'none';
+        }
+    });
+});
+
+function openReportModal(postId, postTitle) {
+    document.getElementById('reportPostId').value = postId;
+    document.getElementById('reportPostTitle').textContent = postTitle;
+    document.getElementById('reportForm').reset();
+    document.getElementById('otherReasonContainer').style.display = 'none';
+    reportModal.show();
+}
+
+function submitReport() {
+    const postId = document.getElementById('reportPostId').value;
+    const reasonSelect = document.getElementById('reportReason');
+    let reason = reasonSelect.value;
+    
+    if (!reason) {
+        alert('Vui lòng chọn lý do báo cáo');
+        return;
+    }
+    
+    // Nếu chọn "Khác", lấy chi tiết
+    if (reason === 'Khác') {
+        const otherReason = document.getElementById('otherReason').value.trim();
+        if (!otherReason) {
+            alert('Vui lòng mô tả chi tiết lý do');
+            return;
+        }
+        reason = 'Khác: ' + otherReason;
+    }
+    
+    const submitBtn = event.target;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang gửi...';
+    
+    fetch(`/posts/${postId}/report`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            reportModal.hide();
+            alert(data.message);
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi gửi báo cáo');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-send me-1"></i>Gửi báo cáo';
+    });
+}
+</script>
+
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
 

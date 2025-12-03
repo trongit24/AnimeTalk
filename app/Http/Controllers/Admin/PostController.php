@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Models\PostReport;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -73,6 +75,79 @@ class PostController extends Controller
         Post::whereIn('id', $request->posts)->delete();
 
         return back()->with('success', 'Đã xóa ' . count($request->posts) . ' bài viết!');
+    }
+
+    public function reported(Request $request)
+    {
+        $query = Post::with(['user', 'reports' => function($q) {
+                $q->where('status', 'pending')->with('user');
+            }])
+            ->whereHas('reports', function($q) {
+                $q->where('status', 'pending');
+            })
+            ->withCount(['reports' => function($q) {
+                $q->where('status', 'pending');
+            }]);
+
+        // Filter by status
+        if ($request->filled('status')) {
+            if ($request->status === 'hidden') {
+                $query->where('is_hidden', true);
+            } elseif ($request->status === 'pending') {
+                $query->where('is_hidden', false);
+            }
+        }
+
+        $posts = $query->orderBy('reports_count', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.posts.reported', compact('posts'));
+    }
+
+    public function unhide(Post $post)
+    {
+        $post->unhide();
+
+        // Đánh dấu tất cả báo cáo là đã xem xét
+        $post->reports()->update(['status' => 'reviewed']);
+
+        // Thông báo cho tác giả
+        Notification::create([
+            'user_id' => $post->user_id,
+            'type' => 'post_unhidden',
+            'title' => 'Bài viết đã được hiển thị lại',
+            'message' => 'Bài viết "' . \Illuminate\Support\Str::limit($post->title, 50) . '" đã được admin xem xét và hiển thị lại.',
+            'action_url' => route('posts.show', $post),
+            'data' => json_encode([
+                'post_id' => $post->id,
+            ])
+        ]);
+
+        return back()->with('success', 'Đã hiển thị lại bài viết!');
+    }
+
+    public function deleteReported(Post $post)
+    {
+        // Đánh dấu tất cả báo cáo là dismissed
+        $post->reports()->update(['status' => 'dismissed']);
+
+        // Thông báo cho tác giả trước khi xóa
+        Notification::create([
+            'user_id' => $post->user_id,
+            'type' => 'post_deleted',
+            'title' => 'Bài viết đã bị xóa',
+            'message' => 'Bài viết "' . \Illuminate\Support\Str::limit($post->title, 50) . '" đã bị admin xóa do vi phạm chính sách cộng đồng.',
+            'action_url' => null,
+            'data' => json_encode([
+                'post_id' => $post->id,
+                'post_title' => $post->title,
+            ])
+        ]);
+
+        $post->delete();
+
+        return back()->with('success', 'Đã xóa bài viết vi phạm!');
     }
 }
 

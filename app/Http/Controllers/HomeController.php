@@ -13,6 +13,7 @@ class HomeController extends Controller
     {
         $query = Post::with(['user', 'tags', 'comments'])
             ->withCount(['likes', 'comments'])
+            ->visible() // Chỉ lấy bài viết chưa bị ẩn
             ->orderBy('is_pinned', 'desc')
             ->orderBy('created_at', 'desc');
 
@@ -37,6 +38,7 @@ class HomeController extends Controller
         
         // Top posts by total interactions (likes + comments)
         $topPosts = Post::withCount(['likes', 'comments'])
+            ->visible() // Chỉ lấy bài viết chưa bị ẩn
             ->selectRaw('posts.*, ((SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = posts.id) + (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id)) as interactions_count')
             ->orderByRaw('((SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id = posts.id) + (SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id)) DESC')
             ->take(3)

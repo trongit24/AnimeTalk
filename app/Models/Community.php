@@ -47,6 +47,16 @@ class Community extends Model
         return $this->hasMany(Post::class, 'community_id');
     }
 
+    public function communityPosts()
+    {
+        return $this->hasMany(CommunityPost::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(CommunityMessage::class);
+    }
+
     public function activities()
     {
         return $this->hasMany(CommunityActivity::class);
@@ -69,5 +79,17 @@ class Community extends Model
         if (!$user) return null;
         $member = $this->members()->where('user_id', $user->uid)->first();
         return $member ? $member->pivot->role : null;
+    }
+
+    public function canManagePosts($user): bool
+    {
+        if (!$user) return false;
+        return $this->isOwner($user) || $this->getMemberRole($user) === 'moderator';
+    }
+
+    public function canPost($user): bool
+    {
+        if (!$user) return false;
+        return $this->isMember($user) || $this->isOwner($user);
     }
 }

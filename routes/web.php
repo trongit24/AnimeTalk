@@ -12,11 +12,16 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CommunityPostController;
+use App\Http\Controllers\CommunityMessageController;
+use App\Http\Controllers\CommunityMemoryController;
+use App\Http\Controllers\PostReportController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\CommunityController as AdminCommunityController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -28,7 +33,7 @@ Route::get('/top/posts', [TopController::class, 'posts'])->name('top.posts');
 Route::get('/communities', [CommunitiesController::class, 'index'])->name('communities.index');
 Route::get('/communities/{community:slug}', [CommunitiesController::class, 'show'])->name('communities.show');
 
-Route::get('/posts/{slug}', [PostController::class, 'show'])->name('posts.show');
+Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 
 // API routes for comments
 Route::get('/posts/{post}/comments', [CommentController::class, 'index'])->name('comments.index');
@@ -56,13 +61,20 @@ Route::middleware('auth')->group(function () {
     
     // Post likes
     Route::post('/posts/{post}/like', [PostLikeController::class, 'toggle'])->name('posts.like');
+    Route::post('/posts/toggle-like', [PostLikeController::class, 'togglePolymorphic'])->name('posts.toggle-like');
+    
+    // Post reports
+    Route::post('/posts/{post}/report', [PostReportController::class, 'store'])->name('posts.report');
     
     // Comment routes
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
-    Route::post('/comments', [CommentController::class, 'storeOld'])->name('comments.storeOld');
+    Route::post('/posts/add-comment', [CommentController::class, 'storePolymorphic'])->name('posts.add-comment');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::delete('/posts/{post}/comments', [CommentController::class, 'destroyAll'])->name('comments.destroyAll');
+    
+    // API route for loading comments in modal
+    Route::get('/api/comments/{modelType}/{postId}', [CommentController::class, 'getComments'])->name('api.comments');
     
     // Communities routes
     Route::get('/communities/create/new', [CommunitiesController::class, 'create'])->name('communities.create');
@@ -72,6 +84,30 @@ Route::middleware('auth')->group(function () {
     Route::post('/communities/{community}/join', [CommunitiesController::class, 'join'])->name('communities.join');
     Route::post('/communities/{community}/leave', [CommunitiesController::class, 'leave'])->name('communities.leave');
     Route::delete('/communities/{community}/members/{userId}', [CommunitiesController::class, 'removeMember'])->name('communities.removeMember');
+    
+    // Community Posts routes
+    Route::get('/communities/{community:slug}/posts', [CommunityPostController::class, 'index'])->name('communities.posts.index');
+    Route::get('/communities/{community:slug}/posts/create', [CommunityPostController::class, 'create'])->name('communities.posts.create');
+    Route::post('/communities/{community:slug}/posts', [CommunityPostController::class, 'store'])->name('communities.posts.store');
+    Route::get('/communities/{community:slug}/posts/pending', [CommunityPostController::class, 'pending'])->name('communities.posts.pending');
+    Route::post('/communities/{community:slug}/posts/{post}/approve', [CommunityPostController::class, 'approve'])->name('communities.posts.approve');
+    Route::post('/communities/{community:slug}/posts/{post}/reject', [CommunityPostController::class, 'reject'])->name('communities.posts.reject');
+    Route::delete('/communities/{community:slug}/posts/{post}', [CommunityPostController::class, 'destroy'])->name('communities.posts.destroy');
+    
+    // Community Memories routes (Locket-style)
+    Route::post('/communities/{community:slug}/memories', [CommunityMemoryController::class, 'store'])->name('communities.memories.store');
+    Route::delete('/memories/{memory}', [CommunityMemoryController::class, 'destroy'])->name('memories.destroy');
+    Route::post('/memories/{memory}/react', [CommunityMemoryController::class, 'toggleReaction'])->name('memories.react');
+    Route::post('/memories/{memory}/approve', [CommunityMemoryController::class, 'approve'])->name('memories.approve');
+    Route::post('/memories/{memory}/reject', [CommunityMemoryController::class, 'reject'])->name('memories.reject');
+    
+    // Community Chat routes
+    Route::get('/communities/{community:slug}/chat', [CommunityMessageController::class, 'index'])->name('communities.chat');
+    Route::post('/communities/{community:slug}/chat', [CommunityMessageController::class, 'store'])->name('communities.chat.store');
+    Route::get('/communities/{community:slug}/chat/messages', [CommunityMessageController::class, 'getMessages'])->name('communities.chat.messages');
+    Route::post('/communities/{community:slug}/chat/{message}/pin', [CommunityMessageController::class, 'pin'])->name('communities.chat.pin');
+    Route::delete('/communities/{community:slug}/chat/{message}/pin', [CommunityMessageController::class, 'unpin'])->name('communities.chat.unpin');
+    Route::delete('/communities/{community:slug}/chat/{message}', [CommunityMessageController::class, 'destroy'])->name('communities.chat.destroy');
     
     // Friends routes
     Route::get('/friends', [FriendshipController::class, 'index'])->name('friends.index');
@@ -92,6 +128,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.delete');
     
     // Events routes
     Route::get('/events/create/new', [EventController::class, 'create'])->name('events.create');
@@ -118,9 +155,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Posts Management
     Route::get('/posts', [AdminPostController::class, 'index'])->name('posts.index');
-    Route::get('/posts/{post}', [AdminPostController::class, 'show'])->name('posts.show');
+    Route::get('/posts/reported', [AdminPostController::class, 'reported'])->name('posts.reported');
+    Route::get('/posts/{post}', [AdminPostController::class, 'show'])->name('posts.detail');
     Route::delete('/posts/{post}', [AdminPostController::class, 'destroy'])->name('posts.destroy');
     Route::delete('/posts', [AdminPostController::class, 'destroyMultiple'])->name('posts.destroyMultiple');
+    Route::post('/posts/{post}/unhide', [AdminPostController::class, 'unhide'])->name('posts.unhide');
+    Route::delete('/posts/{post}/delete-reported', [AdminPostController::class, 'deleteReported'])->name('posts.deleteReported');
     
     // Communities Management
     Route::get('/communities', [AdminCommunityController::class, 'index'])->name('communities.index');
@@ -132,6 +172,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/events/{event}', [AdminEventController::class, 'show'])->name('events.show');
     Route::delete('/events/{event}', [AdminEventController::class, 'destroy'])->name('events.destroy');
     Route::delete('/events', [AdminEventController::class, 'destroyMultiple'])->name('events.destroyMultiple');
+    
+    // Notifications Management
+    Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/create', [AdminNotificationController::class, 'create'])->name('notifications.create');
+    Route::post('/notifications', [AdminNotificationController::class, 'store'])->name('notifications.store');
+    Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
 });
 
 require __DIR__.'/auth.php';

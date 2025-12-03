@@ -11,11 +11,18 @@ use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
-    public function show($slug)
+    public function show(Post $post)
     {
-        $post = Post::where('slug', $slug)
-            ->with(['user', 'tags', 'comments.user'])
-            ->firstOrFail();
+        $post->load(['user', 'tags', 'comments.user']);
+
+        // Kiểm tra nếu bài viết bị ẩn
+        if ($post->is_hidden) {
+            // Chỉ cho phép tác giả và admin xem bài viết bị ẩn
+            if (!Auth::check() || 
+                (Auth::user()->uid !== $post->user_id && Auth::user()->role !== 'admin')) {
+                abort(403, 'Bài viết này đã bị ẩn do vi phạm chính sách cộng đồng.');
+            }
+        }
 
         // Increment views
         $post->increment('views');
@@ -105,36 +112,22 @@ class PostController extends Controller
 
         // Handle image removal
         if ($request->has('remove_image') && $request->remove_image) {
-            if ($post->image && Storage::disk('public')->exists($post->image)) {
-                Storage::disk('public')->delete($post->image);
-            }
             $post->image = null;
         }
 
         // Handle video removal
         if ($request->has('remove_video') && $request->remove_video) {
-            if ($post->video && Storage::disk('public')->exists($post->video)) {
-                Storage::disk('public')->delete($post->video);
-            }
             $post->video = null;
         }
 
         // Handle new image upload
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($post->image && Storage::disk('public')->exists($post->image)) {
-                Storage::disk('public')->delete($post->image);
-            }
             $path = $request->file('image')->store('posts', 'public');
             $post->image = $path;
         }
 
         // Handle new video upload
         if ($request->hasFile('video')) {
-            // Delete old video
-            if ($post->video && Storage::disk('public')->exists($post->video)) {
-                Storage::disk('public')->delete($post->video);
-            }
             $path = $request->file('video')->store('posts/videos', 'public');
             $post->video = $path;
         }

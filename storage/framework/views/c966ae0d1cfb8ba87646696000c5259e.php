@@ -68,7 +68,7 @@
             </h3>
             <div class="space-y-3">
                 <?php $__empty_1 = true; $__currentLoopData = $topPosts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                    <a href="<?php echo e(route('admin.posts.show', $post)); ?>" class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                    <a href="<?php echo e(route('admin.posts.detail', $post)); ?>" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                         <div class="flex items-start gap-3">
                             <?php if($post->image): ?>
                                 <img src="<?php echo e(asset('storage/' . $post->image)); ?>" alt="<?php echo e($post->title); ?>" class="w-16 h-16 rounded-lg object-cover flex-shrink-0">
@@ -169,7 +169,7 @@
             </h3>
             <div class="space-y-3">
                 <?php $__empty_1 = true; $__currentLoopData = $recentPosts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                    <a href="<?php echo e(route('admin.posts.show', $post)); ?>" class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                    <a href="<?php echo e(route('admin.posts.detail', $post)); ?>" class="block p-3 hover:bg-gray-50 rounded-lg transition">
                         <div class="flex items-start gap-3">
                             <?php if($post->image): ?>
                                 <img src="<?php echo e(asset('storage/' . $post->image)); ?>" alt="<?php echo e($post->title); ?>" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">

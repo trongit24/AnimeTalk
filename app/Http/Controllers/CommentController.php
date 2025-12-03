@@ -6,7 +6,6 @@ use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class CommentController extends Controller
 {
@@ -22,10 +21,10 @@ class CommentController extends Controller
                 return [
                     'id' => $comment->id,
                     'content' => $comment->content,
-                    'image' => $comment->image ? Storage::url($comment->image) : null,
+                    'image' => $comment->image ? asset('storage/' . $comment->image) : null,
                     'user' => [
                         'name' => $comment->user->name,
-                        'profile_photo' => $comment->user->profile_photo,
+                        'profile_photo' => $comment->user->profile_photo ? asset('storage/' . $comment->user->profile_photo) : null,
                     ],
                     'created_at' => $comment->created_at->diffForHumans(),
                     'can_delete' => $currentUser && ($comment->user_id === $currentUser->uid || $post->user_id === $currentUser->uid),
@@ -49,7 +48,8 @@ class CommentController extends Controller
         $comment->content = $validated['content'];
 
         if ($request->hasFile('image')) {
-            $comment->image = $request->file('image')->store('comments/images', 'public');
+            $path = $request->file('image')->store('comments', 'public');
+            $comment->image = $path;
         }
 
         $comment->save();
@@ -60,19 +60,48 @@ class CommentController extends Controller
         ]);
     }
 
-    // Old store method for backward compatibility
-    public function storeOld(Request $request)
+    // Polymorphic comment store
+    public function storePolymorphic(Request $request)
     {
         $validated = $request->validate([
-            'post_id' => 'required|exists:posts,id',
+            'post_id' => 'required',
+            'model_type' => 'required|in:Post,CommunityPost',
             'content' => 'required|max:1000',
+            'image' => 'nullable|image|max:5120', // 5MB max
         ]);
 
-        Comment::create([
-            'user_id' => Auth::user()->uid,
-            'post_id' => $validated['post_id'],
-            'content' => $validated['content'],
-        ]);
+        $modelClass = $validated['model_type'] === 'CommunityPost' ? 'App\Models\CommunityPost' : 'App\Models\Post';
+
+        $comment = new Comment();
+        $comment->user_id = Auth::user()->uid;
+        $comment->commentable_id = $validated['post_id'];
+        $comment->commentable_type = $modelClass;
+        $comment->content = $validated['content'];
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('comments', 'public');
+            $comment->image = $path;
+        }
+
+        $comment->save();
+
+        // Return JSON for AJAX or redirect for form submit
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment added successfully!',
+                'comment' => [
+                    'id' => $comment->id,
+                    'content' => $comment->content,
+                    'image' => $comment->image ? asset('storage/' . $comment->image) : null,
+                    'user' => [
+                        'name' => Auth::user()->name,
+                        'profile_photo' => Auth::user()->profile_photo ? asset('storage/' . Auth::user()->profile_photo) : null,
+                    ],
+                    'created_at' => $comment->created_at->diffForHumans(),
+                ],
+            ]);
+        }
 
         return back()->with('success', 'Comment added successfully!');
     }
@@ -121,5 +150,39 @@ class CommentController extends Controller
         $post->comments()->delete();
 
         return back()->with('success', 'All comments deleted successfully!');
+    }
+
+    /**
+     * Get comments for modal (polymorphic)
+     */
+    public function getComments($modelType, $postId)
+    {
+        // Determine the model class
+        $modelClass = $modelType === 'CommunityPost' 
+            ? 'App\Models\CommunityPost' 
+            : 'App\Models\Post';
+
+        // Get comments using polymorphic relationship
+        $comments = Comment::where('commentable_type', $modelClass)
+            ->where('commentable_id', $postId)
+            ->with('user')
+            ->latest()
+            ->get()
+            ->map(function($comment) {
+                return [
+                    'id' => $comment->id,
+                    'content' => $comment->content,
+                    'image' => $comment->image,
+                    'user' => [
+                        'name' => $comment->user->name,
+                        'avatar' => $comment->user->profile_photo 
+                            ? asset('storage/' . $comment->user->profile_photo) 
+                            : asset('images/default-avatar.png'),
+                    ],
+                    'created_at' => $comment->created_at->diffForHumans(),
+                ];
+            });
+
+        return response()->json(['comments' => $comments]);
     }
 }

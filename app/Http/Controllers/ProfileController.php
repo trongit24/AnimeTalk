@@ -70,29 +70,24 @@ class ProfileController extends Controller
 
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
-            // Delete old profile photo if exists
-            if ($user->profile_photo) {
-                Storage::disk('public')->delete($user->profile_photo);
-            }
-
             $path = $request->file('profile_photo')->store('profile_photos', 'public');
             $user->profile_photo = $path;
         }
 
         // Handle cover photo upload
         if ($request->hasFile('cover_photo')) {
-            // Delete old cover photo if exists
-            if ($user->cover_photo) {
-                Storage::disk('public')->delete($user->cover_photo);
-            }
-
             $path = $request->file('cover_photo')->store('covers', 'public');
             $user->cover_photo = $path;
         }
 
         $user->save();
 
-        return back()->with('success', 'Profile updated successfully!');
+        // Clear cache and force browser refresh
+        return back()
+            ->with('success', 'Profile updated successfully!')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 }
 

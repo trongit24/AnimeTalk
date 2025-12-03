@@ -1,59 +1,254 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# AnimeTalk - Anime Community Forum
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern, feature-rich anime community forum built with Laravel using MVC architecture. Features a soft, chill aesthetic inspired by anime art styles with pastel colors and smooth animations.
 
-## About Laravel
+## 🎨 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Core Functionality
+- **Home Page**: Discover new posts filtered by tags with a beautiful hero section
+- **Community Forums**: Navigate sub-forums organized by tags (Anime, Manga, Cosplay, etc.)
+- **Events Page**: Discover upcoming anime releases, cosplay events, and conventions
+- **Profile Management**: Manage your posts, create new content, and customize your profile
+- **Advanced Search**: Search posts and forums by keywords and tags
+- **Authentication**: User registration, login, and profile management
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Design Features
+- Soft pastel color palette (purples, pinks, blues)
+- Smooth animations and hover effects
+- Responsive design for all devices
+- Clean, modern UI with rounded corners
+- Gradient accents and subtle shadows
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📋 Requirements
 
-## Learning Laravel
+- PHP 8.2 or higher
+- Composer
+- MySQL 5.7 or higher
+- Node.js & NPM (optional, for Vite)
+- XAMPP/WAMP/MAMP or similar local server
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🚀 Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. Database Setup
 
-## Laravel Sponsors
+#### Option A: Using the SQL File (Recommended)
+```bash
+# Import the database schema
+mysql -u root -p < database/anime_forum.sql
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+#### Option B: Using Laravel Migrations
+```bash
+# Run migrations
+php artisan migrate
+```
 
-### Premium Partners
+### 2. Configure Environment
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. Copy `.env.example` to `.env`:
+```bash
+copy .env.example .env
+```
 
-## Contributing
+2. Update database credentials in `.env`:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=anime_forum
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. Generate application key:
+```bash
+php artisan key:generate
+```
 
-## Code of Conduct
+### 3. Install Dependencies
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# Install PHP dependencies
+composer install
 
-## Security Vulnerabilities
+# Install JavaScript dependencies (optional)
+npm install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Storage Setup
 
-## License
+```bash
+# Create symbolic link for storage
+php artisan storage:link
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 5. Run the Application
+
+```bash
+# Start the development server
+php artisan serve
+```
+
+Visit: `http://localhost:8000`
+
+## 📁 Project Structure
+
+```
+AnimeTalk/
+├── app/
+│   ├── Http/
+│   │   └── Controllers/
+│   │       ├── HomeController.php
+│   │       ├── CommunityController.php
+│   │       ├── EventController.php
+│   │       ├── PostController.php
+│   │       ├── CommentController.php
+│   │       ├── ProfileController.php
+│   │       └── SearchController.php
+│   └── Models/
+│       ├── User.php
+│       ├── Forum.php
+│       ├── Post.php
+│       ├── Tag.php
+│       ├── Event.php
+│       └── Comment.php
+├── database/
+│   ├── migrations/
+│   │   ├── 2024_01_01_000003_create_tags_table.php
+│   │   ├── 2024_01_01_000004_create_forums_table.php
+│   │   ├── 2024_01_01_000005_create_posts_table.php
+│   │   ├── 2024_01_01_000006_create_events_table.php
+│   │   ├── 2024_01_01_000007_create_comments_table.php
+│   │   ├── 2024_01_01_000008_create_post_tag_table.php
+│   │   └── 2024_01_01_000009_create_forum_tag_table.php
+│   └── anime_forum.sql (Complete MySQL schema with sample data)
+├── resources/
+│   └── views/
+│       ├── layouts/
+│       │   └── app.blade.php
+│       ├── home.blade.php
+│       ├── community/
+│       │   ├── index.blade.php
+│       │   └── show.blade.php
+│       ├── events/
+│       │   ├── index.blade.php
+│       │   └── show.blade.php
+│       ├── posts/
+│       │   ├── create.blade.php
+│       │   └── show.blade.php
+│       ├── profile/
+│       │   ├── show.blade.php
+│       │   └── edit.blade.php
+│       └── search/
+│           └── index.blade.php
+├── public/
+│   └── css/
+│       └── anime-forum.css (Complete styling)
+└── routes/
+    └── web.php
+```
+
+## 🎨 Color Palette
+
+The application uses a soft, chill color scheme:
+
+- **Primary Purple**: `#A8B3E8`
+- **Primary Pink**: `#F4A8C0`
+- **Primary Blue**: `#A8D5E8`
+- **Secondary Lavender**: `#D8C8F8`
+- **Secondary Peach**: `#F8D8C8`
+- **Secondary Mint**: `#C8F8E8`
+- **Background**: `#FAFBFF` to `#F0F3FF` (gradient)
+
+## 🔑 Key Routes
+
+### Public Routes
+- `GET /` - Home page with latest posts
+- `GET /community` - Browse all forums
+- `GET /community/{slug}` - View specific forum
+- `GET /events` - Browse upcoming events
+- `GET /posts/{slug}` - View post details
+- `GET /search` - Search posts and forums
+
+### Protected Routes (Require Authentication)
+- `GET /profile` - User profile
+- `GET /profile/edit` - Edit profile
+- `GET /posts/create/new` - Create new post
+- `POST /posts` - Store new post
+- `POST /comments` - Add comment
+
+## 📊 Database Schema
+
+### Main Tables
+- **users** - User accounts
+- **forums** - Sub-forums (Anime Discussion, Manga Corner, etc.)
+- **posts** - User posts in forums
+- **tags** - Tags for categorization (Anime, Manga, Cosplay, etc.)
+- **events** - Upcoming events (releases, cosplay, conventions)
+- **comments** - Replies to posts
+
+### Pivot Tables
+- **post_tag** - Many-to-many relationship between posts and tags
+- **forum_tag** - Many-to-many relationship between forums and tags
+
+## 🎯 Usage
+
+### Creating a Post
+1. Log in to your account
+2. Click "Create Post" in the navigation
+3. Fill in the title, select a forum, add content
+4. Optionally add an image and select tags
+5. Click "Publish Post"
+
+### Browsing Forums
+1. Go to "Community" page
+2. Filter forums by tags if needed
+3. Click on a forum to view its posts
+4. Click on any post to read and comment
+
+### Searching
+1. Use the search bar in the navigation
+2. Enter keywords and select type (posts/forums/all)
+3. Filter by tags for more specific results
+
+## 🔧 Customization
+
+### Changing Colors
+Edit `public/css/anime-forum.css` and modify the CSS variables in the `:root` section.
+
+### Adding New Features
+1. Create a new migration for database changes
+2. Add/update models with relationships
+3. Create controllers following the MVC pattern
+4. Define routes in `routes/web.php`
+5. Create Blade views in `resources/views`
+
+## 📝 Sample Data
+
+The SQL file includes sample data:
+- 6 predefined tags (Anime, Manga, Cosplay, Gaming, Art, Discussion)
+- 5 forums with descriptions and icons
+- Forum-tag relationships
+
+## 🐛 Troubleshooting
+
+### CSS Not Loading
+Ensure the CSS file is in `public/css/anime-forum.css` and check the asset path in the layout.
+
+### Database Connection Error
+Verify your `.env` database credentials match your MySQL setup.
+
+### Storage Permission Error
+Run: `php artisan storage:link` and ensure storage folders have write permissions.
+
+## 📄 License
+
+This project is open-source and available for educational purposes.
+
+## 🤝 Contributing
+
+Feel free to fork, modify, and enhance the project!
+
+---
+
+Built with ❤️ using Laravel MVC Architecture

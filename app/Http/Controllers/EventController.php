@@ -70,8 +70,10 @@ class EventController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            $path = $request->file('cover_image')->store('events/covers', 'public');
-            $event->update(['cover_image' => $path]);
+            $coverUrl = $this->cloudinary->uploadImage($request->file('cover_image'), 'animetalk/events/covers');
+            if ($coverUrl) {
+                $event->update(['cover_image' => $coverUrl]);
+            }
         }
 
         // Add creator as participant (going)
@@ -133,9 +135,6 @@ class EventController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            if ($event->cover_image) {
-                Storage::disk('public')->delete($event->cover_image);
-            }
             $path = $request->file('cover_image')->store('events/covers', 'public');
             $event->update(['cover_image' => $path]);
         }

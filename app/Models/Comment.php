@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Comment extends Model
 {
@@ -12,6 +13,8 @@ class Comment extends Model
     protected $fillable = [
         'user_id',
         'post_id',
+        'commentable_id',
+        'commentable_type',
         'content',
         'image',
         'likes',
@@ -25,6 +28,11 @@ class Comment extends Model
     public function post()
     {
         return $this->belongsTo(Post::class);
+    }
+
+    public function commentable(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function isOwnedBy($user)

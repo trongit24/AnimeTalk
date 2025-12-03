@@ -29,8 +29,9 @@ class AppServiceProvider extends ServiceProvider
                     ->count();
                 $view->with('unreadMessagesCount', $unreadCount);
                 
-                $notificationCount = \App\Models\EventNotification::where('user_id', Auth::user()->uid)
-                    ->where('is_read', false)
+                // Đếm thông báo chưa đọc (bao gồm cả thông báo admin)
+                $notificationCount = \App\Models\Notification::forUser(Auth::user()->uid)
+                    ->unread()
                     ->count();
                 $view->with('unreadNotificationsCount', $notificationCount);
             } else {

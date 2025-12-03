@@ -315,18 +315,20 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
                 <?php $__currentLoopData = $friends; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $friend): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <a href="<?php echo e(route('profile.show', $friend->uid)); ?>" style="text-decoration: none; color: inherit;">
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s;">
+                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; height: 100%; display: flex; flex-direction: column; align-items: center; min-height: 180px;">
                         <?php if($friend->profile_photo): ?>
                         <img src="<?php echo e(asset('storage/' . $friend->profile_photo)); ?>" alt="<?php echo e($friend->name); ?>" 
-                             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;">
+                             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; flex-shrink: 0;">
                         <?php else: ?>
-                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 2rem; margin: 0 auto 1rem;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 2rem; margin-bottom: 1rem; flex-shrink: 0;">
                             <?php echo e(strtoupper(substr($friend->name, 0, 1))); ?>
 
                         </div>
                         <?php endif; ?>
                         <h4 style="font-size: 1rem; font-weight: 600; color: #1c1c1c; margin-bottom: 0.25rem;"><?php echo e($friend->name); ?></h4>
-                        <p style="font-size: 0.875rem; color: #666;"><?php if($friend->bio): ?><?php echo e(Str::limit($friend->bio, 50)); ?><?php endif; ?></p>
+                        <?php if($friend->bio): ?>
+                        <p style="font-size: 0.875rem; color: #666; line-height: 1.4; word-break: break-word; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"><?php echo e($friend->bio); ?></p>
+                        <?php endif; ?>
                     </div>
                 </a>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

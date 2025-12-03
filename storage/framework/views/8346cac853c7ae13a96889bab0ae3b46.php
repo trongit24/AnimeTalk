@@ -25,6 +25,22 @@
     <span>Back</span>
 </button>
 
+<!-- Hidden Post Warning -->
+<?php if($post->is_hidden): ?>
+<div class="container my-3">
+    <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+        <div class="flex-grow-1">
+            <h5 class="alert-heading mb-1">Bài viết đã bị ẩn</h5>
+            <p class="mb-0"><?php echo e($post->hidden_reason ?? 'Bài viết này đã bị ẩn do vi phạm chính sách cộng đồng.'); ?></p>
+            <?php if($post->hidden_at): ?>
+            <small class="text-muted">Ẩn lúc: <?php echo e($post->hidden_at->format('d/m/Y H:i')); ?></small>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="fb-post-detail-page">
     <div class="fb-post-container">
         <!-- Left Side - Media -->
@@ -156,6 +172,15 @@
                     <i class="bi bi-chat"></i>
                     <span>Bình luận</span>
                 </button>
+                
+                <?php if(auth()->guard()->check()): ?>
+                    <?php if($post->user_id !== Auth::user()->uid): ?>
+                    <button class="fb-action-btn" onclick="openReportModal(<?php echo e($post->id); ?>, '<?php echo e(addslashes($post->title)); ?>')" title="Báo cáo vi phạm">
+                        <i class="bi bi-flag"></i>
+                        <span>Báo cáo</span>
+                    </button>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
 
             <!-- Comments Section -->
@@ -184,6 +209,10 @@
                                         <?php else: ?>
                                             <?php echo e($content); ?>
 
+                                        <?php endif; ?>
+                                        
+                                        <?php if($comment->image): ?>
+                                            <img src="<?php echo e(asset('storage/' . $comment->image)); ?>" class="fb-comment-image" alt="Comment Image" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
                                         <?php endif; ?>
                                     </div>
                                     
@@ -642,6 +671,13 @@
     max-width: 250px;
     border-radius: 8px;
     margin-top: 4px;
+    display: block;
+}
+
+.fb-comment-image {
+    max-width: 150px;
+    border-radius: 8px;
+    margin-top: 8px;
     display: block;
 }
 
@@ -1271,39 +1307,171 @@ document.addEventListener('click', function(e) {
 const commentForm = document.getElementById('comment-form');
 if (commentForm) {
     commentForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Always prevent default
+        
         const commentPreview = document.getElementById('comment-preview');
         const textarea = document.getElementById('comment-input');
+        const imageInput = document.getElementById('comment-image-input');
         
-        // If GIF is selected, replace content with GIF URL
+        // Validate input
+        if (!textarea.value.trim() && !imageInput.files[0] && !commentPreview.dataset.gifUrl) {
+            alert('Vui lòng nhập nội dung bình luận hoặc chọn ảnh!');
+            return;
+        }
+        
+        const formData = new FormData(this);
+        
+        // If GIF is selected, use GIF URL as content
         if (commentPreview.dataset.gifUrl) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
             formData.set('content', commentPreview.dataset.gifUrl);
             formData.delete('image'); // Remove image file if exists
-            
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    window.location.reload();
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        } else if (!textarea.value.trim() && !document.getElementById('comment-image-input').files[0]) {
-            e.preventDefault();
-            alert('Vui lòng nhập nội dung bình luận!');
         }
+        
+        // Submit via AJAX
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload page to show new comment
+                window.location.reload();
+            } else {
+                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra. Vui lòng thử lại!');
+        });
+    });
+}
+
+// Report Modal Functions
+function openReportModal(postId, postTitle) {
+    document.getElementById('reportPostId').value = postId;
+    document.getElementById('reportPostTitle').textContent = postTitle;
+    document.getElementById('reportForm').reset();
+    document.getElementById('otherReasonContainer').style.display = 'none';
+    reportModal.show();
+}
+
+function submitReport() {
+    const postId = document.getElementById('reportPostId').value;
+    const reasonSelect = document.getElementById('reportReason');
+    let reason = reasonSelect.value;
+    
+    if (!reason) {
+        alert('Vui lòng chọn lý do báo cáo');
+        return;
+    }
+    
+    // Nếu chọn "Khác", lấy chi tiết
+    if (reason === 'Khác') {
+        const otherReason = document.getElementById('otherReason').value.trim();
+        if (!otherReason) {
+            alert('Vui lòng mô tả chi tiết lý do');
+            return;
+        }
+        reason = 'Khác: ' + otherReason;
+    }
+    
+    const submitBtn = event.target;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang gửi...';
+    
+    fetch(`/posts/${postId}/report`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            reportModal.hide();
+            alert(data.message);
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi gửi báo cáo');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-send me-1"></i>Gửi báo cáo';
     });
 }
 
 }); // End DOMContentLoaded
+
+// Initialize report modal
+let reportModal;
+document.addEventListener('DOMContentLoaded', function() {
+    reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
+    
+    // Show/hide other reason textarea
+    document.getElementById('reportReason').addEventListener('change', function() {
+        const otherContainer = document.getElementById('otherReasonContainer');
+        if (this.value === 'Khác') {
+            otherContainer.style.display = 'block';
+        } else {
+            otherContainer.style.display = 'none';
+        }
+    });
+});
 </script>
+
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">
+                    <i class="bi bi-flag text-danger me-2"></i>Báo cáo vi phạm
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Bài viết: <strong id="reportPostTitle"></strong></p>
+                <form id="reportForm">
+                    <div class="mb-3">
+                        <label for="reportReason" class="form-label">Lý do báo cáo <span class="text-danger">*</span></label>
+                        <select class="form-select" id="reportReason" name="reason" required>
+                            <option value="">-- Chọn lý do --</option>
+                            <option value="Spam hoặc quảng cáo">Spam hoặc quảng cáo</option>
+                            <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                            <option value="Thông tin sai sự thật">Thông tin sai sự thật</option>
+                            <option value="Ngôn từ hung hăng, thù ghét">Ngôn từ hung hăng, thù ghét</option>
+                            <option value="Xâm phạm bản quyền">Xâm phạm bản quyền</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="otherReasonContainer" style="display: none;">
+                        <label for="otherReason" class="form-label">Mô tả chi tiết</label>
+                        <textarea class="form-control" id="otherReason" rows="3" placeholder="Vui lòng mô tả chi tiết..."></textarea>
+                    </div>
+                    <input type="hidden" id="reportPostId" name="post_id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" onclick="submitReport()">
+                    <i class="bi bi-send me-1"></i>Gửi báo cáo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
 

@@ -91,7 +91,17 @@
                                     <span class="font-medium text-gray-800">{{ $comment->user->name }}</span>
                                     <span class="text-sm text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
                                 </div>
-                                <p class="text-gray-700">{{ $comment->content }}</p>
+                                @php
+                                    $content = $comment->content;
+                                    $isImageUrl = preg_match('/^https?:\/\/.*(giphy\.com|\.gif|\.jpg|\.jpeg|\.png|\.webp)/i', $content);
+                                @endphp
+                                
+                                @if($isImageUrl)
+                                    <img src="{{ $content }}" alt="GIF" class="mt-2 max-w-sm rounded-lg">
+                                @else
+                                    <p class="text-gray-700">{{ $content }}</p>
+                                @endif
+                                
                                 @if($comment->image)
                                     <img src="{{ asset('storage/' . $comment->image) }}" alt="Comment image" class="mt-2 max-w-sm rounded-lg">
                                 @endif

@@ -22,10 +22,15 @@ class Post extends Model
         'views',
         'likes',
         'is_pinned',
+        'is_hidden',
+        'hidden_at',
+        'hidden_reason',
     ];
 
     protected $casts = [
         'is_pinned' => 'boolean',
+        'is_hidden' => 'boolean',
+        'hidden_at' => 'datetime',
     ];
 
     public function user()
@@ -63,5 +68,44 @@ class Post extends Model
     {
         if (!$user) return false;
         return $this->user_id === $user->uid;
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(PostReport::class);
+    }
+
+    public function reportedBy($user)
+    {
+        if (!$user) return false;
+        return $this->reports()->where('user_id', $user->uid)->exists();
+    }
+
+    public function hide($reason = 'Vi phạm chính sách cộng đồng')
+    {
+        $this->update([
+            'is_hidden' => true,
+            'hidden_at' => now(),
+            'hidden_reason' => $reason,
+        ]);
+    }
+
+    public function unhide()
+    {
+        $this->update([
+            'is_hidden' => false,
+            'hidden_at' => null,
+            'hidden_reason' => null,
+        ]);
+    }
+
+    public function scopeVisible($query)
+    {
+        return $query->where('is_hidden', false);
+    }
+
+    public function scopeHidden($query)
+    {
+        return $query->where('is_hidden', true);
     }
 }

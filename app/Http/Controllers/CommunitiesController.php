@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Community;
 use App\Models\CommunityActivity;
+use App\Models\CommunityMemory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -101,7 +102,30 @@ class CommunitiesController extends Controller
             ->take(20)
             ->get();
 
-        return view('communities.show', compact('community', 'members', 'activities'));
+        // Load approved memories (or all if user is owner)
+        $isOwner = Auth::check() && $community->user_id === Auth::user()->uid;
+        
+        // Always show only approved memories in main tab
+        $memories = CommunityMemory::where('community_id', $community->id)
+            ->where('status', 'approved')
+            ->with(['user', 'reactions', 'comments.user'])
+            ->withCount(['reactions', 'comments'])
+            ->latest()
+            ->get();
+        
+        // Get pending memories separately for owner
+        $pendingMemories = $isOwner ? 
+            CommunityMemory::where('community_id', $community->id)
+                ->where('status', 'pending')
+                ->with(['user', 'reactions', 'comments.user'])
+                ->withCount(['reactions', 'comments'])
+                ->latest()
+                ->get() : collect();
+        
+        // Get pending memories count for owner
+        $pendingMemoriesCount = $pendingMemories->count();
+
+        return view('communities.show', compact('community', 'members', 'activities', 'memories', 'pendingMemories', 'pendingMemoriesCount'));
     }
 
     public function join(Community $community)
@@ -205,20 +229,12 @@ class CommunitiesController extends Controller
 
         // Update icon if uploaded
         if ($request->hasFile('icon')) {
-            // Delete old icon
-            if ($community->icon) {
-                Storage::disk('public')->delete($community->icon);
-            }
             $path = $request->file('icon')->store('communities/icons', 'public');
             $community->update(['icon' => $path]);
         }
 
         // Update banner if uploaded
         if ($request->hasFile('banner')) {
-            // Delete old banner
-            if ($community->banner) {
-                Storage::disk('public')->delete($community->banner);
-            }
             $path = $request->file('banner')->store('communities/banners', 'public');
             $community->update(['banner' => $path]);
         }
