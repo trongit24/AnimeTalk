@@ -118,7 +118,7 @@
                                     <a href="<?php echo e(route('admin.posts.detail', $post)); ?>" class="text-blue-600 hover:text-blue-900" title="Xem chi tiết">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="<?php echo e(route('posts.show', $post)); ?>" target="_blank" class="text-green-600 hover:text-green-900" title="Xem trên trang">
+                                    <a href="<?php echo e(route('posts.show', $post->slug)); ?>" target="_blank" class="text-green-600 hover:text-green-900" title="Xem trên trang">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
                                     <form method="POST" action="<?php echo e(route('admin.posts.destroy', $post)); ?>" class="inline" 

@@ -7,6 +7,25 @@
 @endpush
 
 @section('content')
+<!-- Video Background Hero Section -->
+<div class="hero-video-section">
+    <video autoplay muted loop playsinline class="hero-video">
+        <source src="{{ asset('storage/image_4k/hsr-sky.1920x1080 (1).mp4') }}" type="video/mp4">
+    </video>
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <h1 class="hero-title">Welcome to AnimeTalk</h1>
+            <p class="hero-subtitle">Join the ultimate anime community</p>
+            @guest
+            <div class="hero-actions">
+                <a href="{{ route('register') }}" class="btn-hero-primary">Get Started</a>
+                <a href="{{ route('login') }}" class="btn-hero-secondary">Sign In</a>
+            </div>
+            @endguest
+        </div>
+    </div>
+</div>
+
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
@@ -98,6 +117,49 @@
                class="category-tab {{ (isset($category) && $category == 'discussion') ? 'active' : '' }}">
                 <i class="bi bi-chat-dots"></i> Discussion
             </a>
+        </div>
+
+        <!-- Animated Banner Carousel -->
+        <div class="banner-carousel">
+            <div class="banner-slider">
+                <div class="banner-slide active" style="background-image: url('{{ asset('storage/image_4k/1311994.jpeg') }}');">
+                    <div class="banner-overlay">
+                        <h2>Discover Amazing Anime</h2>
+                        <p>Join discussions with fans worldwide</p>
+                    </div>
+                </div>
+                <div class="banner-slide" style="background-image: url('{{ asset('storage/image_4k/1316383.jpeg') }}');">
+                    <div class="banner-overlay">
+                        <h2>Share Your Passion</h2>
+                        <p>Create posts and connect with community</p>
+                    </div>
+                </div>
+                <div class="banner-slide" style="background-image: url('{{ asset('storage/image_4k/1319293.jpeg') }}');">
+                    <div class="banner-overlay">
+                        <h2>Explore Communities</h2>
+                        <p>Find your tribe and make new friends</p>
+                    </div>
+                </div>
+                <div class="banner-slide" style="background-image: url('{{ asset('storage/image_4k/1343086.jpeg') }}');">
+                    <div class="banner-overlay">
+                        <h2>Latest Anime News</h2>
+                        <p>Stay updated with trending topics</p>
+                    </div>
+                </div>
+                <div class="banner-slide" style="background-image: url('{{ asset('storage/image_4k/1345040.png') }}');">
+                    <div class="banner-overlay">
+                        <h2>Join Events</h2>
+                        <p>Participate in anime watch parties</p>
+                    </div>
+                </div>
+            </div>
+            <div class="banner-dots">
+                <span class="dot active" onclick="currentSlide(0)"></span>
+                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+                <span class="dot" onclick="currentSlide(4)"></span>
+            </div>
         </div>
 
         <!-- Create Post Box -->
@@ -2057,6 +2119,40 @@ function submitReport() {
         submitBtn.innerHTML = '<i class="bi bi-send me-1"></i>Gửi báo cáo';
     });
 }
+
+// Banner Carousel Auto-rotate
+let currentSlideIndex = 0;
+const slides = document.querySelectorAll('.banner-slide');
+const dots = document.querySelectorAll('.dot');
+
+function showSlide(index) {
+    slides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        dots[i].classList.remove('active');
+    });
+    
+    if (index >= slides.length) {
+        currentSlideIndex = 0;
+    } else if (index < 0) {
+        currentSlideIndex = slides.length - 1;
+    } else {
+        currentSlideIndex = index;
+    }
+    
+    slides[currentSlideIndex].classList.add('active');
+    dots[currentSlideIndex].classList.add('active');
+}
+
+function currentSlide(index) {
+    showSlide(index);
+}
+
+function nextSlide() {
+    showSlide(currentSlideIndex + 1);
+}
+
+// Auto-rotate every 5 seconds
+setInterval(nextSlide, 5000);
 </script>
 
 @endpush

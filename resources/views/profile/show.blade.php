@@ -11,7 +11,8 @@
 
 .yn-cover-photo {
     height: 350px;
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 50%, #FF6B9D 100%);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 50%, rgba(255, 107, 157, 0.7) 100%),
+                url('/storage/image_4k/1316383.jpeg') center/cover;
     background-size: cover;
     background-position: center;
     position: relative;

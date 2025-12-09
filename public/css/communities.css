@@ -1,8 +1,28 @@
 /* Communities Index Page */
+.communities-page {
+    background: linear-gradient(135deg, rgba(91, 163, 208, 0.05) 0%, rgba(155, 126, 222, 0.05) 100%),
+                url('/storage/image_4k/1319293.jpeg') fixed center/cover;
+    min-height: 100vh;
+}
+
 .communities-page .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.communities-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(5px);
+    z-index: 0;
 }
 
 .page-header {
@@ -67,6 +87,10 @@
     height: 280px;
     overflow: hidden;
     position: relative;
+    background: linear-gradient(135deg, rgba(91, 163, 208, 0.5) 0%, rgba(155, 126, 222, 0.5) 100%),
+                url('/storage/image_4k/1343086.jpeg') center/cover;
+    background-size: cover;
+    background-position: center;
 }
 
 .community-header-container {
