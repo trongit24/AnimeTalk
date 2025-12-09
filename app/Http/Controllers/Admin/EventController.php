@@ -27,16 +27,14 @@ class EventController extends Controller
         return view('admin.events.index', compact('events', 'totalEvents', 'upcomingEvents', 'pastEvents'));
     }
 
-    public function show($id)
+    public function show(Event $event)
     {
-        $event = Event::with(['owner', 'participants'])->withCount('participants')->findOrFail($id);
+        $event->load(['owner', 'participants'])->loadCount('participants');
         return view('admin.events.show', compact('event'));
     }
 
-    public function destroy($id)
+    public function destroy(Event $event)
     {
-        $event = Event::findOrFail($id);
-
         if ($event->cover_image) {
             Storage::disk('public')->delete($event->cover_image);
         }

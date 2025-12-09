@@ -98,7 +98,7 @@ h1, h3, p, a, div, span {
         <!-- Events Grid -->
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; opacity: 1 !important; visibility: visible !important;">
             @forelse($events as $event)
-            <a href="{{ route('events.show', $event->id) }}" style="text-decoration: none; color: inherit; opacity: 1 !important; visibility: visible !important;">
+            <a href="{{ route('events.show', $event->slug) }}" style="text-decoration: none; color: inherit; opacity: 1 !important; visibility: visible !important;">
                 <div style="background: white !important; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; transition: all 0.3s; cursor: pointer; opacity: 1 !important; visibility: visible !important;" class="event-card">
                     <!-- Cover Image -->
                     @if($event->cover_image)

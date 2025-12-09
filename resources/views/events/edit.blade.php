@@ -144,7 +144,7 @@ div[style*="background: white"] * {
 
                 <!-- Actions -->
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
-                    <a href="{{ route('events.show', $event->id) }}" 
+                    <a href="{{ route('events.show', $event->slug) }}" 
                        style="padding: 0.75rem 1.5rem; background: #f0f0f0; color: #333; border-radius: 8px; text-decoration: none; font-weight: 600;">
                         Cancel
                     </a>

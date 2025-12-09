@@ -3,7 +3,6 @@
 <?php $__env->startSection('title', $post->title); ?>
 
 <?php $__env->startPush('styles'); ?>
-<link rel="stylesheet" href="<?php echo e(asset('css/post-detail-responsive.css')); ?>">
 <style>
 .fb-post-detail-page,
 .fb-post-detail-page * {
@@ -157,7 +156,7 @@
 
             <div class="fb-post-actions">
                 <?php if(auth()->guard()->check()): ?>
-                <button id="like-btn" class="fb-action-btn <?php echo e($post->likedBy(auth()->user()) ? 'active' : ''); ?>" data-post-id="<?php echo e($post->id); ?>">
+                <button id="like-btn" class="fb-action-btn <?php echo e($post->likedBy(auth()->user()) ? 'active' : ''); ?>" data-post-slug="<?php echo e($post->slug); ?>">
                     <i class="bi <?php echo e($post->likedBy(auth()->user()) ? 'bi-heart-fill' : 'bi-heart'); ?>"></i>
                     <span>Thích</span>
                 </button>
@@ -261,7 +260,7 @@
                         <?php endif; ?>
                     </div>
                     <div class="fb-comment-form-wrapper">
-                        <form action="<?php echo e(route('comments.store', $post->id)); ?>" method="POST" enctype="multipart/form-data" id="comment-form" class="fb-comment-input-form">
+                        <form action="<?php echo e(route('comments.store', $post)); ?>" method="POST" enctype="multipart/form-data" id="comment-form" class="fb-comment-input-form">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="post_id" value="<?php echo e($post->id); ?>">
                             <input type="file" id="comment-image-input" name="image" accept="image/*" style="display: none;">
@@ -991,12 +990,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Like button functionality
 document.getElementById('like-btn')?.addEventListener('click', function() {
-    const postId = this.dataset.postId;
+    const postSlug = this.dataset.postSlug;
     const btn = this;
     const likesCount = document.getElementById('likes-count');
     const icon = btn.querySelector('i');
     
-    fetch(`/posts/${postId}/like`, {
+    fetch(`/posts/${postSlug}/like`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -12,6 +12,7 @@ class Event extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'slug',
         'description',
         'location',
         'cover_image',
@@ -75,5 +76,13 @@ class Event extends Model
     public function isTomorrow(): bool
     {
         return $this->start_time->isTomorrow();
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 }

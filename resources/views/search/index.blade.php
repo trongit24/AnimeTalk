@@ -121,7 +121,7 @@
                     <h2>Forums ({{ $forums->count() }})</h2>
                     <div class="forums-grid">
                         @foreach($forums as $forum)
-                            <a href="{{ route('community.show', $forum->slug) }}" class="forum-card">
+                            <a href="{{ route('communities.show', $forum->slug) }}" class="forum-card">
                                 <div class="forum-icon">{{ $forum->icon ?? '💬' }}</div>
                                 <div class="forum-info">
                                     <h3>{{ $forum->name }}</h3>

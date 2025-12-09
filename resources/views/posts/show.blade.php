@@ -3,7 +3,6 @@
 @section('title', $post->title)
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/post-detail-responsive.css') }}">
 <style>
 .fb-post-detail-page,
 .fb-post-detail-page * {
@@ -154,7 +153,7 @@
 
             <div class="fb-post-actions">
                 @auth
-                <button id="like-btn" class="fb-action-btn {{ $post->likedBy(auth()->user()) ? 'active' : '' }}" data-post-id="{{ $post->id }}">
+                <button id="like-btn" class="fb-action-btn {{ $post->likedBy(auth()->user()) ? 'active' : '' }}" data-post-slug="{{ $post->slug }}">
                     <i class="bi {{ $post->likedBy(auth()->user()) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
                     <span>Thích</span>
                 </button>
@@ -257,7 +256,7 @@
                         @endif
                     </div>
                     <div class="fb-comment-form-wrapper">
-                        <form action="{{ route('comments.store', $post->id) }}" method="POST" enctype="multipart/form-data" id="comment-form" class="fb-comment-input-form">
+                        <form action="{{ route('comments.store', $post) }}" method="POST" enctype="multipart/form-data" id="comment-form" class="fb-comment-input-form">
                             @csrf
                             <input type="hidden" name="post_id" value="{{ $post->id }}">
                             <input type="file" id="comment-image-input" name="image" accept="image/*" style="display: none;">
@@ -987,12 +986,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Like button functionality
 document.getElementById('like-btn')?.addEventListener('click', function() {
-    const postId = this.dataset.postId;
+    const postSlug = this.dataset.postSlug;
     const btn = this;
     const likesCount = document.getElementById('likes-count');
     const icon = btn.querySelector('i');
     
-    fetch(`/posts/${postId}/like`, {
+    fetch(`/posts/${postSlug}/like`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

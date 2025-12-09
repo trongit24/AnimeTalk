@@ -38,7 +38,6 @@
     <link rel="stylesheet" href="{{ asset('css/global-base.css') }}">
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/friends.css') }}">
     <link rel="stylesheet" href="{{ asset('css/messages.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
     <link rel="stylesheet" href="{{ asset('css/communities.css') }}">

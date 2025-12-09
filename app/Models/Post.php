@@ -108,4 +108,12 @@ class Post extends Model
     {
         return $query->where('is_hidden', true);
     }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 }

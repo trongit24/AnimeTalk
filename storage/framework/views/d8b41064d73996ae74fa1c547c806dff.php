@@ -38,7 +38,6 @@
     <link rel="stylesheet" href="<?php echo e(asset('css/global-base.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/navbar.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/home.css')); ?>">
-    <link rel="stylesheet" href="<?php echo e(asset('css/friends.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/messages.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/profile.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(asset('css/communities.css')); ?>">

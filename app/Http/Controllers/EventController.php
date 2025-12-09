@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
@@ -62,6 +63,7 @@ class EventController extends Controller
         $event = Event::create([
             'user_id' => Auth::user()->uid,
             'title' => $validated['title'],
+            'slug' => Str::slug($validated['title']) . '-' . uniqid(),
             'description' => $validated['description'] ?? null,
             'location' => $validated['location'],
             'start_time' => $validated['start_time'],
@@ -80,15 +82,14 @@ class EventController extends Controller
         $event->participants()->attach(Auth::user()->uid, ['status' => 'going']);
         $event->update(['participants_count' => 1]);
 
-        return redirect()->route('events.show', $event->id)
+        return redirect()->route('events.show', $event->slug)
             ->with('success', 'Event created successfully!');
     }
 
-    public function show($id)
+    public function show(Event $event)
     {
-        $event = Event::with(['owner', 'participants'])
-            ->withCount('participants')
-            ->findOrFail($id);
+        $event->load(['owner', 'participants'])
+            ->loadCount('participants');
 
         $goingUsers = $event->participants()->wherePivot('status', 'going')->get();
         $interestedUsers = $event->participants()->wherePivot('status', 'interested')->get();
@@ -96,10 +97,8 @@ class EventController extends Controller
         return view('events.show', compact('event', 'goingUsers', 'interestedUsers'));
     }
 
-    public function edit($id)
+    public function edit(Event $event)
     {
-        $event = Event::findOrFail($id);
-
         if (!$event->isOwner(Auth::user())) {
             abort(403, 'Only the event owner can edit this event.');
         }
@@ -107,10 +106,8 @@ class EventController extends Controller
         return view('events.edit', compact('event'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Event $event)
     {
-        $event = Event::findOrFail($id);
-
         if (!$event->isOwner(Auth::user())) {
             abort(403, 'Only the event owner can update this event.');
         }
@@ -125,28 +122,33 @@ class EventController extends Controller
             'privacy' => 'required|in:public,private,friends',
         ]);
 
-        $event->update([
+        $updateData = [
             'title' => $validated['title'],
-            'description' => $validated['description'],
+            'description' => $validated['description'] ?? null,
             'location' => $validated['location'],
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
             'privacy' => $validated['privacy'],
-        ]);
+        ];
+
+        // Update slug if title changed
+        if ($event->title !== $validated['title']) {
+            $updateData['slug'] = Str::slug($validated['title']) . '-' . uniqid();
+        }
+
+        $event->update($updateData);
 
         if ($request->hasFile('cover_image')) {
             $path = $request->file('cover_image')->store('events/covers', 'public');
             $event->update(['cover_image' => $path]);
         }
 
-        return redirect()->route('events.show', $event->id)
+        return redirect()->route('events.show', $event->slug)
             ->with('success', 'Event updated successfully!');
     }
 
-    public function destroy($id)
+    public function destroy(Event $event)
     {
-        $event = Event::findOrFail($id);
-
         if (!$event->isOwner(Auth::user())) {
             abort(403, 'Only the event owner can delete this event.');
         }
@@ -161,9 +163,8 @@ class EventController extends Controller
             ->with('success', 'Event deleted successfully!');
     }
 
-    public function respond(Request $request, $id)
+    public function respond(Request $request, Event $event)
     {
-        $event = Event::findOrFail($id);
         $status = $request->input('status'); // going, interested, declined
 
         if (!in_array($status, ['going', 'interested', 'declined'])) {
@@ -194,10 +195,8 @@ class EventController extends Controller
         return back()->with('success', $statusText[$status]);
     }
 
-    public function invite(Request $request, $id)
+    public function invite(Request $request, Event $event)
     {
-        $event = Event::findOrFail($id);
-
         if (!$event->isOwner(Auth::user())) {
             abort(403, 'Only the event owner can invite users.');
         }

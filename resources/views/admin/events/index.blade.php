@@ -178,7 +178,7 @@
                                         <a href="{{ route('admin.events.show', $event) }}" class="text-blue-600 hover:text-blue-900" title="Xem chi tiết">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('events.show', $event) }}" target="_blank" class="text-green-600 hover:text-green-900" title="Xem trên trang">
+                                        <a href="{{ route('events.show', $event->slug) }}" target="_blank" class="text-green-600 hover:text-green-900" title="Xem trên trang">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>
                                         <button type="button" onclick="deleteEvent({{ $event->id }})" class="text-red-600 hover:text-red-900" title="Xóa">

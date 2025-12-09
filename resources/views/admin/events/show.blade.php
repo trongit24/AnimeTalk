@@ -210,7 +210,7 @@
 
             <!-- Actions -->
             <div class="flex items-center gap-3 mt-8 pt-8 border-t">
-                <a href="{{ route('events.show', $event) }}" target="_blank" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                <a href="{{ route('events.show', $event->slug) }}" target="_blank" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
                     <i class="fas fa-external-link-alt mr-2"></i>Xem trên trang
                 </a>
                 <form method="POST" action="{{ route('admin.events.destroy', $event) }}" 
