@@ -72,10 +72,8 @@ class EventController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            $coverUrl = $this->cloudinary->uploadImage($request->file('cover_image'), 'animetalk/events/covers');
-            if ($coverUrl) {
-                $event->update(['cover_image' => $coverUrl]);
-            }
+            $path = $request->file('cover_image')->store('events/covers', 'public');
+            $event->update(['cover_image' => $path]);
         }
 
         // Add creator as participant (going)
@@ -143,6 +141,21 @@ class EventController extends Controller
             $event->update(['cover_image' => $path]);
         }
 
+        // Notify all participants about event update
+        $participants = $event->participants()
+            ->wherePivotIn('status', ['going', 'interested'])
+            ->where('user_id', '!=', Auth::user()->uid)
+            ->get();
+
+        foreach ($participants as $participant) {
+            EventNotification::create([
+                'event_id' => $event->id,
+                'user_id' => $participant->uid,
+                'type' => 'event_update',
+                'message' => 'Sự kiện "' . $event->title . '" đã được cập nhật',
+            ]);
+        }
+
         return redirect()->route('events.show', $event->slug)
             ->with('success', 'Event updated successfully!');
     }
@@ -186,6 +199,17 @@ class EventController extends Controller
         $goingCount = $event->participants()->wherePivot('status', 'going')->count();
         $event->update(['participants_count' => $goingCount]);
 
+        // Notify event owner if someone joins (going or interested)
+        if (($status === 'going' || $status === 'interested') && $event->user_id !== Auth::user()->uid) {
+            $statusMessage = $status === 'going' ? 'sẽ tham gia' : 'quan tâm đến';
+            EventNotification::create([
+                'event_id' => $event->id,
+                'user_id' => $event->user_id,
+                'type' => 'event_participation',
+                'message' => Auth::user()->name . ' ' . $statusMessage . ' sự kiện "' . $event->title . '"',
+            ]);
+        }
+
         $statusText = [
             'going' => 'You are going to this event!',
             'interested' => 'You are interested in this event!',
@@ -223,5 +247,35 @@ class EventController extends Controller
         }
 
         return back()->with('success', 'Invitations sent successfully!');
+    }
+
+    public function notifications(Event $event)
+    {
+        // Check if user is participant or owner
+        if (!$event->isOwner(Auth::user()) && !$event->isParticipant(Auth::user())) {
+            abort(403, 'Only event participants can view notifications.');
+        }
+
+        $notifications = EventNotification::where('event_id', $event->id)
+            ->where('user_id', Auth::user()->uid)
+            ->with('event')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('events.notifications', compact('event', 'notifications'));
+    }
+
+    public function markNotificationAsRead($notificationId)
+    {
+        $notification = EventNotification::findOrFail($notificationId);
+
+        // Check if user owns this notification
+        if ($notification->user_id !== Auth::user()->uid) {
+            abort(403);
+        }
+
+        $notification->markAsRead();
+
+        return back()->with('success', 'Notification marked as read!');
     }
 }

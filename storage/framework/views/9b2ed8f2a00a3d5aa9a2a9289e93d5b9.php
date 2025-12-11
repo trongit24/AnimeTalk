@@ -3,14 +3,14 @@
 <?php $__env->startSection('title', 'Home - AnimeTalk'); ?>
 
 <?php $__env->startPush('styles'); ?>
-<link rel="stylesheet" href="<?php echo e(asset('css/home.css')); ?>">
+<link rel="stylesheet" href="<?php echo e(asset('css/home.css')); ?>?v=<?php echo e(time()); ?>">
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
 <!-- Video Background Hero Section -->
 <div class="hero-video-section">
     <video autoplay muted loop playsinline class="hero-video">
-        <source src="<?php echo e(asset('storage/image_4k/hsr-sky.1920x1080 (1).mp4')); ?>" type="video/mp4">
+        <source src="<?php echo e(asset('storage/image_4k/arona.3840x2160.mp4')); ?>" type="video/mp4">
     </video>
     <div class="hero-overlay">
         <div class="hero-content">
@@ -191,7 +191,7 @@
         <?php $__empty_1 = true; $__currentLoopData = $posts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $post): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
         <article class="feed-card" style="background: white !important; margin-bottom: 1rem !important; padding: 1rem !important; border-radius: 8px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;">
             <div class="card-body" style="padding: 0 !important;">
-                <div class="card-meta" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <div class="card-meta" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; position: relative;">
                     <?php if($post->user->profile_photo): ?>
                     <img src="<?php echo e(asset('storage/' . $post->user->profile_photo)); ?>" alt="<?php echo e($post->user->name); ?>" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                     <?php else: ?>
@@ -203,6 +203,28 @@
                     <span class="meta-author" style="font-weight: 600; color: #1c1c1c !important; font-size: 0.95rem;"><?php echo e($post->user->name); ?></span>
                     <span class="meta-dot" style="color: #999;">•</span>
                     <time class="meta-time" style="color: #666 !important; font-size: 0.9rem;"><?php echo e($post->created_at->diffForHumans()); ?></time>
+                    
+                    <?php if(auth()->guard()->check()): ?>
+                    <?php if($post->isOwnedBy(auth()->user())): ?>
+                    <div class="post-menu-dropdown" style="margin-left: auto;">
+                        <button class="post-menu-btn" onclick="togglePostDropdown(event)">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <div class="post-dropdown-content">
+                            <a href="<?php echo e(route('posts.edit', $post->slug)); ?>">
+                                <i class="bi bi-pencil"></i> Chỉnh sửa
+                            </a>
+                            <form action="<?php echo e(route('posts.destroy', $post->slug)); ?>" method="POST" onsubmit="return confirm('Xóa bài viết này?');" style="margin: 0;">
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
+                                <button type="submit" class="delete-post-btn" style="width: 100%;">
+                                    <i class="bi bi-trash"></i> Xóa bài viết
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <?php endif; ?>
                 </div>
 
                 <a href="<?php echo e(route('posts.show', $post->slug)); ?>" style="text-decoration: none; color: inherit; display: block;">
@@ -273,7 +295,7 @@
 
                 <div class="card-actions">
                     <?php if(auth()->guard()->check()): ?>
-                    <button class="action-btn post-like-btn <?php echo e($post->likedBy(auth()->user()) ? 'liked' : ''); ?>" data-post-id="<?php echo e($post->id); ?>">
+                    <button class="action-btn post-like-btn <?php echo e($post->likedBy(auth()->user()) ? 'liked' : ''); ?>" data-post-slug="<?php echo e($post->slug); ?>">
                         <i class="bi <?php echo e($post->likedBy(auth()->user()) ? 'bi-heart-fill' : 'bi-heart'); ?>"></i>
                         <span>Thích</span>
                     </button>
@@ -284,7 +306,7 @@
                     </a>
                     <?php endif; ?>
                     
-                    <button class="action-btn comment-modal-btn" data-post-id="<?php echo e($post->id); ?>" data-post-title="<?php echo e($post->title); ?>">
+                    <button class="action-btn comment-modal-btn" data-post-id="<?php echo e($post->id); ?>" data-post-slug="<?php echo e($post->slug); ?>" data-post-title="<?php echo e($post->title); ?>">
                         <i class="bi bi-chat"></i>
                         <span>Bình luận</span>
                     </button>
@@ -317,8 +339,8 @@
     <!-- Right Sidebar -->
     <aside class="right-sidebar">
         <!-- Top Posts -->
-        <div class="widget" style="background: white !important; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.6); opacity: 1 !important; visibility: visible !important;" data-aos="fade-left" data-aos-duration="800">
-            <h3 class="widget-title" style="color: #1c1c1c !important;">🔥 Top Posts</h3>
+        <div class="widget" style="background: transparent !important; border-radius: 16px; padding: 1.5rem; border: none; opacity: 1 !important; visibility: visible !important;" data-aos="fade-left" data-aos-duration="800">
+            <h3 class="widget-title" style="color: #FFFFFF !important; font-weight: 900; font-size: 1.3rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.8), -1px -1px 2px rgba(0,0,0,0.6); -webkit-text-stroke: 1px rgba(0,0,0,0.3);">🔥 TOP POSTS</h3>
             <ul class="event-list">
                 <?php $__currentLoopData = $topPosts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $topPost): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <li class="event-item" style="cursor: pointer;" onclick="window.location='<?php echo e(route('posts.show', $topPost->slug)); ?>'">
@@ -372,8 +394,8 @@
         </div>
 
         <!-- Top Communities -->
-        <div class="widget" style="background: white !important; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.6); opacity: 1 !important; visibility: visible !important;" data-aos="fade-left" data-aos-duration="800" data-aos-delay="100">
-            <h3 class="widget-title" style="color: #1c1c1c !important;">🌟 Top Communities</h3>
+        <div class="widget" style="background: transparent !important; border-radius: 16px; padding: 1.5rem; border: none; opacity: 1 !important; visibility: visible !important;" data-aos="fade-left" data-aos-duration="800" data-aos-delay="100">
+            <h3 class="widget-title" style="color: #FFFFFF !important; font-weight: 900; font-size: 1.3rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.8), -1px -1px 2px rgba(0,0,0,0.6); -webkit-text-stroke: 1px rgba(0,0,0,0.3);">🌟 TOP COMMUNITIES</h3>
             <ul class="event-list">
                 <?php $__currentLoopData = $topCommunities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <li class="event-item" style="cursor: pointer;" onclick="window.location='<?php echo e(route('communities.show', $community->slug)); ?>'">
@@ -399,7 +421,7 @@
                 </li>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
-            <a href="<?php echo e(route('communities.index')); ?>" class="widget-link">View All Communities →</a>
+            <a href="<?php echo e(route('communities.index')); ?>" style="display: block; text-align: center; padding: 0.75rem; background: #D2691E; color: #15ef11e5; border-radius: 8px; font-weight: 700; text-decoration: none; margin-top: 1rem; transition: all 0.3s;">View All Communities →</a>
         </div>
     </aside>
 </div>
@@ -665,33 +687,14 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: hidden;
-}
-
-.feed-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.6s;
-}
-
-.feed-card:hover::before {
-    left: 100%;
+    overflow: visible;
 }
 
 .feed-card:hover {
     background: rgba(255, 255, 255, 0.4);
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
     transform: translateY(-5px);
-}
-
-.feed-card:hover {
     border-color: #898989;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .card-body {
@@ -1344,6 +1347,80 @@ body {
     box-shadow: 0 4px 12px rgba(91, 163, 208, 0.3);
 }
 
+/* Post Menu Dropdown */
+.post-menu-dropdown {
+    position: relative;
+    z-index: 1000;
+}
+
+.post-menu-btn {
+    background: none;
+    border: none;
+    color: #65676b;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.post-menu-btn:hover {
+    background: #f0f2f5;
+}
+
+.post-dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    min-width: 200px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    z-index: 10000;
+    padding: 8px 0;
+    margin-top: 4px;
+}
+
+.post-dropdown-content.show {
+    display: block;
+}
+
+.post-dropdown-content a,
+.post-dropdown-content button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    color: #050505;
+    text-decoration: none;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.2s;
+}
+
+.post-dropdown-content a:hover,
+.post-dropdown-content button:hover {
+    background: #f0f2f5;
+}
+
+.post-dropdown-content i {
+    font-size: 16px;
+}
+
+.post-dropdown-content .delete-post-btn {
+    color: #f44336 !important;
+}
+
+.post-dropdown-content .delete-post-btn:hover {
+    background: #ffebee !important;
+    color: #d32f2f !important;
+}
+
 .emoji-picker, .gif-picker {
     margin-top: 0.75rem;
     background: white;
@@ -1446,6 +1523,38 @@ body {
 <?php $__env->startPush('scripts'); ?>
 <script>
 console.log('🚀 Home page script loaded');
+
+// Global authentication status
+const IS_USER_LOGGED_IN = <?php echo e(auth()->check() ? 'true' : 'false'); ?>;
+console.log('User logged in:', IS_USER_LOGGED_IN);
+
+// Post Dropdown Menu Toggle
+function togglePostDropdown(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const dropdown = event.target.closest('.post-menu-dropdown').querySelector('.post-dropdown-content');
+    
+    // Close all other dropdowns
+    document.querySelectorAll('.post-dropdown-content').forEach(d => {
+        if (d !== dropdown) d.classList.remove('show');
+    });
+    
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdowns when clicking anywhere (inside or outside)
+document.addEventListener('click', function(event) {
+    // Don't close if clicking the toggle button
+    if (event.target.closest('.post-menu-btn')) {
+        return;
+    }
+    
+    // Close all dropdowns
+    document.querySelectorAll('.post-dropdown-content').forEach(dropdown => {
+        dropdown.classList.remove('show');
+    });
+});
 
 // Giphy API Configuration
 const GIPHY_API_KEY = '2UNLRUTAqLhcKD4ZX3mZZpn5Tw1eVryk';
@@ -1562,11 +1671,11 @@ likeButtons.forEach(btn => {
         e.stopPropagation();
         
         console.log('Like button clicked');
-        const postId = this.dataset.postId;
+        const postSlug = this.dataset.postSlug;
         const icon = this.querySelector('i');
         const card = this.closest('article');
         
-        fetch(`/posts/${postId}/like`, {
+        fetch(`/posts/${postSlug}/like`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1618,14 +1727,16 @@ commentButtons.forEach(button => {
     button.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('Comment button clicked');
         const postId = this.dataset.postId;
+        const postSlug = this.dataset.postSlug;
         const postTitle = this.dataset.postTitle;
-        openCommentModal(postId, postTitle);
+        console.log('Comment button clicked, postId:', postId, 'slug:', postSlug, 'title:', postTitle);
+        openCommentModal(postId, postSlug, postTitle);
     });
 });
 
-function openCommentModal(postId, postTitle) {
+function openCommentModal(postId, postSlug, postTitle) {
+    console.log('Opening comment modal for post:', postId, 'slug:', postSlug);
     // Create modal
     const modal = document.createElement('div');
     modal.className = 'comment-modal';
@@ -1641,7 +1752,7 @@ function openCommentModal(postId, postTitle) {
                 </div>
             </div>
             <div class="comment-modal-footer">
-                <form class="comment-form" data-post-id="${postId}">
+                <form class="comment-form" data-post-id="${postId}" data-post-slug="${postSlug}">
                     <div class="comment-input-wrapper">
                         <textarea class="comment-textarea" placeholder="Viết bình luận..." rows="3"></textarea>
                         <input type="file" id="comment-image-${postId}" accept="image/*" style="display: none;">
@@ -1686,7 +1797,7 @@ function openCommentModal(postId, postTitle) {
     document.body.appendChild(modal);
 
     // Load comments
-    loadComments(postId);
+    loadComments(postSlug, postId);
 
     // Close modal
     modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
@@ -1772,15 +1883,46 @@ function openCommentModal(postId, postTitle) {
     // Submit comment
     modal.querySelector('.comment-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        submitComment(this, postId);
+        if (!IS_USER_LOGGED_IN) {
+            alert('Vui lòng đăng nhập để bình luận!');
+            window.location.href = '<?php echo e(route("login")); ?>';
+            return;
+        }
+        const postSlug = this.dataset.postSlug;
+        const postId = this.dataset.postId;
+        submitComment(this, postSlug, postId);
     });
+    
+    // Disable comment form if not logged in
+    if (!IS_USER_LOGGED_IN) {
+        const commentForm = modal.querySelector('.comment-form');
+        const commentTextarea = commentForm.querySelector('.comment-textarea');
+        const submitBtn = commentForm.querySelector('.submit-comment-btn');
+        commentTextarea.disabled = true;
+        commentTextarea.placeholder = 'Vui lòng đăng nhập để bình luận...';
+        submitBtn.disabled = true;
+        commentForm.querySelectorAll('.tool-btn').forEach(btn => btn.disabled = true);
+    }
 }
 
-function loadComments(postId) {
-    fetch(`/posts/${postId}/comments`)
-        .then(response => response.json())
+function loadComments(postSlug, postId) {
+    console.log('Loading comments for post:', postSlug);
+    fetch(`/posts/${postSlug}/comments`)
+        .then(response => {
+            console.log('Comments response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Không thể tải bình luận');
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Comments data received:', data);
             const commentsList = document.getElementById(`comments-list-${postId}`);
+            if (!commentsList) {
+                console.error('Comments list element not found');
+                return;
+            }
+            
             if (data.comments.length === 0) {
                 commentsList.innerHTML = '<div class="no-comments">Chưa có bình luận nào</div>';
             } else {
@@ -1818,16 +1960,23 @@ function loadComments(postId) {
                 // Add delete event listeners
                 commentsList.querySelectorAll('.delete-comment-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
-                        deleteComment(this.dataset.commentId, postId);
+                        deleteComment(this.dataset.commentId, postSlug, postId);
                     });
                 });
                 
                 // Add edit event listeners
                 commentsList.querySelectorAll('.edit-comment-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
-                        editComment(this.dataset.commentId, this.dataset.commentContent, postId);
+                        editComment(this.dataset.commentId, this.dataset.commentContent, postSlug, postId);
                     });
                 });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading comments:', error);
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            if (commentsList) {
+                commentsList.innerHTML = '<div class="no-comments" style="color: #e74c3c;">Không thể tải bình luận. Vui lòng thử lại sau.</div>';
             }
         });
 }
@@ -1845,7 +1994,8 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function submitComment(form, postId) {
+function submitComment(form, postSlug, postId) {
+    console.log('Submitting comment for post slug:', postSlug);
     const formData = new FormData();
     const textarea = form.querySelector('.comment-textarea');
     const imageInput = document.getElementById(`comment-image-${postId}`);
@@ -1866,15 +2016,32 @@ function submitComment(form, postId) {
         formData.append('image', imageInput.files[0]);
     }
 
-    fetch(`/posts/${postId}/comments`, {
+    // Disable submit button during request
+    const submitBtn = form.querySelector('.submit-comment-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang gửi...';
+
+    fetch(`/posts/${postSlug}/comments`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         },
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Submit response status:', response.status);
+        // Check if redirected to login (401 or 302)
+        if (response.redirected || response.status === 401) {
+            throw new Error('Vui lòng đăng nhập để bình luận!');
+        }
+        if (!response.ok) {
+            throw new Error('Không thể gửi bình luận');
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Submit response data:', data);
         if (data.success) {
             textarea.value = '';
             imageInput.value = '';
@@ -1883,19 +2050,30 @@ function submitComment(form, postId) {
             if (imagePreview.dataset.gifUrl) {
                 delete imagePreview.dataset.gifUrl;
             }
-            loadComments(postId);
+            loadComments(postSlug, postId);
             
             // Update comment count in the button
-            updateCommentCount(postId);
+            updateCommentCount(postSlug, postId);
+        } else {
+            alert(data.message || 'Không thể gửi bình luận');
         }
+    })
+    .catch(error => {
+        console.error('Error submitting comment:', error);
+        alert(error.message || 'Không thể gửi bình luận. Vui lòng thử lại sau.');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     });
 }
 
-function updateCommentCount(postId) {
+function updateCommentCount(postSlug, postId) {
     // Update the comment count on the post card
     const commentBtn = document.querySelector(`.comment-modal-btn[data-post-id="${postId}"]`);
-    if (commentBtn) {
-        fetch(`/posts/${postId}/comments`)
+    if (commentBtn && postSlug) {
+        fetch(`/posts/${postSlug}/comments`)
             .then(response => response.json())
             .then(data => {
                 const count = data.comments.length;
@@ -1907,7 +2085,7 @@ function updateCommentCount(postId) {
     }
 }
 
-function editComment(commentId, currentContent, postId) {
+function editComment(commentId, currentContent, postSlug, postId) {
     const commentBody = document.querySelector(`.comment-body[data-comment-id="${commentId}"]`);
     if (!commentBody) return;
     
@@ -1956,7 +2134,7 @@ function editComment(commentId, currentContent, postId) {
         })
         .then(response => {
             if (response.ok) {
-                loadComments(postId);
+                loadComments(postSlug, postId);
             } else {
                 alert('Có lỗi xảy ra khi cập nhật bình luận!');
             }
@@ -1968,7 +2146,7 @@ function editComment(commentId, currentContent, postId) {
     });
 }
 
-function deleteComment(commentId, postId) {
+function deleteComment(commentId, postSlug, postId) {
     if (!confirm('Bạn có chắc muốn xóa bình luận này?')) {
         return;
     }
@@ -1982,7 +2160,7 @@ function deleteComment(commentId, postId) {
     })
     .then(response => {
         if (response.ok) {
-            loadComments(postId);
+            loadComments(postSlug, postId);
             updateCommentCount(postId);
         }
     })

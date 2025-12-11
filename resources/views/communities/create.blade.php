@@ -12,16 +12,13 @@
     opacity: 1 !important;
     visibility: visible !important;
 }
-div[style*="background: white"] {
-    background: white !important;
-}
 </style>
 @endpush
 
 @section('content')
 <div class="create-community-page" style="opacity: 1 !important; visibility: visible !important;">
     <div class="create-community-container">
-        <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e0e0e0;">
+        <div style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(10px); border-radius: 12px; padding: 2rem; border: 1px solid rgba(255, 255, 255, 0.3);">
             <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Start a Community</h1>
             <p style="color: #666; margin-bottom: 2rem;">Create your own anime community and bring fans together!</p>
 

@@ -60,7 +60,6 @@ h1, h3, p, a, div, span {
                     <i class="bi bi-calendar-event" style="color: #5BA3D0;"></i>
                     Events
                 </h1>
-                <p style="color: #666;">Discover and join community events</p>
             </div>
             <?php if(auth()->guard()->check()): ?>
             <a href="<?php echo e(route('events.create')); ?>" 

@@ -12,7 +12,7 @@ class CommentController extends Controller
     // Get comments for a post (API)
     public function index(Post $post)
     {
-        $currentUser = Auth::user();
+        $currentUser = Auth::check() ? Auth::user() : null;
         $comments = $post->comments()
             ->with('user')
             ->latest()
@@ -27,7 +27,7 @@ class CommentController extends Controller
                         'profile_photo' => $comment->user->profile_photo ? asset('storage/' . $comment->user->profile_photo) : null,
                     ],
                     'created_at' => $comment->created_at->diffForHumans(),
-                    'can_delete' => $currentUser && ($comment->user_id === $currentUser->uid || $post->user_id === $currentUser->uid),
+                    'can_delete' => $currentUser ? ($comment->user_id === $currentUser->uid || $post->user_id === $currentUser->uid) : false,
                 ];
             });
 

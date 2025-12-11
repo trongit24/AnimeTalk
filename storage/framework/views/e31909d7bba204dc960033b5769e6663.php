@@ -30,17 +30,17 @@
         color: #1c1c1c !important;
     }
     
-    /* Shinkai-style Messenger */
+    /* Anime Daytime Messenger */
     .messenger-sidebar {
-        background: white !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        border-right: 1px solid #e0e0e0 !important;
+        background: linear-gradient(180deg, rgba(255, 254, 247, 0.95) 0%, rgba(180, 228, 255, 0.1) 100%) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border-right: 2px solid rgba(135, 206, 235, 0.3) !important;
     }
     
     .messenger-chat {
-        background: white !important;
-        backdrop-filter: none !important;
+        background: linear-gradient(180deg, rgba(255, 254, 247, 0.5) 0%, rgba(180, 228, 255, 0.05) 50%, rgba(184, 230, 213, 0.05) 100%) !important;
+        backdrop-filter: blur(5px) !important;
         position: relative;
     }
     
@@ -77,29 +77,34 @@
     }
     
     .message-bubble.sent {
-        background: linear-gradient(135deg, #4A90E2, #9B59B6);
+        background: linear-gradient(135deg, #A0D8EF 0%, #87CEEB 100%);
         color: white;
         margin-left: auto;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 12px rgba(160, 216, 239, 0.4);
     }
     
     .message-bubble.received {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 254, 247, 0.95);
         backdrop-filter: blur(10px);
-        color: #2C3E50;
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: #2d3748;
+        border: 2px solid rgba(135, 206, 235, 0.3);
+        box-shadow: 0 4px 12px rgba(135, 206, 235, 0.2);
     }
     
     #messageInput {
-        background: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 254, 247, 0.8);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: 2px solid rgba(135, 206, 235, 0.3);
         border-radius: 25px;
         transition: all 0.3s ease;
+        color: #2d3748 !important;
     }
     
     #messageInput:focus {
-        background: rgba(255, 255, 255, 0.7);
-        box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+        background: rgba(255, 254, 247, 0.95);
+        box-shadow: 0 0 20px rgba(160, 216, 239, 0.4);
+        border-color: #A0D8EF;
     }
     
     @media (max-width: 768px) {
@@ -130,22 +135,23 @@
     }
 </style>
 
-<div class="container-fluid messages-show-page" style="padding: 0; height: calc(100vh - 80px); opacity: 1 !important; visibility: visible !important; background: white !important;" data-aos="fade-in">
-    <div class="row g-0 h-100" style="opacity: 1 !important; visibility: visible !important;">
+<div class="container-fluid messages-show-page" style="padding: 0; height: calc(100vh - 80px); opacity: 1 !important; visibility: visible !important; background: white !important; overflow: hidden;" data-aos="fade-in">
+    <div class="row g-0 h-100" style="opacity: 1 !important; visibility: visible !important; overflow: hidden;">
         <!-- Sidebar - Danh sách bạn bè -->
-        <div class="col-md-4 col-lg-3 border-end messenger-sidebar" style="background: white !important; overflow-y: auto; opacity: 1 !important; visibility: visible !important;">
-            <div class="p-3 border-bottom" style="opacity: 1 !important; visibility: visible !important; background: white !important;">
-                <h4 class="mb-0 fw-bold" style="color: #1c1c1c !important; opacity: 1 !important; visibility: visible !important;">Đoạn chat</h4>
+        <div class="col-md-4 col-lg-3 border-end messenger-sidebar" style="background: linear-gradient(180deg, rgba(255, 254, 247, 0.98) 0%, rgba(180, 228, 255, 0.08) 100%) !important; backdrop-filter: blur(10px) !important; border-right: 3px solid rgba(160, 216, 239, 0.4) !important; display: flex; flex-direction: column; opacity: 1 !important; visibility: visible !important; overflow: hidden; height: 100%;">
+            <div class="p-3 border-bottom" style="opacity: 1 !important; visibility: visible !important; background: linear-gradient(135deg, rgba(160, 216, 239, 0.25), rgba(184, 230, 213, 0.2)) !important; border-bottom: 3px solid rgba(135, 206, 235, 0.4) !important; backdrop-filter: blur(15px) !important; flex-shrink: 0;">
+                <h4 class="mb-0 fw-bold" style="color: #2d3748 !important; opacity: 1 !important; visibility: visible !important;">Đoạn chat</h4>
             </div>
             
-            <div class="p-2" style="opacity: 1 !important; visibility: visible !important;">
+            <div class="p-2" style="opacity: 1 !important; visibility: visible !important; flex-shrink: 0;">
                 <!-- Search box -->
                 <div class="mb-2" style="opacity: 1 !important; visibility: visible !important;">
                     <input type="text" id="searchFriends" class="form-control rounded-pill" placeholder="Tìm kiếm trên Messenger" style="opacity: 1 !important; visibility: visible !important; background: white !important; color: #1c1c1c !important;">
                 </div>
+            </div>
 
                 <!-- Friends list -->
-                <div id="friendsList" style="opacity: 1 !important; visibility: visible !important;">
+                <div id="friendsList" style="opacity: 1 !important; visibility: visible !important; overflow-y: auto; flex: 1; padding: 0 0.5rem;">
                     <?php $__currentLoopData = $allFriends; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $friendItem): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <a href="<?php echo e(route('messages.show', $friendItem->uid)); ?>" 
                            class="d-flex align-items-center p-2 text-decoration-none text-dark rounded friend-item <?php echo e($friendItem->uid == $friend->uid ? 'active' : ''); ?>"
@@ -190,7 +196,7 @@
                                 $unread = $unreadCounts[$friendItem->uid] ?? 0;
                             ?>
                             <?php if($unread > 0 && $friendItem->uid != $friend->uid): ?>
-                                <span class="badge rounded-pill" style="background: #0084ff !important; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white !important; opacity: 1 !important; visibility: visible !important;">
+                                <span class="badge rounded-pill" style="background: #A0D8EF !important; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white !important; opacity: 1 !important; visibility: visible !important;">
                                     <?php echo e($unread > 9 ? '9+' : $unread); ?>
 
                                 </span>
@@ -198,13 +204,12 @@
                         </a>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
-            </div>
         </div>
 
         <!-- Main chat area -->
-        <div class="col-md-8 col-lg-9 d-flex flex-column messenger-chat" style="background: white !important; opacity: 1 !important; visibility: visible !important;">
+        <div class="col-md-8 col-lg-9 d-flex flex-column messenger-chat" style="background: linear-gradient(180deg, rgba(255, 254, 247, 0.5) 0%, rgba(180, 228, 255, 0.05) 50%, rgba(184, 230, 213, 0.05) 100%) !important; backdrop-filter: blur(5px) !important; opacity: 1 !important; visibility: visible !important; overflow: hidden; height: 100%;">
             <!-- Chat Header -->
-            <div class="p-3 border-bottom d-flex align-items-center gap-3" style="box-shadow: 0 1px 2px rgba(0,0,0,0.1); opacity: 1 !important; visibility: visible !important; background: white !important;">
+            <div class="p-3 border-bottom d-flex align-items-center gap-3" style="box-shadow: 0 4px 12px rgba(135, 206, 235, 0.2); opacity: 1 !important; visibility: visible !important; background: linear-gradient(135deg, rgba(160, 216, 239, 0.9) 0%, rgba(184, 230, 213, 0.9) 100%) !important; backdrop-filter: blur(10px) !important; border-bottom: 2px solid rgba(135, 206, 235, 0.3) !important; flex-shrink: 0;">
                 <!-- Back button for mobile -->
                 <button onclick="toggleSidebar()" class="btn btn-link p-0 back-btn-mobile" style="display: none; opacity: 1 !important; visibility: visible !important;">
                     <i class="bi bi-arrow-left" style="font-size: 24px; color: #050505 !important; opacity: 1 !important; visibility: visible !important;"></i>
@@ -228,7 +233,7 @@
             </div>
 
             <!-- Messages Container -->
-            <div id="messagesContainer" class="flex-fill overflow-auto p-3" style="background: white !important; opacity: 1 !important; visibility: visible !important;">
+            <div id="messagesContainer" class="p-3" style="background: linear-gradient(180deg, rgba(255, 254, 247, 0.4) 0%, rgba(180, 228, 255, 0.08) 30%, rgba(184, 230, 213, 0.08) 70%, rgba(255, 254, 247, 0.4) 100%) !important; backdrop-filter: blur(5px) !important; opacity: 1 !important; visibility: visible !important; flex: 1; overflow-y: auto; overflow-x: hidden;">
             <?php $__empty_1 = true; $__currentLoopData = $messages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $message): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <?php
                     $isOwnMessage = $message->sender_id === auth()->user()->uid;
@@ -268,7 +273,7 @@
                                          onclick="window.open(this.src, '_blank')">
                                 </div>
                             <?php else: ?>
-                                <div class="rounded-pill px-3 py-2" style="background: <?php echo e($isOwnMessage ? '#0084ff' : '#e4e6eb'); ?>; color: <?php echo e($isOwnMessage ? 'white' : '#050505'); ?>;">
+                                <div class="rounded-pill px-3 py-2" style="background: <?php echo e($isOwnMessage ? '#A0D8EF' : 'rgba(255, 254, 247, 0.95)'); ?>; color: <?php echo e($isOwnMessage ? 'white' : '#050505'); ?>;">
                                     <p class="mb-0" style="font-size: 15px;"><?php echo e($message->message); ?></p>
                                 </div>
                             <?php endif; ?>
@@ -291,7 +296,7 @@
             </div>
 
             <!-- Message Input -->
-            <div class="p-3 border-top" style="background: #f0f2f5;">
+            <div class="p-3 border-top" style="background: linear-gradient(135deg, rgba(255, 254, 247, 0.9), rgba(180, 228, 255, 0.1)) !important; backdrop-filter: blur(10px); border-top: 2px solid rgba(160, 216, 239, 0.3) !important; flex-shrink: 0;">
                 <!-- Preview ảnh sẽ upload -->
                 <div id="imagePreview" class="mb-2" style="display: none;">
                     <div class="position-relative d-inline-block">
@@ -307,13 +312,13 @@
                     <input type="file" id="imageInput" name="image" accept="image/*,image/gif" style="display: none;" onchange="previewMessageImage(this)">
                     
                     <!-- Nút upload ảnh -->
-                    <button type="button" onclick="document.getElementById('imageInput').click()" class="btn p-0" style="background: none; border: none; color: #0084ff; font-size: 24px;">
+                    <button type="button" onclick="document.getElementById('imageInput').click()" class="btn p-0" style="background: none; border: none; color: #A0D8EF; font-size: 24px;">
                         <i class="bi bi-image"></i>
                     </button>
 
                     <!-- GIF picker button -->
                     <div class="position-relative">
-                        <button type="button" onclick="toggleGifPicker()" class="btn p-0" style="background: none; border: none; color: #0084ff; font-size: 24px;">
+                        <button type="button" onclick="toggleGifPicker()" class="btn p-0" style="background: none; border: none; color: #A0D8EF; font-size: 24px;">
                             <i class="bi bi-file-play"></i>
                         </button>
                         <div id="gifPicker" class="position-absolute bg-white shadow rounded p-2" style="display: none; bottom: 45px; left: 0; width: 350px; height: 400px; z-index: 1000; border: 1px solid #ddd;">
@@ -364,7 +369,7 @@
                            autocomplete="off">
                     <button type="submit" 
                             class="btn rounded-circle d-flex align-items-center justify-content-center"
-                            style="width: 36px; height: 36px; background: #0084ff; border: none; color: white;">
+                            style="width: 36px; height: 36px; background: #A0D8EF; border: none; color: white;">
                         <i class="bi bi-send-fill"></i>
                     </button>
                 </form>
@@ -375,20 +380,64 @@
 
 <style>
 .friend-item {
-    transition: background 0.2s;
+    transition: all 0.3s ease-out;
+    border-left: 3px solid transparent !important;
 }
 .friend-item:hover {
-    background: #f0f2f5 !important;
+    background: linear-gradient(90deg, rgba(160, 216, 239, 0.15), rgba(184, 230, 213, 0.08)) !important;
+    border-left: 4px solid #A0D8EF !important;
+    transform: translateX(3px);
 }
 .friend-item.active {
-    background: #e7f3ff !important;
+    background: linear-gradient(90deg, rgba(160, 216, 239, 0.25), rgba(184, 230, 213, 0.15)) !important;
+    border-left: 5px solid #87CEEB !important;
+    box-shadow: inset 0 0 15px rgba(160, 216, 239, 0.2) !important;
 }
 #searchFriends {
-    background: #f0f2f5;
-    border: none;
+    background: rgba(255, 254, 247, 0.9) !important;
+    border: 2px solid rgba(160, 216, 239, 0.4) !important;
+    border-radius: 25px !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.3s ease-out !important;
+}
+#searchFriends:focus {
+    background: white !important;
+    border-color: #A0D8EF !important;
+    box-shadow: 0 0 0 4px rgba(160, 216, 239, 0.2) !important;
 }
 #messagesContainer {
     scroll-behavior: smooth;
+}
+
+/* Custom Anime Scrollbars */
+.messenger-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.messenger-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 254, 247, 0.3);
+}
+.messenger-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(160, 216, 239, 0.6);
+    border-radius: 10px;
+}
+.messenger-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(160, 216, 239, 0.8);
+}
+
+#messagesContainer::-webkit-scrollbar {
+    width: 8px;
+}
+#messagesContainer::-webkit-scrollbar-track {
+    background: rgba(255, 254, 247, 0.3);
+    border-radius: 10px;
+}
+#messagesContainer::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #A0D8EF, #87CEEB);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+#messagesContainer::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #87CEEB, #6BB6D6);
 }
 </style>
 
@@ -642,7 +691,7 @@ if (searchInput) {
             }
         }
         
-        const bgColor = isOwnMessage ? '#0084ff' : '#e4e6eb';
+        const bgColor = isOwnMessage ? '#A0D8EF' : 'rgba(255, 254, 247, 0.95)';
         const textColor = isOwnMessage ? 'white' : '#050505';
         const alignText = isOwnMessage ? 'text-end' : '';
         
@@ -706,7 +755,7 @@ if (searchInput) {
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
-    }, 1000);
+    }, 3000);
 
     // Mark messages as read
     if (lastMessageId > 0) {

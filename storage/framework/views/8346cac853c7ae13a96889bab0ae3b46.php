@@ -9,10 +9,13 @@
     opacity: 1 !important;
     visibility: visible !important;
 }
-.fb-post-container,
-.fb-media-section,
+.fb-post-container {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
 .fb-info-section {
-    background: white !important;
+    background: transparent !important;
 }
 </style>
 <?php $__env->stopPush(); ?>
@@ -109,7 +112,7 @@
                             <form action="<?php echo e(route('posts.destroy', $post)); ?>" method="POST" onsubmit="return confirm('Delete this post?');">
                                 <?php echo csrf_field(); ?>
                                 <?php echo method_field('DELETE'); ?>
-                                <button type="submit">
+                                <button type="submit" class="delete-post-btn">
                                     <i class="bi bi-trash"></i> Delete Post
                                 </button>
                             </form>
@@ -156,25 +159,25 @@
 
             <div class="fb-post-actions">
                 <?php if(auth()->guard()->check()): ?>
-                <button id="like-btn" class="fb-action-btn <?php echo e($post->likedBy(auth()->user()) ? 'active' : ''); ?>" data-post-slug="<?php echo e($post->slug); ?>">
+                <button id="like-btn" class="fb-action-btn fb-like-btn <?php echo e($post->likedBy(auth()->user()) ? 'active' : ''); ?>" data-post-slug="<?php echo e($post->slug); ?>">
                     <i class="bi <?php echo e($post->likedBy(auth()->user()) ? 'bi-heart-fill' : 'bi-heart'); ?>"></i>
                     <span>Thích</span>
                 </button>
                 <?php else: ?>
-                <a href="<?php echo e(route('login')); ?>" class="fb-action-btn">
+                <a href="<?php echo e(route('login')); ?>" class="fb-action-btn fb-like-btn">
                     <i class="bi bi-heart"></i>
                     <span>Thích</span>
                 </a>
                 <?php endif; ?>
                 
-                <button class="fb-action-btn" onclick="focusCommentInput()">
+                <button class="fb-action-btn fb-comment-btn" onclick="focusCommentInput()">
                     <i class="bi bi-chat"></i>
                     <span>Bình luận</span>
                 </button>
                 
                 <?php if(auth()->guard()->check()): ?>
                     <?php if($post->user_id !== Auth::user()->uid): ?>
-                    <button class="fb-action-btn" onclick="openReportModal(<?php echo e($post->id); ?>, '<?php echo e(addslashes($post->title)); ?>')" title="Báo cáo vi phạm">
+                    <button class="fb-action-btn fb-report-btn" onclick="openReportModal(<?php echo e($post->id); ?>, '<?php echo e(addslashes($post->title)); ?>')" title="Báo cáo vi phạm">
                         <i class="bi bi-flag"></i>
                         <span>Báo cáo</span>
                     </button>
@@ -231,13 +234,17 @@
                                     <span class="fb-comment-time"><?php echo e($comment->created_at->diffForHumans()); ?></span>
                                     <?php if(auth()->guard()->check()): ?>
                                         <?php if($comment->isOwnedBy(auth()->user())): ?>
-                                            <button class="fb-comment-meta-btn" onclick="editComment(<?php echo e($comment->id); ?>)">Sửa</button>
+                                            <button class="fb-comment-meta-btn" onclick="editComment(<?php echo e($comment->id); ?>)">
+                                                <i class="bi bi-pencil"></i> Sửa
+                                            </button>
                                         <?php endif; ?>
                                         <?php if($comment->isOwnedBy(auth()->user()) || $post->isOwnedBy(auth()->user())): ?>
                                             <form action="<?php echo e(route('comments.destroy', $comment)); ?>" method="POST" class="d-inline" onsubmit="return confirm('Xóa bình luận này?');">
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('DELETE'); ?>
-                                                <button type="submit" class="fb-comment-meta-btn">Xóa</button>
+                                                <button type="submit" class="fb-comment-meta-btn delete-comment-action">
+                                                    <i class="bi bi-trash"></i> Xóa
+                                                </button>
                                             </form>
                                         <?php endif; ?>
                                     <?php endif; ?>
@@ -277,13 +284,13 @@
                             
                             <div class="fb-comment-actions">
                                 <div class="fb-comment-tools">
-                                    <button type="button" class="fb-tool-btn" onclick="document.getElementById('comment-image-input').click()" title="Thêm ảnh">
+                                    <button type="button" class="fb-tool-btn fb-image-btn" onclick="document.getElementById('comment-image-input').click()" title="Thêm ảnh">
                                         <i class="bi bi-image"></i>
                                     </button>
-                                    <button type="button" class="fb-tool-btn" id="gif-btn" title="Thêm GIF">
+                                    <button type="button" class="fb-tool-btn fb-gif-btn" id="gif-btn" title="Thêm GIF">
                                         <i class="bi bi-file-play"></i>
                                     </button>
-                                    <button type="button" class="fb-tool-btn" id="emoji-btn" title="Emoji">
+                                    <button type="button" class="fb-tool-btn fb-emoji-btn" id="emoji-btn" title="Emoji">
                                         <i class="bi bi-emoji-smile"></i>
                                     </button>
                                 </div>
@@ -332,7 +339,7 @@
 <style>
 /* Facebook-style Post Detail Layout */
 .fb-post-detail-page {
-    background: #f0f2f5;
+    background: transparent;
     min-height: 100vh;
     padding: 20px 0;
 }
@@ -343,15 +350,18 @@
     display: grid;
     grid-template-columns: 1fr 500px;
     gap: 0;
-    background: #000;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-radius: 8px;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: visible;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Left Side - Media */
 .fb-media-section {
-    background: #000;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -402,10 +412,13 @@
 
 /* Right Side - Info & Comments */
 .fb-info-section {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
     max-height: 90vh;
+    overflow: hidden;
 }
 
 /* Post Header */
@@ -415,6 +428,8 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    position: relative;
+    overflow: visible;
 }
 
 .fb-author-info {
@@ -459,6 +474,16 @@
     color: #65676b;
 }
 
+.fb-post-menu {
+    position: relative;
+    z-index: 100;
+}
+
+.fb-post-menu .dropdown {
+    position: relative;
+    z-index: 100;
+}
+
 .fb-menu-btn {
     background: none;
     border: none;
@@ -467,6 +492,7 @@
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
+    transition: background 0.2s;
 }
 
 .fb-menu-btn:hover {
@@ -476,27 +502,32 @@
 /* Dropdown */
 .dropdown {
     position: relative;
+    z-index: 1000;
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
     right: 0;
+    top: 100%;
+    margin-top: 4px;
     background: white;
     min-width: 200px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
-    z-index: 1000;
+    z-index: 10000;
     padding: 8px 0;
 }
 
 .dropdown-content.show {
-    display: block;
+    display: block !important;
 }
 
 .dropdown-content a,
 .dropdown-content button {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 10px 16px;
     color: #050505;
     text-decoration: none;
@@ -506,11 +537,26 @@
     text-align: left;
     cursor: pointer;
     font-size: 15px;
+    transition: background 0.2s;
+}
+
+.dropdown-content a i,
+.dropdown-content button i {
+    font-size: 16px;
 }
 
 .dropdown-content a:hover,
 .dropdown-content button:hover {
     background: #f0f2f5;
+}
+
+.dropdown-content .delete-post-btn {
+    color: #f44336 !important;
+}
+
+.dropdown-content .delete-post-btn:hover {
+    background: #ffebee !important;
+    color: #d32f2f !important;
 }
 
 /* Post Content */
@@ -578,7 +624,7 @@
     padding: 8px;
     background: none;
     border: none;
-    color: #65676b;
+    color: #2c5f7a !important;
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
@@ -586,21 +632,75 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    border-radius: 4px;
-    transition: background 0.2s;
+    border-radius: 8px;
+    transition: all 0.3s ease-out;
     text-decoration: none;
 }
 
 .fb-action-btn:hover {
-    background: #f0f2f5;
+    background: linear-gradient(135deg, rgba(160, 216, 239, 0.15), rgba(184, 230, 213, 0.1)) !important;
+    color: #1a4d5f !important;
+    transform: translateY(-1px);
 }
 
 .fb-action-btn.active {
-    color: #FF6B9D;
+    color: #FF6B9D !important;
+    background: rgba(255, 107, 157, 0.1) !important;
 }
 
 .fb-action-btn.active i {
-    color: #FF6B9D;
+    color: #FF6B9D !important;
+}
+
+/* Button Variants - Màu Khác Nhau */
+.fb-like-btn {
+    color: #FF6B9D !important;
+}
+
+.fb-like-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(255, 182, 193, 0.1)) !important;
+    color: #e5508d !important;
+}
+
+.fb-comment-btn {
+    color: #2c5f7a !important;
+}
+
+.fb-comment-btn:hover {
+    background: linear-gradient(135deg, rgba(160, 216, 239, 0.15), rgba(184, 230, 213, 0.1)) !important;
+    color: #1a4d5f !important;
+}
+
+.fb-report-btn {
+    color: #b34545 !important;
+}
+
+.fb-report-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 184, 184, 0.15), rgba(255, 153, 153, 0.1)) !important;
+    color: #8f3535 !important;
+}
+
+.fb-like-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(255, 182, 193, 0.1)) !important;
+    color: #e5508d !important;
+}
+
+.fb-comment-btn {
+    color: #2c5f7a !important;
+}
+
+.fb-comment-btn:hover {
+    background: linear-gradient(135deg, rgba(160, 216, 239, 0.15), rgba(184, 230, 213, 0.1)) !important;
+    color: #1a4d5f !important;
+}
+
+.fb-report-btn {
+    color: #b34545 !important;
+}
+
+.fb-report-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 184, 184, 0.15), rgba(255, 153, 153, 0.1)) !important;
+    color: #8f3535 !important;
 }
 
 /* Comments Section */
@@ -609,11 +709,13 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
 }
 
 .fb-comments-list {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px;
 }
 
@@ -696,16 +798,36 @@
 .fb-comment-meta-btn {
     background: none;
     border: none;
-    color: #65676b;
+    color: #5ba3d0 !important;
     font-weight: 600;
     font-size: 12px;
     cursor: pointer;
     padding: 0;
+    border-radius: 0;
+    transition: all 0.2s ease-out;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.fb-comment-meta-btn i {
+    font-size: 12px;
 }
 
 .fb-comment-meta-btn:hover {
     text-decoration: underline;
+    color: #4a8bb8 !important;
 }
+
+.fb-comment-meta-btn.delete-comment-action {
+    color: #f44336 !important;
+}
+
+.fb-comment-meta-btn.delete-comment-action:hover {
+    color: #d32f2f !important;
+}
+
+/* Nút Xóa và Sửa giống nhau */
 
 /* Comment Edit Form */
 .fb-comment-edit-form {
@@ -731,25 +853,34 @@
 .fb-btn-save,
 .fb-btn-cancel {
     padding: 6px 16px;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     border: none;
+    transition: all 0.3s ease-out;
 }
 
 .fb-btn-save {
-    background: #1877f2;
-    color: white;
+    background: linear-gradient(135deg, #B8E6D5 0%, #A0D8C3 100%) !important;
+    color: #2d5a4a !important;
 }
 
 .fb-btn-save:hover {
-    background: #165ec4;
+    background: linear-gradient(135deg, #A0D8C3 0%, #8BC7AC 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(184, 230, 213, 0.3);
 }
 
 .fb-btn-cancel {
-    background: #e4e6eb;
-    color: #050505;
+    background: linear-gradient(135deg, #E4D7F5 0%, #D0C0E8 100%) !important;
+    color: #6B4C9A !important;
+}
+
+.fb-btn-cancel:hover {
+    background: linear-gradient(135deg, #D0C0E8 0%, #BCAAD9 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(228, 215, 245, 0.3);
 }
 
 .fb-btn-cancel:hover {
@@ -816,7 +947,6 @@
 .fb-tool-btn {
     background: none;
     border: none;
-    color: #65676b;
     font-size: 18px;
     cursor: pointer;
     padding: 6px;
@@ -824,11 +954,42 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.3s ease-out;
 }
 
 .fb-tool-btn:hover {
-    background: #f0f2f5;
+    transform: scale(1.1);
+}
+
+/* Tool Button Variants - Màu Khác Nhau */
+.fb-image-btn {
+    color: white !important;
+    background: linear-gradient(135deg, #E4D7F5 0%, #D0C0E8 100%) !important;
+}
+
+.fb-image-btn:hover {
+    background: linear-gradient(135deg, #D0C0E8 0%, #BCAAD9 100%) !important;
+    color: white !important;
+}
+
+.fb-gif-btn {
+    color: white !important;
+    background: linear-gradient(135deg, #FFE4B8 0%, #FFD099 100%) !important;
+}
+
+.fb-gif-btn:hover {
+    background: linear-gradient(135deg, #FFD099 0%, #FFBD7B 100%) !important;
+    color: white !important;
+}
+
+.fb-emoji-btn {
+    color: #8B6914 !important;
+    background: linear-gradient(135deg, #FFEB3B 0%, #FFD700 100%) !important;
+}
+
+.fb-emoji-btn:hover {
+    background: linear-gradient(135deg, #FFD700 0%, #FFC107 100%) !important;
+    color: #8B6914 !important;
 }
 
 .fb-comment-preview {
@@ -938,16 +1099,25 @@
 }
 
 .fb-send-btn {
-    background: none;
+    background: linear-gradient(135deg, #A0D8EF 0%, #87CEEB 100%) !important;
     border: none;
-    color: #1877f2;
+    color: white !important;
     font-size: 20px;
     cursor: pointer;
-    padding: 4px 8px;
+    padding: 8px 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 2px 8px rgba(160, 216, 239, 0.3);
 }
 
 .fb-send-btn:hover {
-    color: #165ec4;
+    background: linear-gradient(135deg, #87CEEB 0%, #6BB6D6 100%) !important;
+    color: white !important;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(160, 216, 239, 0.5);
 }
 
 .fb-login-prompt {
@@ -1037,13 +1207,40 @@ function focusCommentInput() {
 
 // Dropdown menu toggle
 function toggleDropdown(event) {
+    event.preventDefault();
     event.stopPropagation();
-    const dropdown = event.target.closest('.dropdown').querySelector('.dropdown-content');
+    console.log('Dropdown clicked');
+    
+    const dropdownContainer = event.target.closest('.dropdown');
+    if (!dropdownContainer) {
+        console.error('Dropdown container not found');
+        return;
+    }
+    
+    const dropdown = dropdownContainer.querySelector('.dropdown-content');
+    if (!dropdown) {
+        console.error('Dropdown content not found');
+        return;
+    }
+    
+    // Close all other dropdowns first
+    document.querySelectorAll('.dropdown-content').forEach(d => {
+        if (d !== dropdown) d.classList.remove('show');
+    });
+    
+    // Toggle current dropdown
     dropdown.classList.toggle('show');
+    console.log('Dropdown toggled, show class:', dropdown.classList.contains('show'));
 }
 
-// Close dropdown when clicking outside
-document.addEventListener('click', function() {
+// Close dropdown when clicking anywhere (inside or outside)
+document.addEventListener('click', function(event) {
+    // Don't close if clicking the toggle button
+    if (event.target.closest('.fb-menu-btn')) {
+        return;
+    }
+    
+    // Close all dropdowns
     const dropdowns = document.querySelectorAll('.dropdown-content');
     dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
 });

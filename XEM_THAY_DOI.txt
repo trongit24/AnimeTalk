@@ -1,0 +1,80 @@
+🔧 HƯỚNG DẪN XEM THAY ĐỔI
+
+Các thay đổi CSS đã được áp dụng thành công! 
+
+Nếu chưa thấy thay đổi, hãy làm theo:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. XÓA CACHE BROWSER (QUAN TRỌNG!)
+   
+   Chrome/Edge:
+   - Nhấn: Ctrl + Shift + Delete
+   - Chọn: "Cached images and files"  
+   - Hoặc: Ctrl + Shift + R (Hard Reload)
+   - Hoặc: F12 → Network tab → Disable cache ✓
+
+   Firefox:
+   - Nhấn: Ctrl + Shift + Delete
+   - Chọn: "Cache"
+   - Hoặc: Ctrl + F5
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2. KIỂM TRA URL ĐÚNG
+   
+   ✓ Đúng: http://localhost:8000/
+   ✗ Sai:  http://localhost/AnimeTalk/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3. KIỂM TRA CONSOLE (F12)
+   
+   Xem có lỗi CSS không load:
+   - F12 → Console tab
+   - Xem có lỗi 404 không?
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4. KIỂM TRA CSS ĐÃ LOAD
+   
+   F12 → Sources → public/css/style.css
+   - Xem dòng đầu có: "Anime Đời Thường Ban Ngày Theme"
+   - Kiểm tra màu: --primary-blue: #A0D8EF
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5. RESTART PHP SERVER (nếu cần)
+   
+   Ctrl + C (dừng server)
+   php artisan serve (khởi động lại)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ NHỮNG GÌ ĐÃ THAY ĐỔI:
+
+📌 Màu sắc:
+   - Button: #A0D8EF (xanh trời pastel)
+   - Gradient: #87CEEB → #B4E4FF
+   - Background: Xanh trời → Kem sáng
+
+📌 Bo góc:
+   - Buttons, cards: 1rem - 1.5rem (mềm mại)
+   
+📌 Bóng đổ:
+   - Nhẹ nhàng hơn: rgba(135, 206, 235, 0.15)
+   
+📌 Hover effect:
+   - Transform: translateY(-2px) scale(1.02)
+   - Animation: ease-out
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 NẾU VẪN KHÔNG THẤY:
+
+Chụp màn hình và gửi cho tôi:
+1. F12 → Console (có lỗi không?)
+2. F12 → Network → Filter: CSS
+3. Trang hiện tại đang hiển thị như thế nào
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

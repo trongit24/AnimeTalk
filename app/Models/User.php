@@ -46,7 +46,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'avatar',
         'bio',
         'profile_photo',
         'cover_photo',
@@ -89,6 +88,76 @@ class User extends Authenticatable
     public function communities()
     {
         return $this->belongsToMany(Community::class, 'community_members', 'user_id', 'community_id', 'uid');
+    }
+
+    public function postLikes()
+    {
+        return $this->hasMany(PostLike::class, 'user_id', 'uid');
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id', 'uid');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id', 'uid');
+    }
+
+    public function friendshipsInitiated()
+    {
+        return $this->hasMany(Friendship::class, 'user_id', 'uid');
+    }
+
+    public function friendshipsReceived()
+    {
+        return $this->hasMany(Friendship::class, 'friend_id', 'uid');
+    }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'user_id', 'uid');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id', 'uid');
+    }
+
+    public function eventNotifications()
+    {
+        return $this->hasMany(EventNotification::class, 'user_id', 'uid');
+    }
+
+    public function communityPosts()
+    {
+        return $this->hasMany(CommunityPost::class, 'user_id', 'uid');
+    }
+
+    public function communityMessages()
+    {
+        return $this->hasMany(CommunityMessage::class, 'user_id', 'uid');
+    }
+
+    public function communityMemories()
+    {
+        return $this->hasMany(CommunityMemory::class, 'user_id', 'uid');
+    }
+
+    public function memoryReactions()
+    {
+        return $this->hasMany(MemoryReaction::class, 'user_id', 'uid');
+    }
+
+    public function postReports()
+    {
+        return $this->hasMany(PostReport::class, 'user_id', 'uid');
+    }
+
+    public function ownedCommunities()
+    {
+        return $this->hasMany(Community::class, 'user_id', 'uid');
     }
 
     /**

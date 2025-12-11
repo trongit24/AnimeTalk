@@ -10,30 +10,8 @@ class SearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = $request->input('q');
-        $tag = $request->input('tag');
-
-        $posts = collect();
-
-        if ($query || $tag) {
-            $postsQuery = Post::with(['user', 'tags', 'comments']);
-
-            if ($query) {
-                $postsQuery->where('content', 'like', "%{$query}%");
-            }
-
-            if ($tag) {
-                $postsQuery->whereHas('tags', function ($q) use ($tag) {
-                    $q->where('slug', $tag);
-                });
-            }
-
-            $posts = $postsQuery->orderBy('created_at', 'desc')->paginate(15);
-        }
-
-        $tags = Tag::all();
-
-        return view('search.index', compact('posts', 'tags', 'query', 'tag'));
+        // Redirect về trang trước hoặc trang chủ
+        return redirect()->back()->with('info', 'Vui lòng sử dụng gợi ý tìm kiếm');
     }
 
     // API endpoint for autocomplete suggestions

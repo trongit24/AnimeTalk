@@ -60,7 +60,6 @@ h1, h3, p, a, div, span {
                     <i class="bi bi-calendar-event" style="color: #5BA3D0;"></i>
                     Events
                 </h1>
-                <p style="color: #666;">Discover and join community events</p>
             </div>
             @auth
             <a href="{{ route('events.create') }}" 

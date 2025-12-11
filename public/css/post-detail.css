@@ -2,7 +2,7 @@
 
 /* Facebook-style post detail layout */
 .fb-post-detail-page {
-    background: #f0f2f5;
+    background: rgba(255, 254, 247, 0.5);
     min-height: 100vh;
     padding: 1rem 0;
 }
@@ -39,7 +39,7 @@
     display: flex;
     flex-direction: column;
     max-height: 90vh;
-    background: white;
+    background: rgba(255, 254, 247, 0.95); backdrop-filter: blur(10px);
 }
 
 .fb-post-header {
@@ -65,7 +65,7 @@
 }
 
 .fb-author-avatar-circle {
-    background: linear-gradient(135deg, #5BA3D0, #9B7EDE);
+    background: linear-gradient(135deg, #A0D8EF, #B8E6D5);
     color: white;
     display: flex;
     align-items: center;
@@ -146,7 +146,7 @@
 }
 
 .fb-action-btn:hover {
-    background: #f0f2f5;
+    background: rgba(255, 254, 247, 0.5);
 }
 
 .fb-action-btn.active {
@@ -163,7 +163,7 @@
 .fb-comment-form {
     padding: 1rem;
     border-top: 1px solid #e4e6eb;
-    background: white;
+    background: rgba(255, 254, 247, 0.95); backdrop-filter: blur(10px);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -212,7 +212,7 @@
 /* Mobile (max 767px) */
 @media (max-width: 767px) {
     .fb-post-detail-page {
-        background: white;
+        background: rgba(255, 254, 247, 0.95); backdrop-filter: blur(10px);
     }
     
     .fb-media-section {
@@ -355,7 +355,7 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.75rem;
-        background: white;
+        background: rgba(255, 254, 247, 0.95); backdrop-filter: blur(10px);
         border: none;
         border-bottom: 1px solid #e4e6eb;
         color: #1c1c1c;
@@ -366,6 +366,6 @@
     }
     
     .mobile-back-btn:active {
-        background: #f0f2f5;
+        background: rgba(255, 254, 247, 0.5);
     }
 }

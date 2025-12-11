@@ -111,16 +111,17 @@
                                         <small class="text-muted d-block mb-3"><?php echo e($friend->email); ?></small>
                                         
                                         <div class="d-grid gap-2">
-                                            <a href="<?php echo e(route('profile.show', $friend->uid)); ?>" class="btn btn-sm btn-outline-primary">
+                                            <a href="<?php echo e(route('profile.show', $friend->uid)); ?>" class="btn btn-sm btn-primary" style="background: linear-gradient(135deg, #A0D8EF 0%, #87CEEB 100%); border: none; color: white; font-weight: 500;">
                                                 <i class="bi bi-person me-1"></i>Xem trang
                                             </a>
-                                            <a href="<?php echo e(route('messages.show', $friend->uid)); ?>" class="btn btn-sm btn-outline-info">
+                                            <a href="<?php echo e(route('messages.show', $friend->uid)); ?>" class="btn btn-sm btn-success" style="background: linear-gradient(135deg, #B8E6D5 0%, #A0D8C3 100%); border: none; color: #2d5a4a; font-weight: 500;">
                                                 <i class="bi bi-chat-dots me-1"></i>Nhắn tin
                                             </a>
                                             <button 
-                                                class="btn btn-sm btn-outline-danger unfriend-btn" 
+                                                class="btn btn-sm btn-danger unfriend-btn" 
                                                 data-id="<?php echo e($friend->uid); ?>"
                                                 data-name="<?php echo e($friend->name); ?>"
+                                                style="background: linear-gradient(135deg, #FFB8B8 0%, #FF9999 100%); border: none; color: white; font-weight: 500;"
                                             >
                                                 <i class="bi bi-person-x me-1"></i>Hủy kết bạn
                                             </button>

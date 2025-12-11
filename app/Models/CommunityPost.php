@@ -16,6 +16,8 @@ class CommunityPost extends Model
         'reviewed_by',
         'reviewed_at',
         'reject_reason',
+        'likes_count',
+        'comments_count',
     ];
 
     protected $casts = [

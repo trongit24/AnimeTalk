@@ -56,9 +56,9 @@ class PostController extends Controller
             'user_id' => Auth::id(),
             'title' => $validated['title'],
             'slug' => $slug,
-            'category' => isset($validated['categories']) ? implode(',', $validated['categories']) : null,
             'content' => $validated['content'],
             'background' => $validated['background'] ?? null,
+            'category' => isset($validated['categories']) ? implode(',', $validated['categories']) : null,
         ]);
 
         if ($request->hasFile('image')) {
@@ -71,8 +71,39 @@ class PostController extends Controller
             $post->update(['video' => $path]);
         }
 
+        // Attach tags based on selected categories
+        $tagIds = [];
+        if (isset($validated['categories']) && is_array($validated['categories'])) {
+            $tagMapping = [
+                'anime' => 'Anime',
+                'manga' => 'Manga',
+                'cosplay' => 'Cosplay',
+                'discussion' => 'Discussion',
+                'fanart' => 'Fan Art',
+                'news' => 'News',
+                'review' => 'Review'
+            ];
+            
+            foreach ($validated['categories'] as $category) {
+                if (isset($tagMapping[$category])) {
+                    $tagName = $tagMapping[$category];
+                    $tag = Tag::firstOrCreate(
+                        ['name' => $tagName],
+                        ['slug' => Str::slug($tagName), 'color' => '#5BA3D0']
+                    );
+                    $tagIds[] = $tag->id;
+                }
+            }
+        }
+        
+        // Also add additional tags if provided
         if (isset($validated['tags'])) {
-            $post->tags()->sync($validated['tags']);
+            $tagIds = array_merge($tagIds, $validated['tags']);
+        }
+        
+        // Sync all tags at once
+        if (!empty($tagIds)) {
+            $post->tags()->sync(array_unique($tagIds));
         }
 
         return redirect()->route('posts.show', $post->slug)
@@ -161,11 +192,6 @@ class PostController extends Controller
         // Delete image if exists
         if ($post->image && Storage::disk('public')->exists($post->image)) {
             Storage::disk('public')->delete($post->image);
-        }
-
-        // Decrement forum post count if post belongs to a forum
-        if ($post->forum) {
-            $post->forum->decrement('post_count');
         }
 
         $post->delete();

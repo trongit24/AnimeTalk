@@ -18,7 +18,7 @@
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.6);
@@ -28,7 +28,7 @@
 }
 
 .card:hover {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.85);
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
     transform: translateY(-3px);
 }
@@ -97,7 +97,7 @@
             <?php $__empty_1 = true; $__currentLoopData = $communities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $community): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
             <div class="col-md-6 col-lg-4">
                 <a href="<?php echo e(route('communities.show', $community->slug)); ?>" style="text-decoration: none; color: inherit; display: block;">
-                    <div class="card" style="background: white !important; border-radius: 12px !important; overflow: hidden !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; transition: all 0.3s !important;">
+                    <div class="card" style="background: rgba(255, 255, 255, 0.75) !important; backdrop-filter: blur(10px) !important; border-radius: 12px !important; overflow: hidden !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; transition: all 0.3s !important;">
                         <!-- Banner -->
                         <?php if($community->banner): ?>
                         <div style="width: 100%; height: 120px; overflow: hidden;">

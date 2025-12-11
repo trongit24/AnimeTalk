@@ -23,7 +23,7 @@ div[style*="background: white"] * {
             <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Edit Event</h1>
             <p style="color: #666; margin-bottom: 2rem;">Update your event information</p>
 
-            <form action="{{ route('events.update', $event->id) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('events.update', $event->slug) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 

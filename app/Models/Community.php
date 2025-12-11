@@ -62,6 +62,11 @@ class Community extends Model
         return $this->hasMany(CommunityActivity::class);
     }
 
+    public function memories()
+    {
+        return $this->hasMany(CommunityMemory::class);
+    }
+
     public function isOwner($user): bool
     {
         if (!$user) return false;

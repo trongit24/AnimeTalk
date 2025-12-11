@@ -1,7 +1,5 @@
 /* Communities Index Page */
 .communities-page {
-    background: linear-gradient(135deg, rgba(91, 163, 208, 0.05) 0%, rgba(155, 126, 222, 0.05) 100%),
-                url('/storage/image_4k/1319293.jpeg') fixed center/cover;
     min-height: 100vh;
 }
 
@@ -13,18 +11,6 @@
     z-index: 1;
 }
 
-.communities-page::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(5px);
-    z-index: 0;
-}
-
 .page-header {
     margin-bottom: 2rem;
 }
@@ -34,7 +20,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #5BA3D0, #9B7EDE);
+    background: linear-gradient(135deg, #A0D8EF, #B8E6D5);
     color: white;
     border-radius: 25px;
     text-decoration: none;
@@ -48,7 +34,7 @@
 }
 
 .search-filter-bar {
-    background: white;
+    background: rgba(255, 254, 247, 0.95); backdrop-filter: blur(10px);
     padding: 1.5rem;
     border-radius: 12px;
     margin-bottom: 2rem;
@@ -62,7 +48,7 @@
 }
 
 .community-card {
-    background: white;
+    background: rgba(255, 254, 247, 0.95); backdrop-filter: blur(10px);
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
@@ -73,7 +59,7 @@
 .community-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-color: #5BA3D0;
+    border-color: #A0D8EF;
 }
 
 /* Community Detail Page */
@@ -112,7 +98,7 @@
     border-radius: 16px;
     border: 4px solid white;
     margin-top: -80px;
-    background: white;
+    background: rgba(255, 254, 247, 0.95); backdrop-filter: blur(10px);
     object-fit: cover;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     flex-shrink: 0;
@@ -124,7 +110,7 @@
     border-radius: 16px;
     border: 4px solid white;
     margin-top: -80px;
-    background: linear-gradient(135deg, #5BA3D0, #9B7EDE);
+    background: linear-gradient(135deg, #A0D8EF, #B8E6D5);
     color: white;
     display: flex;
     align-items: center;
@@ -149,7 +135,6 @@
 
 /* Create Community Page */
 .create-community-page {
-    background: #DAE0E6;
     min-height: calc(100vh - 60px);
     padding: 2rem 0;
 }

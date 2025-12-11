@@ -93,11 +93,11 @@ div[style*="background: white"] * {
                         @auth
                         @if($event->isOwner(auth()->user()))
                         <div style="display: flex; gap: 0.5rem;">
-                            <a href="{{ route('events.edit', $event->id) }}" 
+                            <a href="{{ route('events.edit', $event->slug) }}" 
                                style="padding: 0.5rem 1rem; background: #5BA3D0; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
                                 <i class="bi bi-pencil"></i> Edit
                             </a>
-                            <form action="{{ route('events.destroy', $event->id) }}" method="POST" onsubmit="return confirm('Delete this event?');">
+                            <form action="{{ route('events.destroy', $event->slug) }}" method="POST" onsubmit="return confirm('Delete this event?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" style="padding: 0.5rem 1rem; background: #FF6B6B; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
@@ -109,11 +109,23 @@ div[style*="background: white"] * {
                         @endauth
                     </div>
 
+                    <!-- Notifications Button for Participants -->
+                    @auth
+                    @if($event->isParticipant(auth()->user()) || $event->isOwner(auth()->user()))
+                    <div style="margin-top: 1rem;">
+                        <a href="{{ route('events.notifications', $event->slug) }}" 
+                           style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                            <i class="bi bi-bell"></i> Xem thông báo sự kiện
+                        </a>
+                    </div>
+                    @endif
+                    @endauth
+
                     <!-- Action Buttons -->
                     @auth
                     @if(!$event->isOwner(auth()->user()))
-                    <div style="display: flex; gap: 1rem;">
-                        <form action="{{ route('events.respond', $event->id) }}" method="POST" style="flex: 1;">
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <form action="{{ route('events.respond', $event->slug) }}" method="POST" style="flex: 1;">
                             @csrf
                             <input type="hidden" name="status" value="going">
                             <button type="submit" 
@@ -122,7 +134,7 @@ div[style*="background: white"] * {
                                 {{ $event->getParticipantStatus(auth()->user()) === 'going' ? 'Going' : 'Join Event' }}
                             </button>
                         </form>
-                        <form action="{{ route('events.respond', $event->id) }}" method="POST" style="flex: 1;">
+                        <form action="{{ route('events.respond', $event->slug) }}" method="POST" style="flex: 1;">
                             @csrf
                             <input type="hidden" name="status" value="interested">
                             <button type="submit" 
@@ -154,7 +166,7 @@ div[style*="background: white"] * {
             <div>
                 <!-- Stats Card -->
                 <div style="background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid #e0e0e0; margin-bottom: 1.5rem; position: sticky; top: 80px;">
-                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Event Stats</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Event Status</h3>
                     
                     <div style="padding: 1rem; background: rgba(91, 163, 208, 0.1); border-radius: 8px; margin-bottom: 1rem; text-align: center;">
                         <div style="font-size: 2rem; font-weight: 700; color: #5BA3D0;">{{ $event->participants_count }}</div>

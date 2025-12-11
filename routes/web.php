@@ -27,6 +27,11 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Anime Theme Demo Route
+Route::get('/anime-demo', function () {
+    return view('anime-demo');
+})->name('anime.demo');
+
 Route::get('/top/posts', [TopController::class, 'posts'])->name('top.posts');
 
 // Communities (new feature)
@@ -138,6 +143,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
     Route::post('/events/{event}/respond', [EventController::class, 'respond'])->name('events.respond');
     Route::post('/events/{event}/invite', [EventController::class, 'invite'])->name('events.invite');
+    Route::get('/events/{event}/notifications', [EventController::class, 'notifications'])->name('events.notifications');
+    Route::post('/events/notifications/{notification}/read', [EventController::class, 'markNotificationAsRead'])->name('events.notifications.read');
 });
 
 // Admin routes (require admin role)

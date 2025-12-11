@@ -58,6 +58,11 @@ class Event extends Model
         return $participant ? $participant->pivot->status : null;
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(EventNotification::class);
+    }
+
     public function isPast(): bool
     {
         return $this->start_time->isPast();

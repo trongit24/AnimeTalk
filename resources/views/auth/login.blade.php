@@ -6,8 +6,7 @@
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
-            <h1>Welcome Back!</h1>
-            <p>Login to continue your anime journey</p>
+            <img src="{{ asset('storage/image_4k/logo.jpg') }}" alt="AnimeTalk Logo" style="max-width: 200px; width: 200px; height: 200px; object-fit: cover; border-radius: 50%; margin: 0 auto; display: block; mix-blend-mode: darken; opacity: 0.95; filter: contrast(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
         </div>
 
         @if (session('status'))
@@ -64,13 +63,31 @@
 }
 
 .auth-card {
-    background: white;
+    background: url('{{ asset('storage/image_4k/pexels-padrinan-19670.jpg') }}') center/cover;
+    position: relative;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-lg);
     padding: 3rem;
     width: 100%;
     max-width: 450px;
     border: 2px solid var(--primary-purple);
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: var(--border-radius);
+    z-index: 0;
+}
+
+.auth-card > * {
+    position: relative;
+    z-index: 1;
 }
 
 .auth-header {

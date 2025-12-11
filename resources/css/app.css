@@ -1,3 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --anime-sky: #87CEEB;
+        --anime-sky-light: #B4E4FF;
+        --anime-blue: #A0D8EF;
+        --anime-mint: #B8E6D5;
+        --anime-pink: #FFE4E9;
+        --anime-cream: #FFFEF7;
+        --anime-yellow: #FFF4CC;
+        --anime-peach: #FFD4B8;
+    }
+
+    * {
+        @apply transition-all duration-300 ease-out;
+    }
+
+    body {
+        @apply bg-gradient-to-b from-anime-sky via-anime-sky-light to-anime-cream;
+        @apply font-sans text-gray-700;
+        @apply min-h-screen;
+        background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-medium;
+    }
+}
+
+@layer components {
+    /* Anime Style Buttons */
+    .btn-anime {
+        @apply rounded-anime shadow-soft hover:shadow-anime;
+        @apply transform hover:scale-[1.02] active:scale-[0.98];
+        @apply border-none outline-none;
+    }
+
+    /* Anime Style Cards */
+    .card-anime {
+        @apply bg-white/90 backdrop-blur-sm;
+        @apply rounded-anime shadow-soft hover:shadow-anime;
+        @apply p-6 border border-anime-sky/20;
+        @apply transform hover:-translate-y-1;
+    }
+
+    /* Chat Bubble Styles */
+    .chat-bubble-user {
+        @apply bg-anime-blue text-white;
+        @apply rounded-bubble rounded-tr-md;
+        @apply px-5 py-3 max-w-[70%];
+        @apply shadow-bubble;
+    }
+
+    .chat-bubble-bot {
+        @apply bg-white text-gray-700;
+        @apply rounded-bubble rounded-tl-md;
+        @apply px-5 py-3 max-w-[70%];
+        @apply shadow-bubble border border-anime-sky/20;
+    }
+
+    /* Soft Input Fields */
+    .input-anime {
+        @apply rounded-soft border-2 border-anime-sky/30;
+        @apply focus:border-anime-blue focus:ring-4 focus:ring-anime-sky/20;
+        @apply px-4 py-3 bg-white/80 backdrop-blur-sm;
+        @apply placeholder:text-gray-400;
+    }
+
+    /* Anime Navigation */
+    .nav-anime {
+        @apply bg-white/80 backdrop-blur-md;
+        @apply shadow-soft border-b-2 border-anime-sky/20;
+        @apply sticky top-0 z-50;
+    }
+
+    /* Avatar Anime Style */
+    .avatar-anime {
+        @apply rounded-full border-4 border-white shadow-anime;
+        @apply ring-4 ring-anime-sky/30;
+    }
+
+    /* Tag/Badge Anime Style */
+    .badge-anime {
+        @apply inline-block px-4 py-1.5 rounded-full;
+        @apply bg-anime-mint/50 text-gray-700;
+        @apply text-sm font-medium;
+        @apply border border-anime-mint/60;
+    }
+
+    /* Modal/Dialog Anime Style */
+    .modal-anime {
+        @apply bg-white/95 backdrop-blur-lg;
+        @apply rounded-anime shadow-2xl;
+        @apply border-2 border-anime-sky/30;
+        @apply p-8;
+    }
+
+    /* Post/Content Card */
+    .post-card {
+        @apply card-anime;
+        @apply mb-4;
+    }
+
+    /* Notification Badge */
+    .notification-badge {
+        @apply bg-anime-pink text-gray-700;
+        @apply rounded-full px-2 py-0.5 text-xs font-medium;
+        @apply shadow-soft border border-anime-pink;
+    }
+}
+
+@layer utilities {
+    /* Fade In Animation */
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Slide Up Animation */
+    .slide-up {
+        animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Gentle Scale */
+    .gentle-scale {
+        animation: gentleScale 0.3s ease-out;
+    }
+
+    @keyframes gentleScale {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Float Animation for Decorative Elements */
+    .float {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Gradient Background Variants */
+    .bg-anime-gradient {
+        background: linear-gradient(135deg, var(--anime-sky) 0%, var(--anime-sky-light) 50%, var(--anime-cream) 100%);
+    }
+
+    .bg-anime-gradient-soft {
+        background: linear-gradient(180deg, var(--anime-cream) 0%, var(--anime-sky-light) 100%);
+    }
+
+    /* Text Shadows for Depth */
+    .text-shadow-soft {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Glassmorphism Effect */
+    .glass-anime {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* Navigation Links */
+    .nav-link {
+        @apply flex items-center space-x-2 px-4 py-2 rounded-soft text-gray-700;
+        @apply hover:bg-anime-sky/20 hover:text-anime-blue;
+        @apply transform hover:scale-105;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link.active {
+        @apply bg-anime-blue/20 text-anime-blue font-medium;
+    }
+
+    /* Slide In Animation */
+    .slide-in-right {
+        animation: slideInRight 0.3s ease-out;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    /* Container Max Width */
+    .container {
+        @apply max-w-7xl mx-auto;
+    }
+
+    /* Spacing Utilities */
+    .space-anime {
+        @apply space-y-6;
+    }
+
+    /* Hover Lift Effect */
+    .hover-lift {
+        @apply transform transition-all duration-300;
+    }
+
+    .hover-lift:hover {
+        @apply -translate-y-2 shadow-anime;
+    }
+}

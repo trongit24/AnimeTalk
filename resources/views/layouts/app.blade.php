@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="anime-day">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +34,9 @@
     <!-- Three.js for 3D effects (optional) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
+    <!-- Google Fonts - Anime Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Responsive CSS by Pages -->
     <link rel="stylesheet" href="{{ asset('css/global-base.css') }}">
     <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
@@ -44,6 +47,9 @@
     <link rel="stylesheet" href="{{ asset('css/posts.css') }}">
     <link rel="stylesheet" href="{{ asset('css/post-detail.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    
+    <!-- Anime Theme Override -->
+    <link rel="stylesheet" href="{{ asset('css/anime-messages-override.css') }}">
     
     <!-- Shinkai Style Global CSS -->
     <style>
@@ -72,12 +78,13 @@
         
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            background: linear-gradient(180deg, 
-                #87CEEB 0%, 
-                #B4D4FF 30%, 
-                #FFE4E1 60%, 
-                #FFB6C1 100%
-            );
+            background: url('{{ asset('storage/image_4k/575436.jpg') }}') center/cover fixed,
+                        linear-gradient(180deg, 
+                            rgba(135, 206, 235, 0.3) 0%, 
+                            rgba(180, 212, 255, 0.3) 30%, 
+                            rgba(255, 228, 225, 0.3) 60%, 
+                            rgba(255, 182, 193, 0.3) 100%
+                        );
             background-attachment: fixed;
             color: var(--shinkai-text);
             overflow-x: hidden;
@@ -363,11 +370,112 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(74, 144, 226, 0.6) !important;
         }
+
+        /* Notification Modal */
+        .notification-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .notification-modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideUp 0.3s ease;
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .notification-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+
+        .notification-icon.success {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .notification-icon.error {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .notification-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1c1c1c;
+        }
+
+        .notification-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #f0f2f5;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 20px;
+            color: #65676b;
+        }
+
+        .notification-close:hover {
+            background: #e4e6eb;
+            transform: scale(1.1);
+        }
     </style>
     
     @stack('styles')
 </head>
-<body>
+<body style="background: url('{{ asset('storage/image_4k/575436.jpg') }}') center/cover fixed !important;">
     <!-- Particles Background -->
     <div id="particles-js"></div>
     
@@ -398,8 +506,8 @@
             
             <div class="navbar-right">
                 @guest
-                <a href="{{ route('login') }}" class="nav-btn-outline">Log in</a>
-                <a href="{{ route('register') }}" class="nav-btn-primary">Sign up</a>
+                <a href="{{ route('login') }}" style="background: #FFFFFF; color: #4A90E2; padding: 0.5rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; border: 2px solid #4A90E2; transition: all 0.3s;">Log in</a>
+                <a href="{{ route('register') }}" style="background: #4A90E2; color: #FFFFFF; padding: 0.5rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; border: 2px solid #4A90E2; margin-left: 0.5rem; transition: all 0.3s;">Sign up</a>
                 @else
                 <!-- Mobile Hamburger Menu -->
                 <button class="mobile-hamburger-btn" id="mobileMenuBtn" type="button" aria-label="Toggle menu">
@@ -498,22 +606,30 @@
         </div>
     </div>
 
+    <!-- Notification Modal -->
+    @if(session('success') || session('error'))
+    <div class="notification-modal-overlay" id="notificationModal" onclick="closeNotification()">
+        <div class="notification-modal" onclick="event.stopPropagation()">
+            <div class="notification-icon {{ session('success') ? 'success' : 'error' }}">
+                @if(session('success'))
+                    <i class="bi bi-check-circle"></i>
+                @else
+                    <i class="bi bi-x-circle"></i>
+                @endif
+            </div>
+            <div class="notification-content">
+                <h3 class="notification-title">{{ session('success') ? 'Thành công!' : 'Lỗi!' }}</h3>
+                <p class="notification-message">{{ session('success') ?? session('error') }}</p>
+            </div>
+            <button class="notification-close" onclick="closeNotification()">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    </div>
+    @endif
+
     <!-- Main Content -->
     <main class="app-main" style="position: relative; z-index: 100;">
-        @if(session('success'))
-            <div class="modern-alert success">
-                <i class="bi bi-check-circle"></i>
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="modern-alert error">
-                <i class="bi bi-x-circle"></i>
-                {{ session('error') }}
-            </div>
-        @endif
-
         @yield('content')
     </main>
 
@@ -636,8 +752,34 @@
                 });
             }
         }
+        
+        // Notification Modal
+        const notificationModal = document.getElementById('notificationModal');
+        if (notificationModal) {
+            // Auto close after 3 seconds
+            setTimeout(function() {
+                closeNotification();
+            }, 3000);
+        }
     });
+    
+    function closeNotification() {
+        const modal = document.getElementById('notificationModal');
+        if (modal) {
+            modal.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(function() {
+                modal.remove();
+            }, 300);
+        }
+    }
     </script>
+    
+    <style>
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    </style>
     
     <!-- Shinkai-style Particles & Animations -->
     <script>
@@ -801,12 +943,22 @@
                         fetch(`{{ route('search.autocomplete') }}?q=${encodeURIComponent(query)}`)
                             .then(response => response.json())
                             .then(data => {
+                                let html = '';
+                                
                                 if (data.length === 0) {
-                                    searchSuggestions.style.display = 'none';
+                                    html = `
+                                        <div class="suggestion-item no-results">
+                                            <div style="text-align: center; padding: 1rem; color: #999;">
+                                                <i class="bi bi-search" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                                                <div>Không tìm thấy bài viết</div>
+                                            </div>
+                                        </div>
+                                    `;
+                                    searchSuggestions.innerHTML = html;
+                                    searchSuggestions.style.display = 'block';
                                     return;
                                 }
 
-                                let html = '';
                                 data.forEach(item => {
                                     const avatar = item.user_photo 
                                         ? `<img src="${item.user_photo}" alt="${item.user_name}" class="suggestion-avatar">`
@@ -827,7 +979,7 @@
                                 searchSuggestions.style.display = 'block';
 
                                 // Add click handlers to suggestions
-                                document.querySelectorAll('.suggestion-item').forEach(item => {
+                                document.querySelectorAll('.suggestion-item[data-slug]').forEach(item => {
                                     item.addEventListener('click', function() {
                                         const postSlug = this.getAttribute('data-slug');
                                         window.location.href = `/posts/${postSlug}`;

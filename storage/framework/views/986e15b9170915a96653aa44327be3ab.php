@@ -4,12 +4,9 @@
 
 <?php $__env->startPush('styles'); ?>
 <style>
-div[style*="background: white"],
-div[style*="background: #F0F2F5"] {
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-div[style*="background: white"] * {
+/* Ensure content visibility */
+.event-create-content,
+.event-create-content * {
     opacity: 1 !important;
     visibility: visible !important;
 }
@@ -17,7 +14,7 @@ div[style*="background: white"] * {
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startSection('content'); ?>
-<div style="background: #F0F2F5; min-height: calc(100vh - 60px); padding: 2rem 0; opacity: 1 !important; visibility: visible !important;">
+<div style="min-height: calc(100vh - 60px); padding: 2rem 0; opacity: 1 !important; visibility: visible !important;">
     <div style="max-width: 800px; margin: 0 auto; padding: 0 1rem;">
         <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e0e0e0;">
             <h1 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem;">Create Event</h1>
