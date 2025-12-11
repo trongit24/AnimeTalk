@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Communities - AnimeTalk'); ?>
 
 <?php $__env->startPush('styles'); ?>

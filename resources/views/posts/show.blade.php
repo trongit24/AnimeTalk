@@ -198,19 +198,29 @@
                                 <div class="fb-comment-bubble">
                                     <div class="fb-comment-author">{{ $comment->user->name }}</div>
                                     <div class="fb-comment-text" id="comment-text-{{ $comment->id }}">
-                                        @php
-                                            $content = $comment->content;
-                                            $isImageUrl = preg_match('/^https?:\/\/.*(giphy\.com|\.gif|\.jpg|\.jpeg|\.png|\.webp)/i', $content);
-                                        @endphp
-                                        
-                                        @if($isImageUrl)
-                                            <img src="{{ $content }}" class="fb-comment-gif" alt="GIF">
-                                        @else
-                                            {{ $content }}
+                                        @if($comment->image)
+                                            @php
+                                                // Check if image is external URL or local path
+                                                $isExternalImage = str_starts_with($comment->image, 'http://') || str_starts_with($comment->image, 'https://');
+                                                $imageUrl = $isExternalImage ? $comment->image : asset('storage/' . $comment->image);
+                                            @endphp
+                                            <img src="{{ $imageUrl }}" class="fb-comment-image" alt="Comment Image" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
                                         @endif
                                         
-                                        @if($comment->image)
-                                            <img src="{{ asset('storage/' . $comment->image) }}" class="fb-comment-image" alt="Comment Image" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
+                                        @if(!$comment->image && $comment->content)
+                                            @php
+                                                $isImageUrl = preg_match('/^https?:\/\/.*(giphy\.com|\.gif|\.jpg|\.jpeg|\.png|\.webp)/i', $comment->content);
+                                            @endphp
+                                            
+                                            @if($isImageUrl)
+                                                <img src="{{ $comment->content }}" class="fb-comment-gif" alt="GIF">
+                                            @else
+                                                {{ $comment->content }}
+                                            @endif
+                                        @endif
+                                        
+                                        @if($comment->image && $comment->content)
+                                            <p style="margin-top: 8px;">{{ $comment->content }}</p>
                                         @endif
                                     </div>
                                     
@@ -1513,10 +1523,11 @@ if (commentForm) {
         
         const formData = new FormData(this);
         
-        // If GIF is selected, use GIF URL as content
+        // If GIF is selected, send as image_url parameter
         if (commentPreview.dataset.gifUrl) {
-            formData.set('content', commentPreview.dataset.gifUrl);
+            formData.set('image_url', commentPreview.dataset.gifUrl);
             formData.delete('image'); // Remove image file if exists
+            // Keep content if user typed something
         }
         
         // Submit via AJAX

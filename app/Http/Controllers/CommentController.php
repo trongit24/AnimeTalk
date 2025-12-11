@@ -18,10 +18,20 @@ class CommentController extends Controller
             ->latest()
             ->get()
             ->map(function($comment) use ($currentUser, $post) {
+                // Handle external URLs (like GIFs) vs local uploads
+                $imageUrl = null;
+                if ($comment->image) {
+                    if (str_starts_with($comment->image, 'http://') || str_starts_with($comment->image, 'https://')) {
+                        $imageUrl = $comment->image; // External URL, use as-is
+                    } else {
+                        $imageUrl = asset('storage/' . $comment->image); // Local file
+                    }
+                }
+                
                 return [
                     'id' => $comment->id,
                     'content' => $comment->content,
-                    'image' => $comment->image ? asset('storage/' . $comment->image) : null,
+                    'image' => $imageUrl,
                     'user' => [
                         'name' => $comment->user->name,
                         'profile_photo' => $comment->user->profile_photo ? asset('storage/' . $comment->user->profile_photo) : null,
@@ -38,18 +48,32 @@ class CommentController extends Controller
     public function store(Request $request, Post $post)
     {
         $validated = $request->validate([
-            'content' => 'required|string|max:1000',
-            'image' => 'nullable|image|max:5120', // 5MB max
+            'content' => 'nullable|string|max:1000',
+            'image' => 'nullable', // Can be file upload or URL string
+            'image_url' => 'nullable|string|max:500', // For GIF URLs
         ]);
+
+        // Require either content or image
+        if (empty($validated['content']) && !$request->hasFile('image') && empty($validated['image_url'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng nhập nội dung hoặc chọn ảnh!',
+            ], 422);
+        }
 
         $comment = new Comment();
         $comment->user_id = Auth::user()->uid;
         $comment->post_id = $post->id;
-        $comment->content = $validated['content'];
+        $comment->content = $validated['content'] ?? '';
 
+        // Handle file upload
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('comments', 'public');
             $comment->image = $path;
+        }
+        // Handle GIF URL
+        elseif (!empty($validated['image_url'])) {
+            $comment->image = $validated['image_url'];
         }
 
         $comment->save();
@@ -66,9 +90,18 @@ class CommentController extends Controller
         $validated = $request->validate([
             'post_id' => 'required',
             'model_type' => 'required|in:Post,CommunityPost',
-            'content' => 'required|max:1000',
-            'image' => 'nullable|image|max:5120', // 5MB max
+            'content' => 'nullable|max:1000',
+            'image' => 'nullable', // Can be file upload or URL string
+            'image_url' => 'nullable|string|max:500', // For GIF URLs
         ]);
+
+        // Require either content or image
+        if (empty($validated['content']) && !$request->hasFile('image') && empty($validated['image_url'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng nhập nội dung hoặc chọn ảnh!',
+            ], 422);
+        }
 
         $modelClass = $validated['model_type'] === 'CommunityPost' ? 'App\Models\CommunityPost' : 'App\Models\Post';
 
@@ -76,24 +109,39 @@ class CommentController extends Controller
         $comment->user_id = Auth::user()->uid;
         $comment->commentable_id = $validated['post_id'];
         $comment->commentable_type = $modelClass;
-        $comment->content = $validated['content'];
+        $comment->content = $validated['content'] ?? '';
 
+        // Handle file upload
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('comments', 'public');
             $comment->image = $path;
+        }
+        // Handle GIF URL
+        elseif (!empty($validated['image_url'])) {
+            $comment->image = $validated['image_url'];
         }
 
         $comment->save();
 
         // Return JSON for AJAX or redirect for form submit
         if ($request->expectsJson()) {
+            // Handle external URLs (like GIFs) vs local uploads
+            $imageUrl = null;
+            if ($comment->image) {
+                if (str_starts_with($comment->image, 'http://') || str_starts_with($comment->image, 'https://')) {
+                    $imageUrl = $comment->image; // External URL, use as-is
+                } else {
+                    $imageUrl = asset('storage/' . $comment->image); // Local file
+                }
+            }
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Comment added successfully!',
                 'comment' => [
                     'id' => $comment->id,
                     'content' => $comment->content,
-                    'image' => $comment->image ? asset('storage/' . $comment->image) : null,
+                    'image' => $imageUrl,
                     'user' => [
                         'name' => Auth::user()->name,
                         'profile_photo' => Auth::user()->profile_photo ? asset('storage/' . Auth::user()->profile_photo) : null,

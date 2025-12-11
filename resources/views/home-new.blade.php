@@ -1554,11 +1554,14 @@ const GIPHY_LIMIT = 20;
 let gifSearchTimeout;
 
 // Load trending anime GIFs for home page
-async function loadHomeGIFs() {
-    const gifGrid = document.getElementById('home-gif-grid');
-    const gifLoading = document.getElementById('home-gif-loading');
+async function loadHomeGIFs(postId) {
+    const gifGrid = document.getElementById(`home-gif-grid-${postId}`);
+    const gifLoading = document.getElementById(`home-gif-loading-${postId}`);
     
-    if (!gifGrid || !gifLoading) return;
+    if (!gifGrid || !gifLoading) {
+        console.error('GIF grid or loading element not found for postId:', postId);
+        return;
+    }
     
     try {
         gifLoading.style.display = 'block';
@@ -1593,14 +1596,14 @@ async function loadHomeGIFs() {
 }
 
 // Search GIFs for home page
-async function searchHomeGIFs(query) {
+async function searchHomeGIFs(query, postId) {
     if (!query.trim()) {
-        loadHomeGIFs();
+        loadHomeGIFs(postId);
         return;
     }
     
-    const gifGrid = document.getElementById('home-gif-grid');
-    const gifLoading = document.getElementById('home-gif-loading');
+    const gifGrid = document.getElementById(`home-gif-grid-${postId}`);
+    const gifLoading = document.getElementById(`home-gif-loading-${postId}`);
     
     try {
         gifLoading.style.display = 'block';
@@ -1635,22 +1638,39 @@ async function searchHomeGIFs(query) {
 
 // Select GIF for home page
 function selectHomeGIF(gifUrl) {
-    // Get the active modal
-    const activeModal = document.querySelector('.comment-modal[style*="display: flex"]');
-    if (!activeModal) return;
+    console.log('selectHomeGIF called with:', gifUrl);
+    // Get the active modal (last one in DOM)
+    const allModals = document.querySelectorAll('.comment-modal');
+    const activeModal = allModals[allModals.length - 1];
+    
+    if (!activeModal) {
+        console.error('No active modal found');
+        return;
+    }
     
     const postId = activeModal.id.replace('comment-modal-', '');
+    console.log('Found modal for postId:', postId);
+    
     const imagePreview = document.getElementById(`image-preview-${postId}`);
     
     if (imagePreview) {
-        imagePreview.querySelector('img').src = gifUrl;
-        imagePreview.style.display = 'block';
-        imagePreview.dataset.gifUrl = gifUrl;
+        const img = imagePreview.querySelector('img');
+        if (img) {
+            img.src = gifUrl;
+            imagePreview.style.display = 'block';
+            imagePreview.dataset.gifUrl = gifUrl;
+            console.log('GIF preview set successfully');
+        }
+    } else {
+        console.error('Image preview element not found for postId:', postId);
     }
     
     // Hide GIF picker
     const gifPicker = activeModal.querySelector('.gif-picker');
-    if (gifPicker) gifPicker.style.display = 'none';
+    if (gifPicker) {
+        gifPicker.style.display = 'none';
+        console.log('GIF picker hidden');
+    }
 }
 
 // Like button functionality on home page
@@ -1732,6 +1752,7 @@ function openCommentModal(postId, postSlug, postTitle) {
     // Create modal
     const modal = document.createElement('div');
     modal.className = 'comment-modal';
+    modal.id = `comment-modal-${postId}`;
     modal.innerHTML = `
         <div class="comment-modal-content">
             <div class="comment-modal-header">
@@ -1772,13 +1793,13 @@ function openCommentModal(postId, postSlug, postTitle) {
                             <span>😀</span><span>😃</span><span>😄</span><span>😁</span><span>😆</span><span>😅</span><span>😂</span><span>🤣</span><span>😊</span><span>😇</span><span>🙂</span><span>🙃</span><span>😉</span><span>😌</span><span>😍</span><span>🥰</span><span>😘</span><span>😗</span><span>😙</span><span>😚</span><span>😋</span><span>😛</span><span>😝</span><span>😜</span><span>🤪</span><span>🤨</span><span>🧐</span><span>🤓</span><span>😎</span><span>🤩</span><span>🥳</span><span>😏</span><span>😒</span><span>😞</span><span>😔</span><span>😟</span><span>😕</span><span>🙁</span><span>☹️</span><span>😣</span><span>😖</span><span>😫</span><span>😩</span><span>🥺</span><span>😢</span><span>😭</span><span>😤</span><span>😠</span><span>😡</span><span>🤬</span><span>🤯</span><span>😳</span><span>🥵</span><span>🥶</span><span>😱</span><span>😨</span><span>😰</span><span>😥</span><span>😓</span><span>🤗</span><span>🤔</span><span>🤭</span><span>🤫</span><span>🤥</span><span>😶</span><span>😐</span><span>😑</span><span>😬</span><span>🙄</span><span>😯</span><span>😦</span><span>😧</span><span>😮</span><span>😲</span><span>🥱</span><span>😴</span><span>🤤</span><span>😪</span><span>😵</span><span>🤐</span><span>🥴</span><span>🤢</span><span>🤮</span><span>🤧</span><span>😷</span><span>🤒</span><span>🤕</span><span>🤑</span><span>🤠</span><span>👍</span><span>👎</span><span>👊</span><span>✊</span><span>🤛</span><span>🤜</span><span>🤞</span><span>✌️</span><span>🤟</span><span>🤘</span><span>👌</span><span>🤌</span><span>🤏</span><span>👈</span><span>👉</span><span>👆</span><span>👇</span><span>☝️</span><span>✋</span><span>🤚</span><span>🖐</span><span>🖖</span><span>👋</span><span>🤙</span><span>💪</span><span>🙏</span><span>❤️</span><span>🧡</span><span>💛</span><span>💚</span><span>💙</span><span>💜</span><span>🖤</span><span>🤍</span><span>🤎</span><span>💔</span><span>❣️</span><span>💕</span><span>💞</span><span>💓</span><span>💗</span><span>💖</span><span>💘</span><span>💝</span><span>✨</span><span>💫</span><span>⭐</span><span>🌟</span><span>✅</span><span>❌</span><span>🔥</span><span>💯</span><span>👏</span><span>🎉</span><span>🎊</span>
                         </div>
                     </div>
-                    <div class="gif-picker" id="home-gif-picker" style="display: none;">
-                        <input type="text" class="gif-search" id="home-gif-search" placeholder="Tìm kiếm GIF anime..." autocomplete="off">
-                        <div class="gif-loading" id="home-gif-loading" style="display: none; text-align: center; padding: 20px; color: #65676b;">
+                    <div class="gif-picker" id="home-gif-picker-${postId}" style="display: none;">
+                        <input type="text" class="gif-search" id="home-gif-search-${postId}" placeholder="Tìm kiếm GIF anime..." autocomplete="off">
+                        <div class="gif-loading" id="home-gif-loading-${postId}" style="display: none; text-align: center; padding: 20px; color: #65676b;">
                             <i class="bi bi-arrow-repeat" style="font-size: 24px; animation: spin 1s linear infinite;"></i>
                             <p style="margin-top: 8px; font-size: 13px;">Đang tìm kiếm...</p>
                         </div>
-                        <div class="gif-grid" id="home-gif-grid">
+                        <div class="gif-grid" id="home-gif-grid-${postId}">
                             <!-- Trending anime GIFs will load here via Giphy API -->
                         </div>
                     </div>
@@ -1857,17 +1878,17 @@ function openCommentModal(postId, postSlug, postTitle) {
         
         // Load GIFs when opening
         if (!isVisible) {
-            loadHomeGIFs();
+            loadHomeGIFs(postId);
         }
     });
     
     // GIF search input
-    const gifSearchInput = modal.querySelector('#home-gif-search');
+    const gifSearchInput = modal.querySelector(`#home-gif-search-${postId}`);
     if (gifSearchInput) {
         gifSearchInput.addEventListener('input', function() {
             clearTimeout(gifSearchTimeout);
             gifSearchTimeout = setTimeout(() => {
-                searchHomeGIFs(this.value);
+                searchHomeGIFs(this.value, postId);
             }, 500);
         });
     }
@@ -1932,8 +1953,9 @@ function loadComments(postSlug, postId) {
                                 <span class="comment-time">${comment.created_at}</span>
                             </div>
                             <div class="comment-body" data-comment-id="${comment.id}">
-                                ${isImageUrl(comment.content) ? `<img src="${comment.content}" class="comment-image">` : comment.content}
                                 ${comment.image ? `<img src="${comment.image}" class="comment-image">` : ''}
+                                ${!comment.image && comment.content ? (isImageUrl(comment.content) ? `<img src="${comment.content}" class="comment-image">` : comment.content) : ''}
+                                ${comment.image && comment.content ? `<p>${comment.content}</p>` : ''}
                             </div>
                             ${comment.can_delete ? `
                             <div class="comment-actions-btns">
@@ -1995,11 +2017,14 @@ function submitComment(form, postSlug, postId) {
     
     // Nếu có GIF được chọn
     if (imagePreview.dataset.gifUrl) {
-        formData.append('content', imagePreview.dataset.gifUrl);
+        formData.append('image_url', imagePreview.dataset.gifUrl);
+        if (textarea.value.trim()) {
+            formData.append('content', textarea.value);
+        }
     } else if (textarea.value.trim()) {
         formData.append('content', textarea.value);
-    } else {
-        // Nếu không có GIF và không có text, yêu cầu nhập nội dung
+    } else if (!imageInput.files[0]) {
+        // Nếu không có GIF, không có text và không có ảnh, yêu cầu nhập nội dung
         alert('Vui lòng nhập nội dung bình luận!');
         return;
     }
