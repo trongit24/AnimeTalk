@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Create Event - AnimeTalk'); ?>
 
 <?php $__env->startPush('styles'); ?>

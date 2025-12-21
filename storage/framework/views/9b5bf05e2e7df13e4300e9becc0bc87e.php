@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Event Notifications - ' . $event->title); ?>
 
 <?php $__env->startSection('content'); ?>
