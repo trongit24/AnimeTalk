@@ -310,7 +310,7 @@
                     
                     @auth
                         @if($post->user_id !== Auth::user()->uid)
-                        <button class="action-btn" onclick="openReportModal({{ $post->id }}, '{{ addslashes($post->title) }}')" title="Báo cáo vi phạm">
+                        <button class="action-btn" onclick="openReportModal('{{ $post->slug }}', '{{ addslashes($post->title) }}')" title="Báo cáo vi phạm">
                             <i class="bi bi-flag"></i>
                             <span>Báo cáo</span>
                         </button>
@@ -2264,8 +2264,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function openReportModal(postId, postTitle) {
-    document.getElementById('reportPostId').value = postId;
+function openReportModal(postSlug, postTitle) {
+    document.getElementById('reportPostId').value = postSlug;
     document.getElementById('reportPostTitle').textContent = postTitle;
     document.getElementById('reportForm').reset();
     document.getElementById('otherReasonContainer').style.display = 'none';
@@ -2273,7 +2273,7 @@ function openReportModal(postId, postTitle) {
 }
 
 function submitReport() {
-    const postId = document.getElementById('reportPostId').value;
+    const postSlug = document.getElementById('reportPostId').value;
     const reasonSelect = document.getElementById('reportReason');
     let reason = reasonSelect.value;
     
@@ -2296,7 +2296,7 @@ function submitReport() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang gửi...';
     
-    fetch(`/posts/${postId}/report`, {
+    fetch(`/posts/${postSlug}/report`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

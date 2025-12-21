@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', $user->name . ' - AnimeTalk'); ?>
 
 <?php $__env->startPush('styles'); ?>
@@ -382,8 +380,8 @@
                 <a href="<?php echo e(route('events.show', $event->slug)); ?>" style="text-decoration: none; color: inherit;">
                     <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; gap: 1.5rem; transition: all 0.3s;">
                         <div style="flex-shrink: 0; text-align: center; background: linear-gradient(135deg, #5BA3D0, #9B7EDE); color: white; border-radius: 12px; padding: 1rem; width: 80px;">
-                            <div style="font-size: 1.5rem; font-weight: 700;"><?php echo e($event->start_date->format('d')); ?></div>
-                            <div style="font-size: 0.875rem;"><?php echo e($event->start_date->format('M')); ?></div>
+                            <div style="font-size: 1.5rem; font-weight: 700;"><?php echo e(\Carbon\Carbon::parse($event->start_time)->format('d')); ?></div>
+                            <div style="font-size: 0.875rem;"><?php echo e(\Carbon\Carbon::parse($event->start_time)->format('M')); ?></div>
                         </div>
                         <div style="flex: 1;">
                             <h4 style="font-size: 1.1rem; font-weight: 700; color: #1c1c1c; margin-bottom: 0.5rem;"><?php echo e($event->title); ?></h4>

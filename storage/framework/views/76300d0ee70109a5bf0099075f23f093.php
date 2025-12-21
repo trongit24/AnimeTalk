@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Bạn bè - AnimeTalk'); ?>
 
 <?php $__env->startSection('content'); ?>
