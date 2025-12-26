@@ -187,5 +187,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
 });
 
+// Test Email Route (remove after testing)
+Route::get('/test-email', function () {
+    try {
+        \Illuminate\Support\Facades\Mail::raw('Đây là email test từ AnimeTalk!', function ($message) {
+            $message->to('trongbadboy9@gmail.com')
+                    ->subject('Test Email Configuration');
+        });
+        
+        return 'Email đã được gửi! Kiểm tra hộp thư của bạn.';
+    } catch (\Exception $e) {
+        return 'Lỗi: ' . $e->getMessage();
+    }
+})->middleware('auth');
+
 require __DIR__.'/auth.php';
 
