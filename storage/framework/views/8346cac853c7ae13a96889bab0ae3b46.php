@@ -175,7 +175,7 @@
                 
                 <?php if(auth()->guard()->check()): ?>
                     <?php if($post->user_id !== Auth::user()->uid): ?>
-                    <button class="fb-action-btn fb-report-btn" onclick="openReportModal(<?php echo e($post->id); ?>, '<?php echo e(addslashes($post->title)); ?>')" title="Báo cáo vi phạm">
+                    <button class="fb-action-btn fb-report-btn" onclick="openReportModal('<?php echo e($post->slug); ?>', '<?php echo e(addslashes($post->title)); ?>')" title="Báo cáo vi phạm">
                         <i class="bi bi-flag"></i>
                         <span>Báo cáo</span>
                     </button>
@@ -199,20 +199,30 @@
                                 <div class="fb-comment-bubble">
                                     <div class="fb-comment-author"><?php echo e($comment->user->name); ?></div>
                                     <div class="fb-comment-text" id="comment-text-<?php echo e($comment->id); ?>">
-                                        <?php
-                                            $content = $comment->content;
-                                            $isImageUrl = preg_match('/^https?:\/\/.*(giphy\.com|\.gif|\.jpg|\.jpeg|\.png|\.webp)/i', $content);
-                                        ?>
-                                        
-                                        <?php if($isImageUrl): ?>
-                                            <img src="<?php echo e($content); ?>" class="fb-comment-gif" alt="GIF">
-                                        <?php else: ?>
-                                            <?php echo e($content); ?>
-
+                                        <?php if($comment->image): ?>
+                                            <?php
+                                                // Check if image is external URL or local path
+                                                $isExternalImage = str_starts_with($comment->image, 'http://') || str_starts_with($comment->image, 'https://');
+                                                $imageUrl = $isExternalImage ? $comment->image : asset('storage/' . $comment->image);
+                                            ?>
+                                            <img src="<?php echo e($imageUrl); ?>" class="fb-comment-image" alt="Comment Image" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
                                         <?php endif; ?>
                                         
-                                        <?php if($comment->image): ?>
-                                            <img src="<?php echo e(asset('storage/' . $comment->image)); ?>" class="fb-comment-image" alt="Comment Image" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
+                                        <?php if(!$comment->image && $comment->content): ?>
+                                            <?php
+                                                $isImageUrl = preg_match('/^https?:\/\/.*(giphy\.com|\.gif|\.jpg|\.jpeg|\.png|\.webp)/i', $comment->content);
+                                            ?>
+                                            
+                                            <?php if($isImageUrl): ?>
+                                                <img src="<?php echo e($comment->content); ?>" class="fb-comment-gif" alt="GIF">
+                                            <?php else: ?>
+                                                <?php echo e($comment->content); ?>
+
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                        
+                                        <?php if($comment->image && $comment->content): ?>
+                                            <p style="margin-top: 8px;"><?php echo e($comment->content); ?></p>
                                         <?php endif; ?>
                                     </div>
                                     
@@ -1515,10 +1525,11 @@ if (commentForm) {
         
         const formData = new FormData(this);
         
-        // If GIF is selected, use GIF URL as content
+        // If GIF is selected, send as image_url parameter
         if (commentPreview.dataset.gifUrl) {
-            formData.set('content', commentPreview.dataset.gifUrl);
+            formData.set('image_url', commentPreview.dataset.gifUrl);
             formData.delete('image'); // Remove image file if exists
+            // Keep content if user typed something
         }
         
         // Submit via AJAX
@@ -1546,8 +1557,8 @@ if (commentForm) {
 }
 
 // Report Modal Functions
-function openReportModal(postId, postTitle) {
-    document.getElementById('reportPostId').value = postId;
+function openReportModal(postSlug, postTitle) {
+    document.getElementById('reportPostId').value = postSlug;
     document.getElementById('reportPostTitle').textContent = postTitle;
     document.getElementById('reportForm').reset();
     document.getElementById('otherReasonContainer').style.display = 'none';
@@ -1555,7 +1566,7 @@ function openReportModal(postId, postTitle) {
 }
 
 function submitReport() {
-    const postId = document.getElementById('reportPostId').value;
+    const postSlug = document.getElementById('reportPostId').value;
     const reasonSelect = document.getElementById('reportReason');
     let reason = reasonSelect.value;
     
@@ -1578,7 +1589,7 @@ function submitReport() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang gửi...';
     
-    fetch(`/posts/${postId}/report`, {
+    fetch(`/posts/${postSlug}/report`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

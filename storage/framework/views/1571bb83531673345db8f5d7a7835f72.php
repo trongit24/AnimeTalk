@@ -209,7 +209,16 @@
                                             <span style="font-weight: 600; font-size: 0.9rem; color: #333;"><?php echo e($comment->user->name); ?></span>
                                             <span style="font-size: 0.75rem; color: #999;"><?php echo e($comment->created_at->diffForHumans()); ?></span>
                                         </div>
-                                        <p style="margin: 0; color: #666; font-size: 0.95rem; line-height: 1.5;"><?php echo e($comment->content); ?></p>
+                                        <?php if($comment->image): ?>
+                                            <?php
+                                                $isExternalImage = str_starts_with($comment->image, 'http://') || str_starts_with($comment->image, 'https://');
+                                                $imageUrl = $isExternalImage ? $comment->image : asset('storage/' . $comment->image);
+                                            ?>
+                                            <img src="<?php echo e($imageUrl); ?>" alt="Comment Image" style="max-width: 100%; border-radius: 8px; margin-bottom: 8px;">
+                                        <?php endif; ?>
+                                        <?php if($comment->content): ?>
+                                            <p style="margin: 0; color: #666; font-size: 0.95rem; line-height: 1.5;"><?php echo e($comment->content); ?></p>
+                                        <?php endif; ?>
                                     </div>
                                     <?php if(auth()->check() && auth()->user()->uid === $comment->user_id): ?>
                                     <form method="POST" action="<?php echo e(route('comments.destroy', $comment)); ?>" style="margin: 0;">
@@ -783,7 +792,24 @@ function addComment(postId, modelType) {
     
     console.log('Comment content:', content);
     
+    // Check if content is a GIF URL
+    const isGifUrl = content && (content.startsWith('http://') || content.startsWith('https://')) && 
+                     (content.includes('giphy.com') || content.match(/\.gif(\?.*)?$/i));
+    
     if (!content) return;
+    
+    const requestData = {
+        post_id: postId,
+        model_type: modelType
+    };
+    
+    // If it's a GIF URL, send as image_url, otherwise as content
+    if (isGifUrl) {
+        requestData.image_url = content;
+        requestData.content = ''; // Empty content is allowed when image_url exists
+    } else {
+        requestData.content = content;
+    }
     
     fetch('/posts/add-comment', {
         method: 'POST',
@@ -791,11 +817,7 @@ function addComment(postId, modelType) {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({
-            post_id: postId,
-            model_type: modelType,
-            content: content
-        })
+        body: JSON.stringify(requestData)
     })
     .then(response => {
         console.log('Response status:', response.status);

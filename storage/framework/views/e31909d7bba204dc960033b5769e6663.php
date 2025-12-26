@@ -753,7 +753,7 @@ if (searchInput) {
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
-    }, 3000);
+    },    );
 
     // Mark messages as read
     if (lastMessageId > 0) {
